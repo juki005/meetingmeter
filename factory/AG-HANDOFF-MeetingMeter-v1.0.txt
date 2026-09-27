@@ -1,0 +1,272 @@
+# AG-HANDOFF — MeetingMeter v1.0
+
+## 1. Handoff Identity
+
+**Project:** MeetingMeter
+
+**Lifecycle:** TECHNICAL_DEFINITION → AG_HANDOFF
+
+### Canonical Product Input
+
+`PRODUCT-SPEC-MeetingMeter-v1.0.txt`
+
+- Version: 1.0
+- Status: APPROVED
+- Authority: Product
+- Functional/product requirements authority
+
+### Canonical Design Input
+
+`DESIGN-SPEC-MeetingMeter-v1.0.txt`
+
+- Version: 1.0
+- Status: APPROVED
+- Authority: Design
+- Textual design-intent authority
+
+### Design Handoff
+
+`DESIGN-HANDOFF-MeetingMeter-v1.0.txt`
+
+- Version: 1.0
+- Status: READY_FOR_TECHNICAL_DEFINITION
+- Source: DESIGN
+- Receiving role: TECH / AG
+
+---
+
+# 2. Stitch / Figma Implementation Artifact
+
+The current implementation visual baseline is the Stitch-generated design exported to Figma:
+
+**Figma file:** `MettingMetter-Stitch`
+
+**Figma file key:** `cADavUHVEaBO1avbVxNRz6`
+
+**Node:** `0:1`
+
+**Figma URL:**  
+`https://www.figma.com/design/cADavUHVEaBO1avbVxNRz6/MettingMetter-Stitch?node-id=0-1&p=f&t=DyXz9MF2HFJnBF92-0`
+
+This exact artifact must be used for Stitch MCP verification.
+
+The previously referenced Figma artifact:
+
+`MeetingMeter — DESIGN` / `rs3UKR6fkIVuzDKmZz3i1q`
+
+is not the implementation visual reference for this handoff.
+
+The project-state record should subsequently be updated so its supporting visual artifact reference matches the current approved implementation baseline. This does not change the approved Product Spec.
+
+---
+
+# 3. MANDATORY STITCH MCP VERIFICATION
+
+Before implementation begins, Antigravity MUST:
+
+### V-01 — Connect
+
+Connect to the Stitch MCP.
+
+### V-02 — Identify
+
+Confirm that the connected Stitch project corresponds to:
+
+`MettingMetter-Stitch`
+
+and the exported Figma artifact:
+
+`cADavUHVEaBO1avbVxNRz6`
+
+### V-03 — Retrieve
+
+Retrieve the actual Stitch design context / Design DNA.
+
+### V-04 — Compare
+
+Compare the retrieved design against:
+
+`DESIGN-SPEC v1.0`
+
+and the approved Product baseline.
+
+### V-05 — Use
+
+Use the retrieved design context as the implementation planning source for visual details.
+
+### V-06 — Report
+
+Explicitly report:
+
+- verification result;
+- retrieved artifact identity;
+- retrieved design context availability;
+- material discrepancies;
+- missing design information;
+- any required review.
+
+### V-07 — Gate
+
+Do not begin implementation if a material discrepancy cannot be safely resolved within the approved requirements.
+
+A visual discrepancy must not be silently converted into a Product decision.
+
+---
+
+# 4. Product Constraints
+
+The implementation must preserve:
+
+- organizer-owned meetings;
+- authenticated access;
+- private history;
+- internal people;
+- Guests;
+- known and unknown Guest cost;
+- explicit Start;
+- participant ACTIVE/PAUSED/LEFT behavior;
+- Resume;
+- live elapsed time;
+- live individual cost;
+- live total estimated cost;
+- explicit End;
+- stable final result;
+- receipt;
+- history;
+- PDF/Image/CSV export;
+- estimate framing.
+
+Unknown cost is **not zero**.
+
+MeetingMeter is **not** an accounting, payroll, billing, or payment system.
+
+---
+
+# 5. Technical Implementation Baseline
+
+Use:
+
+- server-authoritative timestamps;
+- interval-based participation measurement;
+- meeting-level rate snapshots;
+- explicit persisted state transitions;
+- server-side authorization;
+- stable finalized meeting records;
+- export generation from finalized result data.
+
+Do not use client-side counters as the authoritative financial calculation.
+
+---
+
+# 6. Required Implementation Sequence
+
+1. Stitch verification
+2. Application foundation
+3. Authentication
+4. Profile
+5. People / Guests
+6. Meeting configuration
+7. Measurement engine
+8. Live Meter
+9. Final result
+10. History
+11. Exports
+12. Responsive/accessibility implementation
+13. Technical QA
+14. Browser verification
+15. AG completion report
+
+---
+
+# 7. Technical QA Gate
+
+Antigravity must verify:
+
+- authentication;
+- authorization;
+- profile;
+- people;
+- Guests;
+- known rate;
+- unknown rate;
+- meeting configuration;
+- Select All;
+- Start;
+- ACTIVE;
+- Pause;
+- Resume;
+- Leave;
+- independent participant timing;
+- live elapsed time;
+- live individual cost;
+- live total;
+- End;
+- final immutability;
+- history;
+- privacy;
+- PDF;
+- Image;
+- CSV;
+- responsive behavior;
+- accessibility;
+- duplicate/invalid transitions;
+- refresh/reconnect behavior.
+
+---
+
+# 8. Completion Reporting
+
+Antigravity must report separately:
+
+### DESIGN VERIFICATION
+
+`PASS | REVIEW REQUIRED | BLOCKED`
+
+### TECHNICAL IMPLEMENTATION
+
+`PASS | BLOCKED`
+
+### TECHNICAL QA
+
+`PASS | BLOCKED`
+
+### APPROVAL
+
+Not implied by any of the above.
+
+Technical PASS means verification succeeded.
+
+Product/Design approval remains governed by the Factory approval gates.
+
+---
+
+# 9. Do Not Do
+
+Antigravity must not:
+
+- start implementation before Stitch verification;
+- invent missing visual details;
+- infer product functionality from a visual element;
+- convert unknown cost into zero;
+- allow browser time to become financial source of truth;
+- expose another user's private meetings;
+- mutate finalized meeting results because profile data changed;
+- silently change Product requirements;
+- silently change approved Design requirements;
+- mark APPROVED merely because implementation passes QA.
+
+---
+
+# 10. Handoff Status
+
+**TECHNICAL DEFINITION:** COMPLETE FOR HANDOFF
+
+**IMPLEMENTATION:** NOT STARTED
+
+**STITCH VERIFICATION:** REQUIRED IN ANTIGRAVITY
+
+**IMPLEMENTATION GATE:** CLOSED UNTIL STITCH VERIFICATION SUCCEEDS
+
+**NEXT ACTOR:** ANTIGRAVITY
+
+**NEXT REQUIRED ACTION:** Retrieve and verify actual Stitch design context / Design DNA against the approved Product and Design baselines, then proceed to implementation only if the verification gate passes.

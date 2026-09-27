@@ -1,0 +1,450 @@
+AI SOFTWARE FACTORY
+QA REPORT
+
+Artifact ID: QA-REPORT
+Project: MeetingMeter
+Version: 1.0
+Status: READY_FOR_REVIEW
+Owner: QA
+Lifecycle State: QA_REVIEW
+Review Date: 2026-09-27
+
+==================================================
+1. QA CONCLUSION
+==================================================
+
+RESULT: REVIEW_REQUIRED
+
+QA has completed the independent document/evidence review of the
+MeetingMeter v1.0 implementation package.
+
+QA does NOT grant Product Acceptance.
+Product Acceptance remains a separate Product Lead gate.
+
+The available evidence is sufficient to support that substantial
+technical and functional verification was performed, but it is not
+sufficient to approve QA for the following material reasons:
+
+1. The design-conformance evidence is based on the Stitch artifact
+   identified as "MettingMetter-Stitch" with Figma key
+   cADavUHVEaBO1avbVxNRz6 and describes a dark "Tactical FinTech HUD"
+   visual system. The approved DESIGN-SPEC v1.0 identifies the Figma
+   file with key rs3UKR6fkIVuzDKmZz3i1q as the canonical visual artifact
+   and specifies a light visual system. The QA-EXECUTION evidence does
+   not demonstrate conformance to the approved canonical visual source.
+
+2. Browser evidence is limited to Chromium headless and one mobile
+   viewport (375x667), with desktop reported at 1280x720. The approved
+   Design Spec requires desktop, tablet and mobile behavior. No tablet
+   execution evidence is supplied, and no second browser engine is
+   evidenced.
+
+3. The QA-EXECUTION report records aggregate PASS claims and test
+   summaries, but does not include the underlying browser screenshots,
+   traces, raw test output, build artifact identifiers, or other
+   independently inspectable evidence needed to verify the important
+   visual, responsive, accessibility and browser claims.
+
+4. The QA-EXECUTION report references PROJECT-STATE v1.4 while the
+   canonical project state under review is v1.5. This does not by itself
+   invalidate the execution result, but version alignment should be
+   explicitly confirmed before QA approval.
+
+Therefore QA cannot truthfully classify the complete acceptance/design
+review as VERIFIED or approve QA-REPORT at this point.
+
+==================================================
+2. REVIEW BASIS
+==================================================
+
+Reviewed canonical project artifacts:
+
+- PROJECT-STATE.txt v1.5
+- PRODUCT-SPEC-MeetingMeter-v1.0.txt v1.0 APPROVED
+- DESIGN-SPEC-MeetingMeter-v1.0.txt v1.0 APPROVED
+- TECH-SPEC-MeetingMeter-v1.0.txt v1.0
+- QA-EXECUTION-MeetingMeter-v1.0.txt v1.0 COMPLETE / PASS
+- acceptance criteria AC-01 through AC-22 in PRODUCT-SPEC v1.0
+
+Governance distinction preserved:
+
+QA-EXECUTION EXECUTION_RESULT = PASS
+is execution evidence only.
+
+It is not equivalent to:
+QA-REPORT = APPROVED
+or:
+PRODUCT-ACCEPTANCE = APPROVED.
+
+==================================================
+3. ACCEPTANCE-CRITERIA REVIEW
+==================================================
+
+Classification meanings:
+
+VERIFIED
+= Evidence directly supports the requirement sufficiently for this QA
+  review.
+
+PARTIALLY VERIFIED
+= Evidence supports the requirement, but an important part of the
+  required verification is missing or only asserted.
+
+NOT VERIFIED
+= The available evidence does not establish that the requirement is
+  satisfied.
+
+DEFECT
+= Evidence establishes behavior contrary to an approved requirement.
+
+BLOCKED
+= QA cannot safely complete the assessment because required evidence,
+  dependency or decision is missing.
+
+AC-01 ACCOUNT — PARTIALLY VERIFIED
+Evidence reports registration, JWT generation, password hashing and
+profile retrieval, and the browser test creates an account. Raw
+execution evidence is not supplied.
+
+AC-02 PERSONAL PROFILE — PARTIALLY VERIFIED
+Vitest and Playwright report name, title and hourly-rate handling.
+Underlying browser evidence is not supplied.
+
+AC-03 PEOPLE — PARTIALLY VERIFIED
+People management and roster selection are reported as tested. The
+specific Select Existing Person flow is not independently inspectable
+from the supplied evidence.
+
+AC-04 GUEST — PARTIALLY VERIFIED
+Guest creation without a MeetingMeter account is reported as tested.
+No raw browser/API evidence is supplied.
+
+AC-05 GUEST COST — PARTIALLY VERIFIED
+Known Guest rate persistence is reported as tested. Evidence is an
+execution summary rather than independently inspectable output.
+
+AC-06 UNKNOWN GUEST COST — VERIFIED
+The execution report explicitly records rate_known=false and
+hourly_rate=null, distinguishes unknown from zero, and reports the
+unknown-cost behavior in the calculation model and E2E flow.
+
+AC-07 SELECT ALL — NOT VERIFIED
+The QA-EXECUTION report does not identify a specific Select All test
+or result. The requirement therefore lacks credible direct evidence.
+
+AC-08 START — VERIFIED
+The execution report explicitly verifies configured state, explicit
+Start, transition to LIVE, and beginning of active measurement.
+
+AC-09 INDIVIDUAL TRACKING — VERIFIED
+The interval model and integration test explicitly verify independent
+participant measurement and interval handling.
+
+AC-10 PAUSE — VERIFIED
+The execution report explicitly verifies Pause closes the active
+interval and stops cost accumulation while retaining participation.
+
+AC-11 RESUME — VERIFIED
+The execution report explicitly verifies Resume opens a new interval
+and continues measurement.
+
+AC-12 LEAVE — VERIFIED
+The execution report explicitly verifies Leave closes measurement
+permanently for the participant.
+
+AC-13 LIVE COST — PARTIALLY VERIFIED
+The report verifies the server-authoritative interval calculation and
+live ticker, but the supplied evidence does not independently expose
+raw timing/cost reconciliation or browser trace evidence.
+
+AC-14 END — VERIFIED
+Explicit End, interval closure and ENDED state are reported as tested.
+
+AC-15 FINAL RESULT — VERIFIED
+Final estimated cost generation is explicitly reported and tied to the
+server-side calculation model.
+
+AC-16 FINAL RESULT STABILITY — VERIFIED
+The execution report explicitly verifies final-result immutability and
+that completed meetings do not drift or continue accumulating.
+
+AC-17 RECEIPT — PARTIALLY VERIFIED
+Receipt structure and display are reported as tested, but the required
+minimum receipt fields cannot be independently checked from supplied
+visual evidence.
+
+AC-18 EXPORT — PARTIALLY VERIFIED
+PDF, Image and CSV generation are reported. CSV has direct test
+coverage; PDF/Image are described as passing but no generated-file or
+visual-output evidence is supplied.
+
+AC-19 HISTORY — VERIFIED
+Private history recording is explicitly reported in the E2E flow and
+technical verification.
+
+AC-20 PRIVACY — VERIFIED
+Server-side cross-user authorization is explicitly tested in Vitest,
+including inability for User B to view, start, end or list User A's
+resources.
+
+AC-21 ESTIMATE FRAMING — PARTIALLY VERIFIED
+The report states that the receipt and CSV contain estimate framing.
+Visual evidence of all relevant surfaces is not supplied.
+
+AC-22 TONE — PARTIALLY VERIFIED
+The execution report states that the final receipt includes a
+satirical tone quote. The approved Design Spec requires a cool, light,
+mildly humorous tone without reduced functional clarity; canonical
+visual conformance is not sufficiently evidenced.
+
+==================================================
+4. DESIGN CONFORMANCE
+==================================================
+
+RESULT: REVIEW_REQUIRED
+
+The approved DESIGN-SPEC v1.0 states that the Figma file with key
+rs3UKR6fkIVuzDKmZz3i1q is the canonical visual design artifact and
+that the Stitch artifact is reference/inspiration only.
+
+The QA-EXECUTION report instead records design verification against:
+"MettingMetter-Stitch", Figma key cADavUHVEaBO1avbVxNRz6, node 0:1,
+with a dark Tactical FinTech HUD visual system.
+
+This evidence does not establish conformance to the approved canonical
+Design Spec. In particular, the reported dark slate canvas conflicts
+with the approved Design Spec's light background token #F5F7FA.
+
+Classification:
+
+DESIGN CONFORMANCE — NOT VERIFIED
+
+This is currently an EVIDENCE / VERIFICATION ISSUE, not a confirmed
+implementation defect, because the supplied QA-EXECUTION report does
+not provide the actual implementation screenshots needed to prove what
+was rendered.
+
+ROUTE:
+TECHNICAL_QA / corrected visual evidence.
+
+If corrected evidence demonstrates that the implementation actually
+uses the non-approved dark visual system, the confirmed implementation
+mismatch should then route to IMPLEMENTATION against the approved
+DESIGN-SPEC.
+
+Other design areas:
+- responsive behavior: PARTIALLY VERIFIED;
+- accessibility: PARTIALLY VERIFIED;
+- interaction states: PARTIALLY VERIFIED;
+- receipt/export visual conformity: PARTIALLY VERIFIED;
+- typography/tokens: NOT VERIFIED against the canonical Figma source.
+
+==================================================
+5. TECHNICAL IMPLEMENTATION CONFORMANCE
+==================================================
+
+RESULT: PARTIALLY VERIFIED
+
+The technical execution evidence is strong at the summary level and
+reports passing verification for:
+
+- authentication and authorization;
+- profile persistence;
+- people and Guest handling;
+- known/unknown rate semantics;
+- server-authoritative interval measurement;
+- participant state transitions;
+- rate snapshots and historical stability;
+- privacy boundaries;
+- CSV schema;
+- browser lifecycle flow.
+
+However, independent QA cannot inspect the underlying implementation
+or raw execution artifacts from the supplied QA-EXECUTION document.
+Therefore the technical claims are accepted as evidence of performed
+execution, but not treated as complete independent proof for every
+technical requirement.
+
+The technical requirement concerning real-time transport is also not
+fully evidenced: TECH-SPEC requires the chosen real-time mechanism to
+be documented in the final technical implementation record. The
+QA-EXECUTION report confirms live behavior but does not document the
+selected transport mechanism.
+
+Classification:
+TECHNICAL IMPLEMENTATION — PARTIALLY VERIFIED
+
+No confirmed technical implementation DEFECT is established by the
+available evidence.
+
+==================================================
+6. QA-EXECUTION EVIDENCE SUFFICIENCY
+==================================================
+
+RESULT: PARTIALLY VERIFIED / REVIEW_REQUIRED
+
+Positive evidence:
+- artifact status COMPLETE;
+- execution result PASS;
+- Vitest: 1 suite / 7 tests passed;
+- Playwright: 2 tests passed;
+- zero reported failed tests;
+- zero reported known regressions;
+- zero reported open blockers;
+- implementation phases reported complete.
+
+Evidence gaps:
+- no raw Vitest output;
+- no raw Playwright output;
+- no browser screenshots/traces attached to the report;
+- no build identifier or reproducible build evidence;
+- no generated PDF/Image export artifacts for inspection;
+- no tablet execution evidence;
+- no second browser-engine evidence;
+- no explicit evidence for Select All;
+- no direct evidence of all required receipt fields;
+- no independently inspectable evidence against the canonical Figma
+  visual source;
+- no explicit record of the selected real-time transport mechanism;
+- QA-EXECUTION references PROJECT-STATE v1.4 while the current state
+  is v1.5.
+
+==================================================
+7. BROWSER / RESPONSIVE COVERAGE
+==================================================
+
+RESULT: PARTIALLY VERIFIED
+
+Reported:
+- Chromium headless;
+- desktop 1280x720;
+- mobile 375x667.
+
+Required by approved Design Spec:
+- desktop;
+- tablet;
+- mobile.
+
+Missing:
+- tablet evidence;
+- broader browser-engine coverage;
+- inspectable screenshots/traces demonstrating the approved visual
+  system and responsive behavior.
+
+Classification:
+EVIDENCE GAP
+
+ROUTE:
+TECHNICAL_QA
+
+==================================================
+8. DEFECT / REGRESSION ASSESSMENT
+==================================================
+
+Confirmed implementation defects from the available evidence:
+NONE CONFIRMED.
+
+Confirmed regressions:
+NONE REPORTED.
+
+Potential material issue requiring verification:
+CANONICAL DESIGN CONFORMANCE / VISUAL EVIDENCE MISMATCH.
+
+This must not be silently treated as either a product change or a
+confirmed implementation defect until the canonical Figma-based visual
+implementation is inspected.
+
+==================================================
+9. FAILURE ROUTING
+==================================================
+
+1. Canonical visual evidence gap
+   Classification: insufficient evidence
+   Route: TECHNICAL_QA
+   Required action: provide visual/browser evidence against the
+   approved DESIGN-SPEC v1.0 and canonical Figma artifact.
+
+2. Missing tablet verification
+   Classification: insufficient evidence
+   Route: TECHNICAL_QA
+   Required action: execute and record tablet responsive verification.
+
+3. Missing Select All evidence
+   Classification: insufficient acceptance coverage
+   Route: TECHNICAL_QA
+   Required action: execute and record AC-07 specifically.
+
+4. Missing raw/inspectable export evidence
+   Classification: insufficient evidence
+   Route: TECHNICAL_QA
+   Required action: provide representative PDF, Image and CSV outputs
+   and verify them against AC-17/AC-18.
+
+5. If canonical Figma inspection confirms the implementation is
+   materially different from approved DESIGN-SPEC
+   Classification: implementation defect
+   Route: IMPLEMENTATION
+
+6. If the discrepancy is actually an approved design ambiguity or
+   canonical design conflict, route to DESIGN rather than patching
+   implementation.
+
+==================================================
+10. REGRESSION REVIEW
+==================================================
+
+Reported regression result: PASS / zero known regressions.
+
+Independent QA conclusion: PARTIALLY VERIFIED.
+
+The reported test suite covers important lifecycle edge cases,
+including duplicate Start/Pause/Resume/Leave/End behavior. However,
+without raw execution artifacts and broader browser evidence, QA does
+not have sufficient independent evidence to close regression risk for
+all approved surfaces.
+
+==================================================
+11. REQUIRED CORRECTIVE EVIDENCE
+==================================================
+
+Before QA-REPORT can become APPROVED, the following should be added to
+QA-EXECUTION or a linked execution-evidence artifact:
+
+1. Browser screenshots or trace evidence for the canonical Figma-based
+   visual implementation.
+2. Explicit AC-07 Select All verification.
+3. Tablet responsive verification.
+4. Representative PDF, Image and CSV outputs.
+5. Evidence that the final receipt contains all required minimum fields.
+6. Explicit documentation of the selected real-time transport and its
+   reconciliation behavior.
+7. Version alignment confirmation between QA-EXECUTION and the current
+   PROJECT-STATE.
+8. Raw or otherwise inspectable test/build evidence sufficient to
+   reproduce or independently assess the reported PASS results.
+
+==================================================
+12. FINAL QA DECISION
+==================================================
+
+REVIEW_REQUIRED
+
+QA does not approve QA-REPORT at this stage.
+
+The project remains in:
+
+QA_REVIEW / ACTIVE
+
+Next valid action:
+
+TECHNICAL_QA → corrected execution/evidence package → QA_REVIEW
+
+No Product Lead action is required for this evidence correction unless
+an actual product/design decision or approved scope change is exposed.
+
+Product Acceptance has NOT been performed and remains a separate human
+Product Lead gate.
+
+==================================================
+END OF QA-REPORT-MeetingMeter-v1.0
+==================================================

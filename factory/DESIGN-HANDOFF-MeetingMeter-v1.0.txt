@@ -1,0 +1,90 @@
+AI SOFTWARE FACTORY
+DESIGN HANDOFF PACKAGE
+
+Artifact ID: DESIGN-HANDOFF
+Project: MeetingMeter
+Version: 1.0
+Status: READY_FOR_TECHNICAL_DEFINITION
+Source: DESIGN
+Receiving: TECH / AG
+
+1. HANDOFF STATUS
+DESIGN_APPROVAL = APPROVED.
+No design changes are requested.
+Next valid lifecycle state: TECHNICAL_DEFINITION.
+
+2. CANONICAL INPUTS
+PRODUCT-SPEC v1.0 = APPROVED.
+DESIGN-SPEC v1.0 = APPROVED.
+Figma: MeetingMeter — DESIGN
+File key: rs3UKR6fkIVuzDKmZz3i1q
+URL: https://www.figma.com/design/rs3UKR6fkIVuzDKmZz3i1q
+
+The Figma file is the editable/canonical visual design artifact and
+must be consumed together with DESIGN-SPEC v1.0.
+
+3. IMPLEMENTATION BASELINE
+Consume the approved information architecture, core flow,
+participant lifecycle, visual hierarchy, tokens, components, states,
+responsive rules, accessibility requirements, and receipt requirements
+defined in DESIGN-SPEC v1.0.
+
+4. REQUIRED COMPONENTS
+AppShell; Navigation; PageHeader; PrimaryButton; SecondaryButton;
+DestructiveButton; Checkbox; ParticipantRow; ParticipantStatus;
+CostDisplay; ElapsedTime; MeetingCard; PeopleList; GuestIndicator;
+UnknownCostIndicator; ConfirmationDialog; Toast/StatusMessage;
+ExportActions; ReceiptSummary.
+
+5. REQUIRED STATES
+Global: default, hover, focus, active, selected, disabled, loading,
+empty, error, success, validation.
+Participant: ACTIVE, PAUSED, RESUMED, LEFT, unknown cost where applicable.
+Meeting: configured/not started, live, ended/final.
+PAUSED and LEFT must remain distinct.
+
+6. RESPONSIVE
+Desktop, tablet and mobile behavior is defined in DESIGN-SPEC.
+Approved Figma mobile baseline includes Live Meter and Home.
+
+7. ACCESSIBILITY
+Implement contrast, keyboard focus, semantic headings, accessible
+labels/statuses, non-color-only state indication, usable touch targets,
+dialog focus management, keyboard operation, and reduced-motion
+consideration.
+
+8. NON-BLOCKING OPEN ITEMS
+People/Profile/History exact composition; known Guest-rate presentation;
+receipt-field completeness; tablet composition; optional native Figma
+Variables; micro-interactions within approved behavior.
+
+These are not blockers and are not product changes.
+
+9. REFERENCE BOUNDARY
+“MettingMetter-Stitch” is inspiration only. Its additional concepts
+must not become requirements merely because they appear in that file.
+
+10. TECH / AG NEXT ACTIONS
+- validate PRODUCT-SPEC and DESIGN-SPEC together;
+- inspect the editable Figma artifact;
+- define architecture/data model/API contracts as needed;
+- identify technical dependencies and risks;
+- translate acceptance criteria into implementation requirements;
+- produce TECH-SPEC;
+- produce IMPLEMENTATION-PLAN;
+- prepare AG-HANDOFF.
+
+11. TRACEABILITY
+Upstream: PRODUCT-SPEC v1.0, DESIGN-SPEC v1.0, Product Lead DESIGN_APPROVAL.
+Supporting: MeetingMeter — DESIGN Figma artifact.
+Downstream: TECH-SPEC, IMPLEMENTATION-PLAN, AG-HANDOFF.
+
+12. CONCLUSION
+DESIGN handoff is complete.
+PRODUCT-SPEC = APPROVED.
+DESIGN-SPEC = APPROVED.
+Figma visual artifact = canonical/editable baseline.
+Next valid state = TECHNICAL_DEFINITION.
+No additional Product Lead action is required for this transition.
+
+END OF DESIGN HANDOFF PACKAGE

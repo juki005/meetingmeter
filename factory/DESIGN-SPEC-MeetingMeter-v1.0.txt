@@ -1,0 +1,160 @@
+AI SOFTWARE FACTORY
+DESIGN SPECIFICATION
+
+Artifact ID: DESIGN-SPEC
+Project: MeetingMeter
+Version: 1.0
+Status: APPROVED
+Owner: DESIGN
+Approval Authority: Product Lead
+Approval Decision: APPROVED
+Upstream: PRODUCT-SPEC v1.0 — APPROVED
+Downstream: TECH / AG
+
+1. PURPOSE
+This DESIGN-SPEC defines the approved UX, information architecture, visual direction, components, interaction states, responsive behavior, accessibility requirements, and implementation-facing design constraints for MeetingMeter.
+
+2. PRODUCT BASELINE
+PRODUCT-SPEC v1.0 remains unchanged and is the canonical product requirements baseline. This DESIGN-SPEC does not introduce product functionality.
+
+The approved baseline includes: account/login; personal profile (name, job title, hourly rate); internal people; Guests; known Guest rate; explicitly unknown Guest cost; meeting creation and roster configuration; individual selection; Select All; explicit Start; individual measurement; ACTIVE/PAUSED/RESUMED/LEFT; live elapsed time; individual and total estimated cost; explicit End; stable final result; receipt; private history; PDF/Image/CSV export; estimate framing; cool/light/mildly humorous tone.
+
+3. INFORMATION ARCHITECTURE
+Primary areas:
+- Home
+- People
+- Meetings / History
+- Profile
+- Active Meeting
+
+Core flow:
+CONFIGURE -> START -> LIVE METER -> END -> FINAL RESULT / RECEIPT -> HISTORY
+
+Participant lifecycle:
+ACTIVE <-> PAUSED
+ACTIVE -> LEFT
+RESUME returns PAUSED to active measurement.
+LEAVE ends measurement for that participant.
+
+4. CORE SURFACES
+HOME: primary entry, active/recent meeting context, navigation.
+MEETING CONFIGURATION: meeting setup, roster, individual selection, Select All, Guest handling, explicit Start.
+LIVE METER: meeting context, prominent real-time estimated total cost, elapsed time, participant manifest, participant states/actions, known cost and unknown-cost treatment, explicit End.
+FINAL RESULT / RECEIPT: meeting, creator, date/time, duration, participants, measured participation times, relevant cost information, final estimated cost, estimate framing, PDF/Image/CSV export.
+PEOPLE: organizer-managed internal people and Guests.
+PROFILE: name, job title, hourly rate.
+HISTORY / MEETINGS: creator-owned completed meetings and results, private access.
+
+5. VISUAL DIRECTION
+Cool, light, restrained, mildly humorous, high numerical clarity, clean hierarchy, low visual noise.
+
+Primary hierarchy:
+1) meeting context/state
+2) estimated cost
+3) elapsed time and participant state
+4) primary actions
+5) supporting metadata/actions
+
+The estimated cost remains prominent and clearly framed as an estimate.
+
+6. TOKENS
+Colors:
+background #F5F7FA
+surface #FFFFFF
+surface.subtle #F8FAFD
+text.primary #172033
+text.secondary #687386
+border #DCE2EA
+primary #2F6FED
+primary.subtle #EEF3FF
+success #138A62
+warning #B97812
+error #D64545
+
+Spacing: 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64
+Radii: 6 / 10 / 14 / 18
+Typography: 42 / 28 / 22 / 18 / 16 / 14 / 12
+
+Figma is the visual source of truth for application of these values.
+
+7. COMPONENTS
+AppShell; Navigation; PageHeader; PrimaryButton; SecondaryButton;
+DestructiveButton; Checkbox; ParticipantRow; ParticipantStatus;
+CostDisplay; ElapsedTime; MeetingCard; PeopleList; GuestIndicator;
+UnknownCostIndicator; ConfirmationDialog; Toast/StatusMessage;
+ExportActions; ReceiptSummary.
+
+Figma component baseline includes:
+- Button / Primary
+- Button / Secondary
+- Button / Secondary / End
+- Participant Row / Active
+- Participant Row / Paused
+- Participant Row / Left
+- Participant Row / Unknown Cost
+
+8. STATES
+Global: default, hover, focus, active, selected, disabled, loading,
+empty, error, success, validation.
+
+Participant:
+ACTIVE = measurement running.
+PAUSED = measurement stopped, participant remains in meeting.
+RESUMED = measurement continues.
+LEFT = measurement ended for that participant.
+
+Unknown Guest cost must be visibly distinct from zero.
+
+Meeting:
+CONFIGURED = not measuring.
+STARTED/LIVE = measurement according to participant states.
+ENDED = measurement stopped and final result stable.
+
+9. RESPONSIVE
+Desktop: persistent/collapsible navigation as appropriate; multi-column layouts where useful; live cost and participant manifest remain coherent.
+Tablet: navigation may collapse; no horizontal scrolling; preserve cost/action hierarchy.
+Mobile: single-column; compact navigation; prominent cost; actionable participant rows; stacked secondary information; accessible touch targets.
+
+Approved Figma mobile baseline includes Live Meter and Home mobile contexts.
+
+10. ACCESSIBILITY
+Sufficient contrast; visible keyboard focus; semantic headings; accessible control labels; accessible status communication where relevant; states not conveyed by color alone; usable touch targets; dialog focus management; keyboard support; reduced-motion consideration.
+
+11. TONE / ESTIMATE FRAMING
+Cost is always presented as an estimate, not accounting/payroll/billing/payment. Humor is secondary to clarity and must not target individual participants.
+
+12. CANONICAL VISUAL ARTIFACT
+Name: MeetingMeter — DESIGN
+Figma file key: rs3UKR6fkIVuzDKmZz3i1q
+URL: https://www.figma.com/design/rs3UKR6fkIVuzDKmZz3i1q
+
+The Figma file is the editable/canonical visual design artifact. DESIGN-SPEC remains the canonical textual design intent.
+
+The previously reviewed “MettingMetter-Stitch” artifact is reference/inspiration only and is not a requirements source.
+
+13. NON-BLOCKING OPEN ITEMS
+OI-01 People screen exact composition may be implemented consistently with the approved visual system.
+OI-02 Profile screen exact form composition may be implemented consistently with approved fields and visual system.
+OI-03 History list/detail composition may follow the approved visual system.
+OI-04 Known Guest-rate presentation must preserve the approved Guest model.
+OI-05 Final result implementation must include all minimum receipt fields required by PRODUCT-SPEC.
+OI-06 Tablet composition follows the responsive rules above.
+OI-07 Native Figma Variables are not required for this approval.
+OI-08 Micro-interactions may be implemented within the approved behavior and accessibility constraints.
+
+These are implementation details only. They do not reopen approval or alter product requirements.
+
+14. IMPLEMENTATION CONSTRAINTS
+TECH / AG must preserve approved product behavior, visual hierarchy,
+participant states, explicit Start/End behavior, unknown-cost semantics,
+estimate framing, privacy, exports, responsive rules, and accessibility.
+
+TECH / AG must not infer new functionality from visual references. Material ambiguity must be routed to the appropriate role.
+
+15. APPROVAL RECORD
+Gate: DESIGN_APPROVAL
+Decision: APPROVED
+Approver: Product Lead
+Next lifecycle state: TECHNICAL_DEFINITION
+
+END OF DESIGN-SPEC v1.0

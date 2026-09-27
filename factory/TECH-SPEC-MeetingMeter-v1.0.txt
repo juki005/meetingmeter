@@ -1,0 +1,599 @@
+# TECH-SPEC — MeetingMeter v1.0
+
+## 1. Artifact Identity
+
+- Artifact: TECH-SPEC
+- Project: MeetingMeter
+- Lifecycle state: TECHNICAL_DEFINITION
+- Source Product: PRODUCT-SPEC v1.0 — APPROVED
+- Source Design: DESIGN-SPEC v1.0 — APPROVED
+- Source Handoff: DESIGN-HANDOFF v1.0 — READY_FOR_TECHNICAL_DEFINITION
+- Technical owner: TECH / AG
+
+### Visual implementation reference
+
+The current implementation-time visual baseline is:
+
+- Figma file name: `MettingMetter-Stitch`
+- Figma file key: `cADavUHVEaBO1avbVxNRz6`
+- Node: `0:1`
+- Figma URL: `https://www.figma.com/design/cADavUHVEaBO1avbVxNRz6/MettingMetter-Stitch?node-id=0-1`
+
+The Figma/Stitch visual artifact does **not** override PRODUCT-SPEC v1.0.
+
+`PRODUCT-SPEC` remains the functional/product authority.
+
+`DESIGN-SPEC` remains the approved textual design-intent authority.
+
+The Stitch/Figma artifact is the implementation-time visual reference and must be verified by Antigravity before implementation.
+
+---
+
+# 2. Technical Objective
+
+Implement MeetingMeter as an authenticated application in which a meeting organizer can:
+
+1. configure a meeting;
+2. select people and Guests to measure;
+3. explicitly start measurement;
+4. observe elapsed time and estimated cost in real time;
+5. pause, resume, or mark participants as left;
+6. explicitly end the meeting;
+7. obtain an immutable final result;
+8. retain the result in private history;
+9. export the result as PDF, Image, and CSV.
+
+The implementation must preserve the approved semantics:
+
+- measurement begins only after explicit Start;
+- participant measurement is independent;
+- PAUSED stops measurement but keeps the participant in the meeting;
+- LEFT ends measurement for that participant;
+- unknown cost is not zero;
+- only known cost contributes to the calculated estimated total;
+- completed meetings do not continue accumulating;
+- final results are stable;
+- meeting/history data is private to the owner unless future approved authorization rules explicitly change this;
+- cost is always presented as an estimate, not accounting/payroll/billing/payment data.
+
+---
+
+# 3. Proposed Architecture
+
+## 3.1 Application architecture
+
+Use a conventional web application with:
+
+- responsive client UI;
+- authenticated application/API layer;
+- relational persistent database;
+- server-authoritative meeting state;
+- deterministic cost calculation;
+- export generation;
+- explicit authorization at every protected resource boundary.
+
+The architecture should avoid treating the browser clock as the source of truth for accumulated meeting cost.
+
+### Authority model
+
+The server/database is authoritative for:
+
+- meeting state;
+- participant state;
+- measurement start/stop timestamps;
+- measured participation intervals;
+- hourly rate values used by a meeting;
+- calculated accumulated cost;
+- meeting completion;
+- final result.
+
+The client is responsible for:
+
+- rendering;
+- user interaction;
+- live display updates between authoritative state refreshes;
+- responsive behavior.
+
+---
+
+# 4. Measurement Model
+
+The core technical model is interval-based rather than counter-based.
+
+For each measured participant, maintain measurement intervals.
+
+Conceptually:
+
+`ACTIVE → interval starts`
+
+`PAUSED → interval closes`
+
+`RESUMED → new interval starts`
+
+`LEFT → active interval closes and participant measurement terminates`
+
+`MEETING END → all remaining active intervals close`
+
+Measured participation time is the sum of completed measurement intervals.
+
+This avoids accumulating financial values through repeated client-side increments.
+
+---
+
+# 5. Cost Calculation
+
+For a participant with a known hourly rate:
+
+`participant_cost = hourly_rate × measured_seconds / 3600`
+
+Meeting estimated cost:
+
+`meeting_cost = sum(known participant costs)`
+
+Unknown-rate participants:
+
+- remain explicitly unknown;
+- have no numeric participant cost;
+- contribute no numeric amount to the calculated total;
+- must not be represented as having a rate of zero.
+
+The final result must retain enough information to distinguish:
+
+- known calculated cost;
+- unknown cost information;
+- participants for whom cost could not be calculated.
+
+The UI must continue to describe the numerical result as an estimate.
+
+---
+
+# 6. Rate Snapshot
+
+When a person is added to a meeting and becomes part of measurement, the technical implementation should store the hourly-rate value used for that meeting.
+
+This prevents historical meeting results from changing merely because a person's profile rate is edited later.
+
+The meeting record therefore represents the historical calculation context.
+
+For a Guest:
+
+- known rate → store the supplied meeting rate;
+- unknown rate → store an explicit unknown state.
+
+This is an implementation requirement derived from the Product requirement that completed results remain stable.
+
+---
+
+# 7. Meeting State Model
+
+Recommended persisted meeting states:
+
+- `CONFIGURED`
+- `LIVE`
+- `ENDED`
+
+Participant measurement states:
+
+- `ACTIVE`
+- `PAUSED`
+- `LEFT`
+
+`RESUMED` is a transition back into `ACTIVE`, not a separate persisted terminal state unless implementation requires an audit/event representation.
+
+### Valid transitions
+
+Meeting:
+
+`CONFIGURED → LIVE`
+
+`LIVE → ENDED`
+
+Participant:
+
+`ACTIVE → PAUSED`
+
+`PAUSED → ACTIVE`
+
+`ACTIVE → LEFT`
+
+When the meeting ends:
+
+`ACTIVE → measurement stopped`
+
+Participants already `PAUSED` or `LEFT` retain their respective final states.
+
+No transition from `ENDED` back to `LIVE`.
+
+---
+
+# 8. Data Model
+
+Minimum conceptual entities:
+
+## User
+
+- id
+- name
+- job title
+- hourly rate
+- authentication identity
+- created/updated timestamps
+
+## Person
+
+Represents an organizer-managed person.
+
+- id
+- owner/user id
+- type: internal / guest
+- name
+- role
+- organization where applicable
+- default hourly rate where known
+- rate-known flag
+- created/updated timestamps
+
+## Meeting
+
+- id
+- owner/user id
+- title/context as supported by approved UX
+- status
+- created timestamp
+- started timestamp
+- ended timestamp
+- accumulated/final estimated cost
+- unknown-cost indicator/state
+- created/updated timestamps
+
+The exact meeting naming/context fields must follow the approved design and product surface rather than being invented here.
+
+## Meeting Participant
+
+- id
+- meeting id
+- person/user reference where applicable
+- display identity snapshot
+- hourly-rate snapshot where known
+- cost-known flag
+- final participant state
+- measured duration
+- calculated participant cost where known
+
+## Measurement Interval
+
+- id
+- meeting participant id
+- started timestamp
+- ended timestamp
+- duration
+
+## Export
+
+If export history is persisted:
+
+- id
+- meeting id
+- export format
+- generated timestamp
+
+Persistence of export records is optional unless required by the implementation; generated exports themselves do not become a new product requirement.
+
+---
+
+# 9. Historical Immutability
+
+After `MEETING → ENDED`:
+
+- no further measurement accumulation;
+- participant measurement intervals cannot continue;
+- final calculated result cannot drift because of later profile-rate changes;
+- completed meeting data remains available in history;
+- exports operate against the stored final result.
+
+Any correction workflow for completed meetings is outside the approved MVP and must not be introduced implicitly.
+
+---
+
+# 10. Authentication and Authorization
+
+Authentication is required.
+
+Minimum authorization model:
+
+- authenticated users can access their own account/profile;
+- users can manage their own people;
+- users can access meetings they own;
+- users can access their own meeting history;
+- users cannot automatically access another user's private meetings/history;
+- participant hourly-rate information must not become globally readable merely because the participant exists.
+
+Every protected API operation must enforce ownership/authorization server-side.
+
+Client-side route protection alone is insufficient.
+
+---
+
+# 11. API Contract
+
+The exact transport technology may be selected by AG during implementation, but the logical contract should cover:
+
+### Authentication
+
+- register/login/session handling
+- authenticated-user retrieval
+
+### Profile
+
+- get own profile
+- update own profile
+
+### People
+
+- list owned people
+- create internal person
+- create Guest
+- update person
+- delete/archive person according to implementation needs
+
+### Meetings
+
+- create meeting
+- retrieve meeting
+- update configuration before Start
+- select/deselect participants
+- start meeting
+- retrieve live state
+- pause participant
+- resume participant
+- mark participant left
+- end meeting
+- retrieve final result
+- list meeting history
+- retrieve historical meeting
+
+### Exports
+
+- generate PDF
+- generate Image
+- generate CSV
+
+All meeting mutations must be authorization-checked against the meeting owner.
+
+---
+
+# 12. Concurrency and Idempotency
+
+Start, participant state changes, and End are state transitions and must be protected against duplicate requests.
+
+Examples:
+
+- two Start requests must not create two measurement starts;
+- repeated Pause must not create overlapping/duplicate intervals;
+- repeated Resume must not create multiple active intervals;
+- repeated Leave must not alter an already-left participant;
+- repeated End must not create a second finalization event or change the completed result.
+
+The backend should use transactional state checks for these transitions.
+
+---
+
+# 13. Real-Time Meter
+
+The live UI requires a continuously updating display.
+
+The authoritative persisted state should be timestamp-based.
+
+The client may update the displayed elapsed time/cost locally between server synchronizations, but must periodically reconcile against authoritative server state.
+
+The implementation must not depend on a permanently running browser timer as the source of financial truth.
+
+The exact real-time transport — polling, server-sent events, WebSocket, or equivalent — is an implementation decision. For the MVP, the simplest mechanism that reliably preserves live behavior and state correctness should be selected by AG.
+
+This decision must be documented in the final technical implementation record.
+
+---
+
+# 14. Exports
+
+Required formats:
+
+- PDF
+- Image
+- CSV
+
+Exports must represent the completed meeting result.
+
+CSV should use structured tabular data.
+
+PDF/Image should reflect the final receipt/result information required by Product and Design.
+
+Export generation must not alter the meeting record.
+
+The exact visual export implementation must be derived from the verified Stitch/Figma design where the design specifies it.
+
+---
+
+# 15. Design Integration
+
+Antigravity must verify the actual Stitch design before implementation.
+
+Required verification:
+
+1. connect to the correct MeetingMeter Stitch project;
+2. retrieve actual design context / Design DNA;
+3. verify that it corresponds to:
+   - Figma file `MettingMetter-Stitch`;
+   - file key `cADavUHVEaBO1avbVxNRz6`;
+   - node `0:1`;
+4. use the retrieved design context for implementation planning;
+5. compare it against `DESIGN-SPEC v1.0`;
+6. report every material discrepancy.
+
+A visual element appearing in Stitch/Figma must not create new product functionality.
+
+If Stitch contains a visual treatment that conflicts with the approved Product Spec, the Product Spec wins.
+
+If Stitch conflicts with an approved Design requirement, the discrepancy must be reported rather than silently resolved.
+
+---
+
+# 16. Responsive and Accessibility Requirements
+
+Implementation must preserve the approved responsive behavior:
+
+- desktop;
+- tablet;
+- mobile.
+
+Must preserve:
+
+- accessible focus states;
+- semantic headings;
+- accessible labels/statuses;
+- state communication beyond color alone;
+- usable touch targets;
+- keyboard operation;
+- dialog focus management;
+- reduced-motion consideration.
+
+The actual retrieved Stitch design is required for visual implementation fidelity.
+
+---
+
+# 17. Security Requirements
+
+Protect:
+
+- authentication credentials/session data;
+- hourly rates;
+- meeting cost information;
+- meeting history;
+- organization/person relationships.
+
+Required controls include:
+
+- authenticated access;
+- server-side authorization;
+- owner checks;
+- secure session handling;
+- protected data access;
+- validation of state-transition requests;
+- protection against unauthorized meeting identifiers being used to retrieve private data.
+
+No public meeting/history endpoint should expose private meeting data.
+
+---
+
+# 18. Observability
+
+Implementation should provide sufficient logging to diagnose:
+
+- authentication failures;
+- authorization failures;
+- invalid meeting state transitions;
+- export failures;
+- unexpected calculation/state inconsistencies.
+
+Do not log sensitive hourly-rate or meeting-cost information unnecessarily.
+
+---
+
+# 19. Technical Risks
+
+### R-01 — Timing accuracy
+Incorrect interval handling could produce incorrect costs.
+
+Mitigation: server-authoritative timestamps and interval calculations.
+
+### R-02 — Duplicate state transitions
+Repeated requests could corrupt measurement intervals.
+
+Mitigation: transactional transition validation and idempotent mutation behavior.
+
+### R-03 — Unknown cost semantics
+Unknown Guest rates could accidentally become zero.
+
+Mitigation: explicit known/unknown representation throughout data model, API, calculation, UI and exports.
+
+### R-04 — Historical instability
+Profile-rate changes could alter old meeting results.
+
+Mitigation: meeting-level rate snapshot.
+
+### R-05 — Unauthorized private data access
+Meeting/history information is sensitive.
+
+Mitigation: server-side ownership checks on every protected resource.
+
+### R-06 — Export divergence
+Exports could omit required receipt information.
+
+Mitigation: export from the same finalized result model and verify against acceptance criteria.
+
+### R-07 — Design mismatch
+Implementation could diverge from the actual Stitch design.
+
+Mitigation: mandatory Antigravity/Stitch verification gate before implementation.
+
+---
+
+# 20. Technical QA Requirements
+
+Technical QA must verify at minimum:
+
+1. authentication and protected access;
+2. profile persistence;
+3. person/Guest persistence;
+4. known and unknown rate handling;
+5. meeting creation;
+6. participant selection;
+7. Select All behavior;
+8. explicit Start;
+9. participant ACTIVE state;
+10. Pause;
+11. Resume;
+12. Leave;
+13. independent participant measurement;
+14. live elapsed time;
+15. live individual estimated cost;
+16. live total estimated cost;
+17. unknown cost never represented as zero;
+18. explicit End;
+19. final result stability;
+20. history persistence;
+21. private history access;
+22. PDF export;
+23. Image export;
+24. CSV export;
+25. responsive behavior;
+26. accessibility requirements;
+27. invalid/duplicate state transitions;
+28. authorization against another user's meeting;
+29. rate changes after meeting completion;
+30. refresh/reconnect behavior during an active meeting.
+
+Technical QA must include browser-level verification because timing, responsive behavior and visual integration cannot be established by backend tests alone.
+
+---
+
+# 21. Completion Condition
+
+TECHNICAL_DEFINITION is complete when:
+
+- architecture is defined;
+- data model is defined;
+- state transitions are defined;
+- API contracts are defined;
+- authentication/authorization behavior is defined;
+- calculation model is defined;
+- export requirements are defined;
+- technical risks are identified;
+- technical QA requirements are defined;
+- implementation tasks are decomposed;
+- AG-HANDOFF is complete;
+- Stitch MCP verification requirements are explicitly included.
+
+Implementation must **not** begin from this ChatGPT conversation.
+
+The implementation gate occurs in Antigravity after successful Stitch verification.

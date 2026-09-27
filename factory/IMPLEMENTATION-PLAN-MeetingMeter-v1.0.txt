@@ -1,0 +1,268 @@
+# IMPLEMENTATION-PLAN — MeetingMeter v1.0
+
+## 1. Implementation Principle
+
+Implementation begins in Antigravity only after the Stitch MCP verification gate succeeds.
+
+The implementation must use:
+
+- approved PRODUCT-SPEC v1.0;
+- approved DESIGN-SPEC v1.0;
+- DESIGN-HANDOFF v1.0;
+- verified Stitch/Figma design context.
+
+No visual inference is permitted where the actual Stitch design context can be retrieved.
+
+---
+
+# 2. Phase 0 — Stitch Verification Gate
+
+### Task ST-01 — Connect Stitch
+
+Antigravity connects to the Stitch MCP and identifies the MeetingMeter project corresponding to:
+
+- Figma name: `MettingMetter-Stitch`
+- Figma key: `cADavUHVEaBO1avbVxNRz6`
+- Node: `0:1`
+
+### Task ST-02 — Retrieve Design Context
+
+Retrieve the actual Stitch design context / Design DNA.
+
+Capture the implementation-relevant information required for:
+
+- screens;
+- layout;
+- components;
+- states;
+- typography;
+- spacing;
+- colors;
+- responsive behavior;
+- interaction states.
+
+Do not infer unavailable details.
+
+### Task ST-03 — Baseline Comparison
+
+Compare retrieved Stitch context with `DESIGN-SPEC v1.0`.
+
+Classify findings:
+
+- MATCH;
+- NON-MATERIAL DIFFERENCE;
+- MATERIAL DESIGN DISCREPANCY;
+- MISSING INFORMATION.
+
+### Task ST-04 — Verification Report
+
+Produce an explicit verification result:
+
+`PASS`
+
+or
+
+`REVIEW REQUIRED`
+
+or
+
+`BLOCKED`
+
+Implementation may proceed only after the required verification outcome is satisfied.
+
+A material discrepancy must be surfaced rather than silently resolved.
+
+---
+
+# 3. Phase 1 — Application Foundation
+
+Tasks:
+
+- initialize application;
+- configure environments;
+- establish authentication/session mechanism;
+- configure database;
+- establish API/service structure;
+- establish protected route/resource model;
+- configure validation;
+- configure error handling;
+- configure logging.
+
+Completion:
+
+- authenticated application shell works;
+- protected resources cannot be accessed anonymously;
+- environment separation is established.
+
+---
+
+# 4. Phase 2 — Profile and People
+
+Implement:
+
+- registered user profile;
+- name;
+- job title;
+- hourly rate;
+- internal people;
+- Guests;
+- known Guest rate;
+- unknown Guest rate.
+
+Acceptance:
+
+- unknown remains explicitly unknown;
+- profile rate changes do not silently mutate completed meetings.
+
+---
+
+# 5. Phase 3 — Meeting Configuration
+
+Implement:
+
+- meeting creation;
+- roster;
+- internal people;
+- Guests;
+- participant selection;
+- Select All;
+- configuration state.
+
+Completion:
+
+- meeting can be configured without starting measurement;
+- no participant time accumulates before Start.
+
+---
+
+# 6. Phase 4 — Measurement Engine
+
+Implement server-authoritative state transitions:
+
+- Start;
+- Active;
+- Pause;
+- Resume;
+- Leave;
+- End.
+
+Implement interval-based measurement.
+
+Required invariants:
+
+- no overlapping active intervals for a participant;
+- Pause closes active interval;
+- Resume creates a new interval;
+- Leave closes active interval permanently;
+- End closes all remaining active intervals;
+- ended meeting cannot accumulate further cost.
+
+---
+
+# 7. Phase 5 — Live Meter
+
+Implement:
+
+- meeting context;
+- elapsed meeting time;
+- estimated total cost;
+- participant states;
+- participant actions;
+- known/unknown cost presentation;
+- explicit End.
+
+The client must reconcile against authoritative server state.
+
+---
+
+# 8. Phase 6 — Final Result and History
+
+Implement:
+
+- final result;
+- receipt;
+- measured participation times;
+- participant cost information;
+- final estimated total;
+- estimate framing;
+- private history.
+
+Completed meeting data must remain stable.
+
+---
+
+# 9. Phase 7 — Exports
+
+Implement:
+
+- PDF;
+- Image;
+- CSV.
+
+Validate that each export reflects the finalized meeting result and does not modify source data.
+
+---
+
+# 10. Phase 8 — Design Fidelity
+
+Using the verified Stitch context:
+
+- implement approved visual hierarchy;
+- implement approved components/states;
+- implement responsive layouts;
+- implement accessibility requirements;
+- verify mobile/tablet/desktop behavior.
+
+Do not introduce functionality because a visually represented element appears in Stitch.
+
+---
+
+# 11. Phase 9 — Technical QA
+
+Run the complete technical QA suite defined in TECH-SPEC.
+
+Include:
+
+- unit tests for calculation/state logic;
+- integration/API tests;
+- authorization tests;
+- persistence tests;
+- export tests;
+- browser tests;
+- responsive tests;
+- accessibility checks;
+- state-transition edge cases.
+
+---
+
+# 12. Phase 10 — Browser Verification
+
+Antigravity must verify actual browser behavior for the core flow:
+
+`CONFIGURE → START → LIVE METER → PAUSE/RESUME/LEAVE → END → FINAL RESULT → HISTORY → EXPORT`
+
+Verify at minimum:
+
+- visible state matches persisted state;
+- numerical cost behaves correctly;
+- unknown cost remains distinct;
+- completed result does not change;
+- private history remains protected;
+- responsive layout is usable.
+
+---
+
+# 13. Phase 11 — Handoff Completion
+
+AG-HANDOFF may be marked complete for implementation when:
+
+- Stitch verification has been performed;
+- retrieved design context has been used;
+- discrepancies have been reported/resolved through the appropriate process;
+- implementation tasks are executable without guessing;
+- technical QA requirements are explicit;
+- no unresolved material technical blocker remains.
+
+`PASS` means verification succeeded.
+
+`APPROVED` remains an authorization state and is not implied merely by technical PASS.

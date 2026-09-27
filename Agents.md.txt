@@ -1,0 +1,39 @@
+# MeetingMeter — Factory Execution Context
+
+MeetingMeter is being implemented under the AI Software Factory workflow.
+
+## Canonical project artifacts
+
+The following files are the authoritative project artifacts:
+
+- @factory/PROJECT-STATE.txt
+- @factory/PRODUCT-SPEC-MeetingMeter-v1.0.txt
+- @factory/DESIGN-SPEC-MeetingMeter-v1.0.txt
+- @factory/DESIGN-HANDOFF-MeetingMeter-v1.0.txt
+- @factory/TECH-SPEC-MeetingMeter-v1.0.txt
+- @factory/IMPLEMENTATION-PLAN-MeetingMeter-v1.0.txt
+- @factory/AG-HANDOFF-MeetingMeter-v1.0.txt
+
+## Authority hierarchy
+
+PRODUCT-SPEC = functional/product authority
+DESIGN-SPEC = approved textual design authority
+TECH-SPEC = technical authority
+IMPLEMENTATION-PLAN = implementation sequence
+AG-HANDOFF = execution instructions
+PROJECT-STATE = current Factory lifecycle state
+
+Stitch/Figma is the implementation-time visual reference.
+
+## Mandatory behavior
+
+Before implementation:
+
+1. Read the current PROJECT-STATE.
+2. Read PRODUCT-SPEC, DESIGN-SPEC, TECH-SPEC, IMPLEMENTATION-PLAN and AG-HANDOFF.
+3. Verify the current Stitch MCP design gate.
+4. Do not invent product functionality from visual designs.
+5. Do not silently change approved Product or Design requirements.
+6. Report material conflicts instead of resolving them silently.
+
+Implementation must follow the current canonical artifacts.

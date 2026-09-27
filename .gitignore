@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Production Build Output
+dist/
+
+# SQLite Database & Persistent Local Storage
+data/
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+
+# Test & Evidence Artifacts
+screenshots/
+evidence/
+test-results/
+playwright-report/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
