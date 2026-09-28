@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
-import { Activity, Users, History, UserCheck, LogOut, PlusCircle } from 'lucide-react';
+import { Activity, Users, History, LogOut, PlusCircle, FileSpreadsheet, Package, DollarSign } from 'lucide-react';
 
 interface NavbarProps {
   currentTab: string;
@@ -24,42 +24,71 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, activeM
               <span className="font-extrabold text-base sm:text-lg tracking-tight text-ink-primary">
                 Meeting<span className="text-brand-primary">Meter</span>
               </span>
-              <span className="px-1 py-0.5 text-[9px] font-mono uppercase bg-surface-inset border border-border-subtle text-ink-muted rounded">
-                v1.0
+              <span className="px-1 py-0.5 text-[9px] font-mono uppercase bg-surface-inset border border-brand-primary/30 text-brand-primary rounded font-bold">
+                v1.1
               </span>
             </div>
           </div>
         </div>
 
         {/* Center Navigation Links */}
-        <nav className="flex items-center space-x-1">
+        <nav className="flex items-center space-x-1 overflow-x-auto py-1 scrollbar-none">
           <button
             onClick={() => onSelectTab('dashboard')}
-            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 ${
+            data-testid="nav-dashboard"
+            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0 ${
               currentTab === 'dashboard'
                 ? 'bg-surface-elevated text-brand-primary border border-brand-primary/30 shadow-sm'
                 : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-elevated/50'
             }`}
           >
             <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="hidden xs:inline sm:inline">Cockpit</span>
+            <span>Cockpit</span>
           </button>
 
           <button
             onClick={() => onSelectTab('config')}
-            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 ${
+            data-testid="nav-config"
+            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0 ${
               currentTab === 'config'
                 ? 'bg-surface-elevated text-brand-primary border border-brand-primary/30 shadow-sm'
                 : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-elevated/50'
             }`}
           >
             <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span>New Meter</span>
+            <span>New / Prepare</span>
+          </button>
+
+          <button
+            onClick={() => onSelectTab('manual')}
+            data-testid="nav-manual"
+            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0 ${
+              currentTab === 'manual'
+                ? 'bg-surface-elevated text-brand-cyan border border-brand-cyan/30 shadow-sm'
+                : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-elevated/50'
+            }`}
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span>Manual Entry</span>
+          </button>
+
+          <button
+            onClick={() => onSelectTab('cost-library')}
+            data-testid="nav-cost-library"
+            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0 ${
+              currentTab === 'cost-library'
+                ? 'bg-surface-elevated text-status-warning border border-status-warning/30 shadow-sm'
+                : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-elevated/50'
+            }`}
+          >
+            <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span>Cost Library</span>
           </button>
 
           <button
             onClick={() => onSelectTab('people')}
-            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 ${
+            data-testid="nav-people"
+            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0 ${
               currentTab === 'people'
                 ? 'bg-surface-elevated text-brand-primary border border-brand-primary/30 shadow-sm'
                 : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-elevated/50'
@@ -71,7 +100,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, activeM
 
           <button
             onClick={() => onSelectTab('history')}
-            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 ${
+            data-testid="nav-history"
+            className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0 ${
               currentTab === 'history'
                 ? 'bg-surface-elevated text-brand-primary border border-brand-primary/30 shadow-sm'
                 : 'text-ink-secondary hover:text-ink-primary hover:bg-surface-elevated/50'
@@ -83,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, activeM
         </nav>
 
         {/* Right user & profile */}
-        <div className="flex items-center space-x-1 sm:space-x-3">
+        <div className="flex items-center space-x-1 sm:space-x-3 flex-shrink-0">
           {user && (
             <button
               onClick={() => onSelectTab('profile')}
@@ -97,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, activeM
               </div>
               <div className="hidden md:block text-left">
                 <div className="text-xs font-semibold text-ink-primary leading-tight">{user.name}</div>
-                <div className="text-[10px] font-mono text-brand-primary">{user.hourly_rate} {user.currency}/hr</div>
+                <div className="text-[10px] font-mono text-brand-primary">€{user.hourly_rate.toFixed(2)}/hr</div>
               </div>
             </button>
           )}

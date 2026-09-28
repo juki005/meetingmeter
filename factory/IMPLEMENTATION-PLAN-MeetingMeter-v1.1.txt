@@ -1,0 +1,556 @@
+AI SOFTWARE FACTORY
+IMPLEMENTATION PLAN
+
+Artifact ID: IMPLEMENTATION-PLAN
+Project: MeetingMeter
+Version: 1.1
+Status: REVALIDATED
+Owner: TECH / AG
+
+==================================================
+1. IMPLEMENTATION PRINCIPLE
+==================================================
+
+The v1.1 implementation is a material extension of the v1.0
+implementation.
+
+Reuse the validated v1.0 live-measurement architecture where it remains
+aligned.
+
+Do not assume v1.0 technical artifacts are sufficient.
+
+Implementation begins only after the Stitch MCP verification gate is
+passed in Antigravity.
+
+Approved Product:
+PRODUCT-SPEC-MeetingMeter-v1.1-APPROVED.txt
+
+Approved Design:
+DESIGN-SPEC-MeetingMeter-v1.1-APPROVED.txt
+
+Visual reference:
+MettingMetter-Stitch
+Figma key cADavUHVEaBO1avbVxNRz6
+Node 0:1
+
+==================================================
+2. PHASE 0 — STITCH VERIFICATION GATE
+==================================================
+
+ST-01 CONNECT
+Connect Antigravity to the Stitch MCP.
+
+ST-02 IDENTIFY
+Confirm the MeetingMeter project corresponds to:
+- MettingMetter-Stitch
+- cADavUHVEaBO1avbVxNRz6
+- node 0:1
+
+ST-03 RETRIEVE
+Retrieve actual Stitch design context / Design DNA.
+
+ST-04 COMPARE
+Compare retrieved context against DESIGN-SPEC v1.1.
+
+Required design coverage:
+- Dark / Tactical FinTech direction;
+- meeting states;
+- Manual Entry;
+- Prepared/Missed/Recurring;
+- External Costs;
+- Cost Library;
+- post-End editing;
+- Last Updated;
+- Receipt/History;
+- responsive;
+- accessibility.
+
+ST-05 REPORT
+Classify:
+MATCH
+NON-MATERIAL DIFFERENCE
+MATERIAL DESIGN DISCREPANCY
+MISSING INFORMATION
+
+ST-06 GATE
+Do not start implementation if a material discrepancy cannot be
+safely resolved within approved Product/Design boundaries.
+
+==================================================
+3. PHASE 1 — DOMAIN AND STATE MODEL
+==================================================
+
+Implement/extend:
+- PREPARED;
+- LIVE;
+- ENDED;
+- MISSED / NOT HELD representation;
+- MANUAL ENTRY provenance;
+- RECURRING indicator.
+
+Preserve:
+- ACTIVE;
+- PAUSED;
+- RESUMED;
+- LEFT.
+
+Define explicit legal transitions.
+
+Required behavior:
+PREPARED -> LIVE -> ENDED
+
+PREPARED -> delete
+
+PREPARED -> reschedule/edit
+
+PREPARED -> MISSED / NOT HELD representation when planned date/time
+passes without Start.
+
+Manual Entry is not a live state.
+
+Post-End external-cost editing must not transition ENDED back to LIVE.
+
+==================================================
+4. PHASE 2 — DATA MODEL AND MIGRATION
+==================================================
+
+Extend persistence for:
+- planned date/time;
+- meeting duration;
+- provenance/type;
+- manual-entry reason;
+- recurring indicator;
+- Last Updated;
+- external cost items;
+- Cost Library items;
+- applied meeting-level external amount;
+- participant/external/combined totals;
+- reconstructed participation duration.
+
+Preserve existing:
+- users;
+- people;
+- meeting ownership;
+- meeting participants;
+- measurement intervals.
+
+Migration requirement:
+Existing v1.0 records must remain readable and valid.
+
+Do not reinterpret existing completed meetings as Manual Entry or
+Prepared unless their stored data explicitly supports that state.
+
+==================================================
+5. PHASE 3 — CALCULATION SERVICE
+==================================================
+
+Create one authoritative calculation path for:
+
+Participant Cost Total
++
+External Cost Total
+=
+Total Estimated Meeting Cost
+
+Participant calculation:
+hourly rate * measured participation duration / 3600
+
+Manual Entry uses explicitly stored reconstructed participation
+duration.
+
+Unknown participant cost remains unknown.
+
+External cost:
+- EUR;
+- zero allowed;
+- negative prohibited.
+
+Recalculation must be deterministic.
+
+Post-End external-cost edits recalculate only permitted totals.
+
+==================================================
+6. PHASE 4 — PREPARED MEETINGS
+==================================================
+
+Implement:
+- create/save;
+- edit;
+- reschedule;
+- delete;
+- Start.
+
+Guarantees:
+- no measurement before Start;
+- no cost before Start;
+- Last Updated changes on reschedule/edit as required;
+- Start produces LIVE state.
+
+When planned date/time passes without Start, support MISSED / NOT HELD
+History representation according to the approved Product behavior.
+
+==================================================
+7. PHASE 5 — MISSED / NOT HELD
+==================================================
+
+Implement History classification for Prepared meetings whose planned
+date/time passed without Start.
+
+Ensure:
+- no measured time;
+- no cost accumulation;
+- not equivalent to ENDED zero-cost;
+- retain/delete supported;
+- can be used as Manual Entry basis.
+
+==================================================
+8. PHASE 6 — RECURRING DUPLICATION
+==================================================
+
+Implement:
+- recurring indicator/tag;
+- duplicate operation.
+
+A duplicate must:
+- receive an independent meeting id;
+- have independent editable configuration;
+- not share mutable meeting state with the source occurrence.
+
+Do not implement:
+- recurrence scheduler;
+- calendar synchronization;
+- automatic occurrence generation.
+
+==================================================
+9. PHASE 7 — MANUAL ENTRY
+==================================================
+
+Implement dedicated Manual Entry creation and edit flow.
+
+Required:
+- date;
+- duration;
+- participants;
+- individual participation duration.
+
+Optional:
+- time;
+- manual-entry reason.
+
+Validation:
+0 <= participation <= meeting duration
+
+Allow:
+- zero duration;
+- participant duration values that do not sum to meeting duration.
+
+Reject:
+- negative duration;
+- duration greater than meeting duration.
+
+Persist MANUAL ENTRY provenance.
+
+Do not fabricate:
+- Start;
+- Pause;
+- Resume;
+- Leave live events.
+
+Manual Entry edits trigger recalculation.
+
+==================================================
+10. PHASE 8 — EXTERNAL COSTS
+==================================================
+
+Implement meeting external cost collection:
+- zero or more items;
+- name/description;
+- amount;
+- EUR.
+
+Validation:
+- zero allowed;
+- negative prohibited.
+
+Display/persist:
+- Participant Cost Total;
+- External Cost Total;
+- Total Estimated Meeting Cost.
+
+==================================================
+11. PHASE 9 — COST LIBRARY
+==================================================
+
+Implement user-level Cost Library:
+- create;
+- view/list;
+- update;
+- delete/archive as implementation permits.
+
+Library item:
+- name;
+- default amount;
+- EUR.
+
+Selecting a library item copies the default into the meeting.
+
+Meeting override:
+- stored independently;
+- does not mutate library default;
+- remains historically applied to that meeting.
+
+==================================================
+12. PHASE 10 — POST-END EXTERNAL-COST EDITING
+==================================================
+
+After End:
+- allow external-cost edit;
+- keep participant measurement locked;
+- do not restart meeting;
+- do not alter measurement intervals;
+- recalculate External Cost Total;
+- recalculate combined total;
+- update Last Updated;
+- update Receipt;
+- update History;
+- retain ESTIMATED framing.
+
+This is the explicit exception to the v1.0 absolute final-result
+immutability rule.
+
+==================================================
+13. PHASE 11 — HISTORY / RECEIPT
+==================================================
+
+History must represent:
+- ENDED;
+- MANUAL ENTRY;
+- MISSED / NOT HELD;
+- RECURRING;
+- Last Updated;
+- current estimated total.
+
+Receipt must represent:
+- standard live result;
+- Manual Entry provenance;
+- reconstructed participation;
+- external costs;
+- participant total;
+- external total;
+- combined total;
+- Last Updated where applicable;
+- manual-entry reason where supplied.
+
+==================================================
+14. PHASE 12 — EXPORTS
+==================================================
+
+Maintain:
+- PDF;
+- Image;
+- CSV.
+
+Update export data model to include v1.1 fields.
+
+Verify exports for:
+- Manual Entry;
+- external cost items;
+- separate totals;
+- combined total;
+- provenance;
+- Last Updated where applicable;
+- current post-End external-cost result.
+
+Do not alter source meeting data during export.
+
+==================================================
+15. PHASE 13 — DARK DESIGN IMPLEMENTATION
+==================================================
+
+Replace the superseded Light v1.0 implementation baseline with the
+approved Dark / Tactical FinTech direction.
+
+Explicit reference values:
+- #090A0F canvas;
+- #12141C dark surface;
+- #1E293B dark slate surface;
+- #10B981 primary accent.
+
+Use the actual Stitch context for additional implementation details.
+
+Implement new states/components:
+- MeetingStatusBadge;
+- ProvenanceBadge;
+- RecurringIndicator;
+- ExternalCostItem;
+- ExternalCostList;
+- CostLibraryItem;
+- CostLibraryPicker;
+- MeetingStateActions;
+- ManualEntryForm;
+- ManualParticipationInput;
+- LastUpdatedIndicator.
+
+These are design structures and must not introduce unsupported
+functionality.
+
+==================================================
+16. PHASE 14 — RESPONSIVE / ACCESSIBILITY
+==================================================
+
+Desktop:
+- Dark cockpit hierarchy;
+- prominent total/state;
+- participant/external separation.
+
+Tablet:
+- no horizontal scrolling;
+- state/total/action hierarchy preserved.
+
+Mobile:
+- single column;
+- prominent total;
+- usable Manual Entry;
+- stacked external costs;
+- readable Cost Library;
+- accessible Prepared actions;
+- legible Receipt/History.
+
+Accessibility:
+- sufficient contrast;
+- visible focus;
+- semantic headings;
+- accessible labels/statuses;
+- non-color-only states;
+- touch targets;
+- dialog focus;
+- keyboard support;
+- reduced motion;
+- clear estimate labeling.
+
+==================================================
+17. PHASE 15 — TECHNICAL QA
+==================================================
+
+Run regression suite from v1.0 and all v1.1 additions.
+
+Minimum areas:
+- auth/privacy;
+- live measurement;
+- Prepared;
+- Missed;
+- Recurring duplication;
+- Manual Entry;
+- external costs;
+- Cost Library;
+- post-End edit;
+- recalculation;
+- Last Updated;
+- Receipt;
+- History;
+- exports;
+- Dark visual fidelity;
+- responsive;
+- accessibility;
+- concurrency;
+- authorization.
+
+Use automated fix/retest only for implementation defects that are
+safely attributable to implementation.
+
+Requirement/design conflicts must be routed, not silently fixed as
+code.
+
+==================================================
+18. PHASE 16 — BROWSER VERIFICATION
+==================================================
+
+Verify these end-to-end flows:
+
+A. PREPARED
+Create -> Edit -> Reschedule -> Start -> LIVE -> End
+
+B. MISSED
+Create Prepared -> planned time passes -> History MISSED / NOT HELD
+-> retain/delete or Manual Entry basis
+
+C. MANUAL ENTRY
+Create -> date/time/duration -> participants -> participation ->
+save -> History/Receipt -> edit -> recalculate
+
+D. RECURRING
+Mark recurring -> duplicate -> edit duplicate -> verify independent
+records
+
+E. LIVE COSTS
+Configure -> Start -> participant state changes -> End -> Receipt
+
+F. EXTERNAL COSTS
+Add multiple items -> verify separate totals -> verify combined total
+
+G. COST LIBRARY
+Create library item -> select -> verify copied amount -> override
+meeting -> change library default -> verify meeting amount unchanged
+
+H. POST-END
+End -> edit external cost -> verify participant measurement locked ->
+verify total/Receipt/History/Last Updated change
+
+I. EXPORT
+PDF/Image/CSV for applicable result types
+
+==================================================
+19. PHASE 17 — AG COMPLETION EVIDENCE
+==================================================
+
+Antigravity must produce:
+- Stitch verification result;
+- design discrepancy report if applicable;
+- implementation result;
+- technical QA result;
+- browser verification evidence;
+- known defects;
+- unresolved exceptions;
+- confirmation that Product/Design were not silently changed.
+
+Technical PASS is not Product Acceptance.
+
+==================================================
+20. IMPLEMENTATION IMPACT
+==================================================
+
+Material areas:
+- domain model;
+- state machine;
+- persistence/migrations;
+- calculation;
+- API;
+- History;
+- Receipt;
+- exports;
+- UI states;
+- Dark theme;
+- QA.
+
+Reusable v1.0 areas:
+- auth/privacy foundation;
+- live interval measurement;
+- participant state transitions;
+- existing export infrastructure where compatible;
+- existing responsive/accessibility foundations.
+
+==================================================
+21. EXIT CONDITION
+==================================================
+
+Implementation is complete enough for Technical QA only when:
+- all approved v1.1 behavior is implemented;
+- Stitch context has been verified and used;
+- no material requirement ambiguity remains;
+- technical tests can execute;
+- browser verification is complete enough for QA;
+- AG evidence is recorded.
+
+==================================================
+END OF IMPLEMENTATION-PLAN-MeetingMeter-v1.1
+==================================================

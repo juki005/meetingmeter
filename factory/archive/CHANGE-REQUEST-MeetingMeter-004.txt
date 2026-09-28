@@ -1,0 +1,251 @@
+CHANGE-REQUEST
+
+Change ID: MM-CHANGE-004
+Title: External Costs
+Artifact Status: PENDING PRODUCT APPROVAL
+Routing: PRODUCT
+
+==================================================
+1. EXISTING APPROVED BEHAVIOR
+==================================================
+
+The approved PRODUCT-SPEC v1.0 defines meeting cost as the sum of
+individual participant costs based on applicable hourly rates and
+measured participation time.
+
+The approved baseline defines a final estimated meeting cost and receipt,
+but does not define non-participant/external cost items, a cost library,
+or editing external costs after finalization.
+
+PRODUCT-SPEC v1.0 remains unchanged by this CHANGE-REQUEST.
+
+==================================================
+2. PROPOSED NEW REQUIREMENTS
+==================================================
+
+MR-004-01  A meeting can contain zero or more external cost items.
+
+MR-004-02  Each external cost item contains a description and amount.
+
+MR-004-03  An external cost amount may be zero.
+
+MR-004-04  Negative external cost amounts are invalid.
+
+MR-004-05  Multiple external cost items may be added to one meeting.
+
+MR-004-06  Participant costs and external costs are displayed as separate
+components of the meeting result.
+
+MR-004-07  Total Estimated Meeting Cost is:
+Participant Cost Total + External Cost Total.
+
+MR-004-08  External cost items can be edited after meeting finalization.
+
+MR-004-09  Every external-cost edit recalculates the meeting total.
+
+MR-004-10  Receipt and History reflect the recalculated result.
+
+MR-004-11  The product provides an External Cost Library / database.
+
+MR-004-12  A library item has at minimum a name and default price/amount.
+
+MR-004-13  A user can select a library item when adding an external cost
+to a meeting.
+
+MR-004-14  The selected library default price can be overridden for the
+specific meeting.
+
+MR-004-15  A per-meeting price override does not modify the library item's
+default price.
+
+MR-004-16  The meeting stores the applied price independently, so later
+changes to a library default do not retroactively alter an existing
+meeting's applied external cost.
+
+MR-004-17  The meeting currency is EUR (€).
+
+MR-004-18  External costs remain part of MeetingMeter's estimated-cost
+model and do not become accounting/payroll/payment transactions.
+
+MR-004-19  After a finalized meeting's external cost is edited, History
+shows a Last Updated indication or equivalent audit/status information.
+
+==================================================
+3. PRODUCT RULES
+==================================================
+
+PR-004-01  External costs are additional meeting costs and are not
+participant labor costs.
+
+PR-004-02  Participant Cost Total remains separately identifiable from
+External Cost Total.
+
+PR-004-03  Zero external cost is valid; negative external cost is invalid.
+
+PR-004-04  There may be multiple external cost items in a meeting.
+
+PR-004-05  External cost edits after finalization do not restart the
+meeting and do not reopen live participant measurement.
+
+PR-004-06  Live participant measurement remains locked after End.
+
+PR-004-07  Editing an external cost after End recalculates the total but
+does not change historical participant measurement data.
+
+PR-004-08  Receipt and History show the updated estimated result after an
+external-cost edit.
+
+PR-004-09  A Last Updated indication is shown after post-finalization
+external-cost editing.
+
+PR-004-10  The overall result remains explicitly framed as ESTIMATED.
+
+PR-004-11  Selecting a library item copies its default amount into the
+meeting item; changing the meeting item does not modify the library.
+
+PR-004-12  Existing meetings preserve the amount actually applied to that
+meeting even if the library default changes later.
+
+PR-004-13  Currency for the meeting is EUR (€). No currency conversion or
+multi-currency meeting behavior is required.
+
+PR-004-14  External cost descriptions are sufficient; a separate required
+cost category is not part of this change.
+
+==================================================
+4. OPEN QUESTIONS
+==================================================
+
+None required for the core Product decision package at this stage.
+
+Downstream Design/Technical work may determine UI details for library
+search/selection and Last Updated presentation without changing the
+product rules above.
+
+==================================================
+5. PRODUCT LEAD DECISIONS REQUIRED
+==================================================
+
+PLD-004-01  Approve or reject external cost items and requirements
+MR-004-01 through MR-004-19.
+
+PLD-004-02  Explicitly approve editing external costs after meeting
+finalization and the resulting recalculation of the total.
+
+PLD-004-03  Explicitly approve the External Cost Library capability and
+per-meeting price override behavior.
+
+PLD-004-04  Confirm EUR (€) as the meeting currency for this capability.
+
+PLD-004-05  Approve the Last Updated indication after post-finalization
+external-cost edits.
+
+PLD-004-06  If approved, authorize incorporation into a new Product Spec
+version through the Factory change process.
+
+No approval is granted by this CHANGE-REQUEST.
+
+==================================================
+6. OUT OF SCOPE
+==================================================
+
+- Accounting, payroll, billing, payment processing, reimbursement, or
+  financial settlement.
+- Negative external costs or credit/refund modeling.
+- Currency conversion.
+- Multi-currency meetings.
+- External-cost categories as a required data model.
+- Automatic price lookup from third-party services.
+- Automatic receipt scanning / OCR.
+- Organization-wide shared cost libraries unless separately approved.
+- Automatic modification of historical meeting prices when a library
+  default changes.
+- Full immutable audit-log/version-history infrastructure beyond the
+  Last Updated indication required here.
+
+==================================================
+7. DEPENDENCIES
+==================================================
+
+- Meeting entity and meeting result/total.
+- Participant cost calculation.
+- Final result and receipt.
+- History.
+- Export behavior.
+- Post-finalization editing behavior.
+- Currency representation (EUR).
+- External Cost Library persistence and selection.
+- Manual Entry MM-CHANGE-002, because manual meetings may also contain
+  external costs if this change is approved.
+- Prepared/Upcoming MM-CHANGE-003, because prepared meetings may carry
+  configured external costs before Start if the final Product Spec allows
+  them to be configured in that state.
+
+==================================================
+8. DOWNSTREAM DESIGN IMPACT
+==================================================
+
+Design must add a distinct External Costs section without obscuring the
+participant-cost calculation.
+
+Design impact includes:
+- add/edit/remove external cost item interaction;
+- description and EUR amount input;
+- zero allowed / negative rejected validation;
+- multiple-item presentation;
+- separate Participant Costs and External Costs totals;
+- combined Total Estimated Meeting Cost;
+- Cost Library browsing/selection;
+- default library amount display;
+- per-meeting price override;
+- clear indication that override does not modify the library default;
+- post-finalization external-cost editing;
+- Last Updated presentation;
+- updated receipt/history representation;
+- persistent ESTIMATED framing.
+
+Design must make clear that editing an external cost does not restart the
+meeting or alter participant measurement history.
+
+==================================================
+9. DOWNSTREAM TECHNICAL IMPACT
+==================================================
+
+Technical definition must support:
+- external cost item persistence;
+- multiple items per meeting;
+- EUR currency representation;
+- amount validation (>= 0);
+- separate participant and external totals;
+- combined total calculation;
+- post-finalization external-cost edits;
+- recalculation after edits;
+- Last Updated metadata/indicator;
+- receipt/history/export representation of updated totals;
+- Cost Library item persistence;
+- library item name and default amount;
+- selecting/copying a library item into a meeting;
+- per-meeting price override without mutating the library item;
+- persistence of the applied meeting amount independently of later library
+  changes.
+
+Technical implementation must preserve the immutability of live participant
+measurement data after End while permitting the explicitly approved external
+cost mutation if this change is approved.
+
+==================================================
+CHANGE STATUS
+==================================================
+
+PENDING PRODUCT APPROVAL
+
+Decision Status: PENDING
+Approval: No approval has been granted by this CHANGE-REQUEST.
+PRODUCT-SPEC v1.0: UNCHANGED
+
+If approved, this change must be incorporated through the Factory change
+process and downstream Design / Technical / QA revalidation as required.
+
+==================================================
+END CHANGE-REQUEST MM-CHANGE-004
+==================================================

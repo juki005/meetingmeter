@@ -3,10 +3,9 @@ import crypto from 'crypto';
 import { z } from 'zod';
 import { db } from '../db/database.ts';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/auth.ts';
-import { computeLiveMeetingState } from '../services/calculation.ts';
+import { computeLiveMeetingState, recalculateAndPersistMeeting } from '../services/calculation.ts';
 
 const router = Router();
-
 router.use(authMiddleware);
 
 const participantInputSchema = z.object({
@@ -18,26 +17,70 @@ const participantInputSchema = z.object({
   hourly_rate: z.number().nonnegative().optional().nullable(),
   rate_known: z.boolean().default(true),
   selected: z.boolean().default(true),
+  manual_duration_seconds: z.number().nonnegative().optional().nullable(),
+});
+
+const externalCostInputSchema = z.object({
+  cost_library_id: z.string().optional().nullable(),
+  name: z.string().min(1),
+  amount: z.number().nonnegative('Amount cannot be negative').default(0.0),
+  currency: z.string().default('EUR'),
+  is_overridden: z.boolean().default(false),
 });
 
 const createMeetingSchema = z.object({
   title: z.string().min(1),
+  status: z.enum(['PREPARED', 'CONFIGURED', 'LIVE']).default('PREPARED'),
   currency: z.string().default('EUR'),
+  planned_date: z.string().optional().nullable(),
+  planned_time: z.string().optional().nullable(),
+  is_recurring: z.boolean().default(false),
   participants: z.array(participantInputSchema).min(1),
+  external_costs: z.array(externalCostInputSchema).optional().default([]),
 });
 
-const updateConfigSchema = z.object({
+const updatePreparedSchema = z.object({
   title: z.string().min(1).optional(),
+  planned_date: z.string().optional().nullable(),
+  planned_time: z.string().optional().nullable(),
+  is_recurring: z.boolean().optional(),
   participants: z.array(participantInputSchema).optional(),
+  external_costs: z.array(externalCostInputSchema).optional(),
+});
+
+const manualEntrySchema = z.object({
+  title: z.string().min(1),
+  planned_date: z.string().min(1, 'Date is required for manual entry'),
+  planned_time: z.string().optional().nullable(),
+  meeting_duration_seconds: z.number().positive('Meeting duration must be positive'),
+  manual_reason: z.string().optional().nullable(),
+  currency: z.string().default('EUR'),
+  participants: z.array(participantInputSchema).min(1),
+  external_costs: z.array(externalCostInputSchema).optional().default([]),
 });
 
 const participantActionSchema = z.object({
   participant_id: z.string().min(1),
 });
 
-// List meetings (history or active)
+// Helper: check if a prepared meeting is MISSED / NOT HELD
+function isMissed(meeting: any): boolean {
+  if (meeting.status !== 'PREPARED' && meeting.status !== 'CONFIGURED') return false;
+  if (!meeting.planned_date) return false;
+
+  const now = new Date();
+  const meetingDateStr = meeting.planned_time 
+    ? `${meeting.planned_date}T${meeting.planned_time}:00` 
+    : `${meeting.planned_date}T23:59:59`;
+  const plannedDate = new Date(meetingDateStr);
+  return plannedDate.getTime() < now.getTime();
+}
+
+// 1. List user's meetings
 router.get('/', (req: AuthenticatedRequest, res: Response): void => {
   const statusFilter = req.query.status as string | undefined;
+  const provenanceFilter = req.query.provenance as string | undefined;
+
   let query = `SELECT * FROM meetings WHERE user_id = ?`;
   const params: any[] = [req.user!.id];
 
@@ -46,18 +89,32 @@ router.get('/', (req: AuthenticatedRequest, res: Response): void => {
     params.push(statusFilter);
   }
 
+  if (provenanceFilter) {
+    query += ` AND provenance = ?`;
+    params.push(provenanceFilter);
+  }
+
   query += ` ORDER BY created_at DESC`;
   const meetings = db.prepare(query).all(...params) as any[];
 
   res.json({
-    meetings: meetings.map((m) => ({
-      ...m,
-      accumulated_cost: Number(m.accumulated_cost || 0),
-    })),
+    meetings: meetings.map((m) => {
+      const missed = isMissed(m);
+      return {
+        ...m,
+        status: m.status === 'CONFIGURED' ? 'PREPARED' : m.status,
+        is_missed: missed,
+        is_recurring: Boolean(m.is_recurring),
+        accumulated_cost: Number(m.accumulated_cost || m.total_estimated_cost || 0),
+        participant_cost_total: Number(m.participant_cost_total || 0),
+        external_cost_total: Number(m.external_cost_total || 0),
+        total_estimated_cost: Number(m.total_estimated_cost || m.accumulated_cost || 0),
+      };
+    }),
   });
 });
 
-// Create meeting (CONFIGURED state)
+// 2. Create Meeting (PREPARED or Immediate Start)
 router.post('/', (req: AuthenticatedRequest, res: Response): void => {
   const result = createMeetingSchema.safeParse(req.body);
   if (!result.success) {
@@ -65,13 +122,17 @@ router.post('/', (req: AuthenticatedRequest, res: Response): void => {
     return;
   }
 
-  const { title, currency, participants } = result.data;
+  const { title, status, currency, planned_date, planned_time, is_recurring, participants, external_costs } = result.data;
   const meetingId = crypto.randomUUID();
   const now = new Date().toISOString();
+  const initialStatus = status === 'LIVE' ? 'LIVE' : 'PREPARED';
 
   const insertMeeting = db.prepare(`
-    INSERT INTO meetings (id, user_id, title, status, currency, created_at, accumulated_cost, unknown_cost_count, total_duration_seconds, updated_at)
-    VALUES (?, ?, ?, 'CONFIGURED', ?, ?, 0.0, 0, 0, ?)
+    INSERT INTO meetings (
+      id, user_id, title, status, provenance, currency, planned_date, planned_time,
+      is_recurring, created_at, started_at, accumulated_cost, participant_cost_total,
+      external_cost_total, total_estimated_cost, unknown_cost_count, total_duration_seconds, updated_at
+    ) VALUES (?, ?, ?, ?, 'LIVE', ?, ?, ?, ?, ?, ?, 0.0, 0.0, 0.0, 0.0, 0, 0, ?)
   `);
 
   const insertParticipant = db.prepare(`
@@ -82,8 +143,31 @@ router.post('/', (req: AuthenticatedRequest, res: Response): void => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, 0, NULL, ?, ?)
   `);
 
+  const insertCost = db.prepare(`
+    INSERT INTO meeting_external_costs (
+      id, meeting_id, cost_library_id, name, amount, currency, is_overridden, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const insertInterval = db.prepare(`
+    INSERT INTO measurement_intervals (id, meeting_id, participant_id, started_at, ended_at, duration_seconds)
+    VALUES (?, ?, ?, ?, NULL, 0)
+  `);
+
   const tx = db.transaction(() => {
-    insertMeeting.run(meetingId, req.user!.id, title, currency, now, now);
+    insertMeeting.run(
+      meetingId,
+      req.user!.id,
+      title,
+      initialStatus,
+      currency || 'EUR',
+      planned_date || null,
+      planned_time || null,
+      is_recurring ? 1 : 0,
+      now,
+      initialStatus === 'LIVE' ? now : null,
+      now
+    );
 
     for (const p of participants) {
       const partId = crypto.randomUUID();
@@ -106,16 +190,249 @@ router.post('/', (req: AuthenticatedRequest, res: Response): void => {
         now,
         now
       );
+
+      if (initialStatus === 'LIVE' && p.selected) {
+        insertInterval.run(crypto.randomUUID(), meetingId, partId, now);
+      }
+    }
+
+    if (external_costs && external_costs.length > 0) {
+      for (const ec of external_costs) {
+        insertCost.run(
+          crypto.randomUUID(),
+          meetingId,
+          ec.cost_library_id || null,
+          ec.name.trim(),
+          Math.max(0, ec.amount),
+          ec.currency || 'EUR',
+          ec.is_overridden ? 1 : 0,
+          now,
+          now
+        );
+      }
     }
   });
 
   tx();
 
-  const state = computeLiveMeetingState(meetingId);
+  const state = recalculateAndPersistMeeting(meetingId);
   res.status(201).json({ meeting: state });
 });
 
-// Get meeting details / live state
+// 3. Create MANUAL ENTRY Meeting
+router.post('/manual', (req: AuthenticatedRequest, res: Response): void => {
+  const result = manualEntrySchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: result.error.errors[0].message });
+    return;
+  }
+
+  const { title, planned_date, planned_time, meeting_duration_seconds, manual_reason, currency, participants, external_costs } = result.data;
+
+  // Validation: individual participant duration must satisfy 0 <= duration <= meeting_duration
+  for (const p of participants) {
+    const dur = p.manual_duration_seconds ?? meeting_duration_seconds;
+    if (dur < 0 || dur > meeting_duration_seconds) {
+      res.status(400).json({
+        error: `Participant '${p.name}' participation duration (${dur}s) must be between 0 and meeting duration (${meeting_duration_seconds}s)`
+      });
+      return;
+    }
+  }
+
+  const meetingId = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  const insertMeeting = db.prepare(`
+    INSERT INTO meetings (
+      id, user_id, title, status, provenance, currency, planned_date, planned_time, manual_reason,
+      is_recurring, created_at, started_at, ended_at, accumulated_cost, participant_cost_total,
+      external_cost_total, total_estimated_cost, unknown_cost_count, total_duration_seconds, updated_at
+    ) VALUES (?, ?, ?, 'ENDED', 'MANUAL_ENTRY', ?, ?, ?, ?, 0, ?, ?, ?, 0.0, 0.0, 0.0, 0.0, 0, ?, ?)
+  `);
+
+  const insertParticipant = db.prepare(`
+    INSERT INTO meeting_participants (
+      id, meeting_id, person_id, name, role, organization, is_guest,
+      hourly_rate_snapshot, rate_known, state, selected, measured_seconds,
+      manual_duration_seconds, calculated_cost, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', 1, ?, ?, NULL, ?, ?)
+  `);
+
+  const insertCost = db.prepare(`
+    INSERT INTO meeting_external_costs (
+      id, meeting_id, cost_library_id, name, amount, currency, is_overridden, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const tx = db.transaction(() => {
+    insertMeeting.run(
+      meetingId,
+      req.user!.id,
+      title,
+      currency || 'EUR',
+      planned_date,
+      planned_time || null,
+      manual_reason || null,
+      now,
+      now,
+      now,
+      meeting_duration_seconds,
+      now
+    );
+
+    for (const p of participants) {
+      const partId = crypto.randomUUID();
+      const isGuest = p.is_guest || false;
+      const rateKnown = isGuest ? (p.rate_known ?? true) : true;
+      const rateSnapshot = rateKnown ? (p.hourly_rate ?? 0) : null;
+      const partDur = p.manual_duration_seconds ?? meeting_duration_seconds;
+
+      insertParticipant.run(
+        partId,
+        meetingId,
+        p.person_id || null,
+        p.name,
+        p.role || null,
+        p.organization || null,
+        isGuest ? 1 : 0,
+        rateSnapshot,
+        rateKnown ? 1 : 0,
+        partDur,
+        partDur,
+        now,
+        now
+      );
+    }
+
+    if (external_costs && external_costs.length > 0) {
+      for (const ec of external_costs) {
+        insertCost.run(
+          crypto.randomUUID(),
+          meetingId,
+          ec.cost_library_id || null,
+          ec.name.trim(),
+          Math.max(0, ec.amount),
+          ec.currency || 'EUR',
+          ec.is_overridden ? 1 : 0,
+          now,
+          now
+        );
+      }
+    }
+  });
+
+  tx();
+
+  const state = recalculateAndPersistMeeting(meetingId);
+  res.status(201).json({ meeting: state });
+});
+
+// 4. Update / Edit MANUAL ENTRY Meeting
+router.put('/:id/manual', (req: AuthenticatedRequest, res: Response): void => {
+  const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
+  if (!meeting) {
+    res.status(404).json({ error: 'Meeting not found' });
+    return;
+  }
+
+  if (meeting.provenance !== 'MANUAL_ENTRY') {
+    res.status(400).json({ error: 'Meeting is not a Manual Entry record' });
+    return;
+  }
+
+  const result = manualEntrySchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: result.error.errors[0].message });
+    return;
+  }
+
+  const { title, planned_date, planned_time, meeting_duration_seconds, manual_reason, participants, external_costs } = result.data;
+
+  // Validation
+  for (const p of participants) {
+    const dur = p.manual_duration_seconds ?? meeting_duration_seconds;
+    if (dur < 0 || dur > meeting_duration_seconds) {
+      res.status(400).json({
+        error: `Participant '${p.name}' participation duration (${dur}s) must be between 0 and meeting duration (${meeting_duration_seconds}s)`
+      });
+      return;
+    }
+  }
+
+  const now = new Date().toISOString();
+
+  const tx = db.transaction(() => {
+    db.prepare(`
+      UPDATE meetings
+      SET title = ?, planned_date = ?, planned_time = ?, total_duration_seconds = ?, manual_reason = ?, updated_at = ?
+      WHERE id = ?
+    `).run(title, planned_date, planned_time || null, meeting_duration_seconds, manual_reason || null, now, req.params.id);
+
+    // Replace participants
+    db.prepare(`DELETE FROM meeting_participants WHERE meeting_id = ?`).run(req.params.id);
+    const insertParticipant = db.prepare(`
+      INSERT INTO meeting_participants (
+        id, meeting_id, person_id, name, role, organization, is_guest,
+        hourly_rate_snapshot, rate_known, state, selected, measured_seconds,
+        manual_duration_seconds, calculated_cost, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', 1, ?, ?, NULL, ?, ?)
+    `);
+
+    for (const p of participants) {
+      const partId = crypto.randomUUID();
+      const isGuest = p.is_guest || false;
+      const rateKnown = isGuest ? (p.rate_known ?? true) : true;
+      const rateSnapshot = rateKnown ? (p.hourly_rate ?? 0) : null;
+      const partDur = p.manual_duration_seconds ?? meeting_duration_seconds;
+
+      insertParticipant.run(
+        partId,
+        req.params.id,
+        p.person_id || null,
+        p.name,
+        p.role || null,
+        p.organization || null,
+        isGuest ? 1 : 0,
+        rateSnapshot,
+        rateKnown ? 1 : 0,
+        partDur,
+        partDur,
+        now,
+        now
+      );
+    }
+
+    if (external_costs) {
+      db.prepare(`DELETE FROM meeting_external_costs WHERE meeting_id = ?`).run(req.params.id);
+      const insertCost = db.prepare(`
+        INSERT INTO meeting_external_costs (
+          id, meeting_id, cost_library_id, name, amount, currency, is_overridden, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const ec of external_costs) {
+        insertCost.run(
+          crypto.randomUUID(),
+          req.params.id,
+          ec.cost_library_id || null,
+          ec.name.trim(),
+          Math.max(0, ec.amount),
+          ec.currency || 'EUR',
+          ec.is_overridden ? 1 : 0,
+          now,
+          now
+        );
+      }
+    }
+  });
+
+  tx();
+
+  const state = recalculateAndPersistMeeting(req.params.id);
+  res.json({ meeting: state });
+});
+
+// 5. Get meeting details
 router.get('/:id', (req: AuthenticatedRequest, res: Response): void => {
   const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id);
   if (!meeting) {
@@ -138,35 +455,47 @@ router.get('/:id/live', (req: AuthenticatedRequest, res: Response): void => {
   res.json({ meeting: state });
 });
 
-// Update meeting config (only when CONFIGURED)
-router.put('/:id/config', (req: AuthenticatedRequest, res: Response): void => {
+// 6. Update PREPARED meeting (edit / reschedule)
+router.put('/:id', (req: AuthenticatedRequest, res: Response): void => {
   const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
   if (!meeting) {
     res.status(404).json({ error: 'Meeting not found' });
     return;
   }
 
-  if (meeting.status !== 'CONFIGURED') {
-    res.status(400).json({ error: 'Cannot update configuration once meeting has started or ended' });
+  if (meeting.status !== 'PREPARED' && meeting.status !== 'CONFIGURED') {
+    res.status(400).json({ error: `Cannot edit meeting in status ${meeting.status}` });
     return;
   }
 
-  const result = updateConfigSchema.safeParse(req.body);
+  const result = updatePreparedSchema.safeParse(req.body);
   if (!result.success) {
     res.status(400).json({ error: result.error.errors[0].message });
     return;
   }
 
-  const { title, participants } = result.data;
+  const { title, planned_date, planned_time, is_recurring, participants, external_costs } = result.data;
   const now = new Date().toISOString();
 
   const tx = db.transaction(() => {
-    if (title) {
-      db.prepare(`UPDATE meetings SET title = ?, updated_at = ? WHERE id = ?`).run(title, now, req.params.id);
-    }
+    db.prepare(`
+      UPDATE meetings
+      SET title = COALESCE(?, title),
+          planned_date = COALESCE(?, planned_date),
+          planned_time = COALESCE(?, planned_time),
+          is_recurring = COALESCE(?, is_recurring),
+          updated_at = ?
+      WHERE id = ?
+    `).run(
+      title || null,
+      planned_date !== undefined ? planned_date : null,
+      planned_time !== undefined ? planned_time : null,
+      is_recurring !== undefined ? (is_recurring ? 1 : 0) : null,
+      now,
+      req.params.id
+    );
 
     if (participants) {
-      // Replace participants
       db.prepare(`DELETE FROM meeting_participants WHERE meeting_id = ?`).run(req.params.id);
       const insertParticipant = db.prepare(`
         INSERT INTO meeting_participants (
@@ -199,15 +528,131 @@ router.put('/:id/config', (req: AuthenticatedRequest, res: Response): void => {
         );
       }
     }
+
+    if (external_costs) {
+      db.prepare(`DELETE FROM meeting_external_costs WHERE meeting_id = ?`).run(req.params.id);
+      const insertCost = db.prepare(`
+        INSERT INTO meeting_external_costs (
+          id, meeting_id, cost_library_id, name, amount, currency, is_overridden, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const ec of external_costs) {
+        insertCost.run(
+          crypto.randomUUID(),
+          req.params.id,
+          ec.cost_library_id || null,
+          ec.name.trim(),
+          Math.max(0, ec.amount),
+          ec.currency || 'EUR',
+          ec.is_overridden ? 1 : 0,
+          now,
+          now
+        );
+      }
+    }
   });
 
   tx();
 
-  const state = computeLiveMeetingState(req.params.id);
+  const state = recalculateAndPersistMeeting(req.params.id);
   res.json({ meeting: state });
 });
 
-// Explicit Start: CONFIGURED -> LIVE
+// 7. Delete Meeting (PREPARED or MISSED)
+router.delete('/:id', (req: AuthenticatedRequest, res: Response): void => {
+  const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
+  if (!meeting) {
+    res.status(404).json({ error: 'Meeting not found' });
+    return;
+  }
+
+  db.prepare(`DELETE FROM meetings WHERE id = ?`).run(req.params.id);
+  res.json({ success: true, message: 'Meeting deleted successfully' });
+});
+
+// 8. Duplicate Recurring Meeting
+router.post('/:id/duplicate', (req: AuthenticatedRequest, res: Response): void => {
+  const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
+  if (!meeting) {
+    res.status(404).json({ error: 'Meeting not found' });
+    return;
+  }
+
+  const participants = db.prepare(`SELECT * FROM meeting_participants WHERE meeting_id = ?`).all(req.params.id) as any[];
+  const externalCosts = db.prepare(`SELECT * FROM meeting_external_costs WHERE meeting_id = ?`).all(req.params.id) as any[];
+
+  const newId = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  const tx = db.transaction(() => {
+    db.prepare(`
+      INSERT INTO meetings (
+        id, user_id, title, status, provenance, currency, planned_date, planned_time,
+        is_recurring, created_at, started_at, accumulated_cost, participant_cost_total,
+        external_cost_total, total_estimated_cost, unknown_cost_count, total_duration_seconds, updated_at
+      ) VALUES (?, ?, ?, 'PREPARED', 'LIVE', ?, NULL, NULL, 1, ?, NULL, 0.0, 0.0, 0.0, 0.0, 0, 0, ?)
+    `).run(
+      newId,
+      req.user!.id,
+      `${meeting.title} (Recurring Copy)`,
+      meeting.currency || 'EUR',
+      now,
+      now
+    );
+
+    const insertParticipant = db.prepare(`
+      INSERT INTO meeting_participants (
+        id, meeting_id, person_id, name, role, organization, is_guest,
+        hourly_rate_snapshot, rate_known, state, selected, measured_seconds,
+        calculated_cost, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, 0, NULL, ?, ?)
+    `);
+
+    for (const p of participants) {
+      insertParticipant.run(
+        crypto.randomUUID(),
+        newId,
+        p.person_id,
+        p.name,
+        p.role,
+        p.organization,
+        p.is_guest,
+        p.hourly_rate_snapshot,
+        p.rate_known,
+        p.selected,
+        now,
+        now
+      );
+    }
+
+    const insertCost = db.prepare(`
+      INSERT INTO meeting_external_costs (
+        id, meeting_id, cost_library_id, name, amount, currency, is_overridden, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    for (const ec of externalCosts) {
+      insertCost.run(
+        crypto.randomUUID(),
+        newId,
+        ec.cost_library_id,
+        ec.name,
+        ec.amount,
+        ec.currency,
+        ec.is_overridden,
+        now,
+        now
+      );
+    }
+  });
+
+  tx();
+
+  const state = recalculateAndPersistMeeting(newId);
+  res.status(201).json({ meeting: state });
+});
+
+// 9. Explicit Start: PREPARED -> LIVE
 router.post('/:id/start', (req: AuthenticatedRequest, res: Response): void => {
   const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
   if (!meeting) {
@@ -215,7 +660,7 @@ router.post('/:id/start', (req: AuthenticatedRequest, res: Response): void => {
     return;
   }
 
-  if (meeting.status !== 'CONFIGURED') {
+  if (meeting.status !== 'PREPARED' && meeting.status !== 'CONFIGURED') {
     res.status(400).json({ error: `Cannot start meeting in status ${meeting.status}` });
     return;
   }
@@ -236,7 +681,6 @@ router.post('/:id/start', (req: AuthenticatedRequest, res: Response): void => {
       UPDATE meetings SET status = 'LIVE', started_at = ?, updated_at = ? WHERE id = ?
     `).run(now, now, req.params.id);
 
-    // Set selected participants to ACTIVE and create first interval
     const insertInterval = db.prepare(`
       INSERT INTO measurement_intervals (id, meeting_id, participant_id, started_at, ended_at, duration_seconds)
       VALUES (?, ?, ?, ?, NULL, 0)
@@ -250,11 +694,11 @@ router.post('/:id/start', (req: AuthenticatedRequest, res: Response): void => {
 
   tx();
 
-  const state = computeLiveMeetingState(req.params.id);
+  const state = recalculateAndPersistMeeting(req.params.id);
   res.json({ meeting: state });
 });
 
-// Pause participant
+// 10. Pause participant
 router.post('/:id/pause', (req: AuthenticatedRequest, res: Response): void => {
   const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
   if (!meeting) {
@@ -292,7 +736,6 @@ router.post('/:id/pause', (req: AuthenticatedRequest, res: Response): void => {
   const nowIso = now.toISOString();
 
   const tx = db.transaction(() => {
-    // Find open interval
     const openInterval = db.prepare(`
       SELECT * FROM measurement_intervals WHERE participant_id = ? AND ended_at IS NULL
     `).get(participant_id) as any;
@@ -306,6 +749,7 @@ router.post('/:id/pause', (req: AuthenticatedRequest, res: Response): void => {
     }
 
     db.prepare(`UPDATE meeting_participants SET state = 'PAUSED', updated_at = ? WHERE id = ?`).run(nowIso, participant_id);
+    db.prepare(`UPDATE meetings SET updated_at = ? WHERE id = ?`).run(nowIso, req.params.id);
   });
 
   tx();
@@ -314,7 +758,7 @@ router.post('/:id/pause', (req: AuthenticatedRequest, res: Response): void => {
   res.json({ meeting: state });
 });
 
-// Resume participant
+// 11. Resume participant
 router.post('/:id/resume', (req: AuthenticatedRequest, res: Response): void => {
   const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
   if (!meeting) {
@@ -351,13 +795,13 @@ router.post('/:id/resume', (req: AuthenticatedRequest, res: Response): void => {
   const now = new Date().toISOString();
 
   const tx = db.transaction(() => {
-    // Open new interval
     db.prepare(`
       INSERT INTO measurement_intervals (id, meeting_id, participant_id, started_at, ended_at, duration_seconds)
       VALUES (?, ?, ?, ?, NULL, 0)
     `).run(crypto.randomUUID(), req.params.id, participant_id, now);
 
     db.prepare(`UPDATE meeting_participants SET state = 'ACTIVE', updated_at = ? WHERE id = ?`).run(now, participant_id);
+    db.prepare(`UPDATE meetings SET updated_at = ? WHERE id = ?`).run(now, req.params.id);
   });
 
   tx();
@@ -366,7 +810,7 @@ router.post('/:id/resume', (req: AuthenticatedRequest, res: Response): void => {
   res.json({ meeting: state });
 });
 
-// Mark participant as LEFT
+// 12. Leave participant
 router.post('/:id/leave', (req: AuthenticatedRequest, res: Response): void => {
   const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
   if (!meeting) {
@@ -421,6 +865,7 @@ router.post('/:id/leave', (req: AuthenticatedRequest, res: Response): void => {
     db.prepare(`
       UPDATE meeting_participants SET state = 'LEFT', left_at = ?, updated_at = ? WHERE id = ?
     `).run(nowIso, nowIso, participant_id);
+    db.prepare(`UPDATE meetings SET updated_at = ? WHERE id = ?`).run(nowIso, req.params.id);
   });
 
   tx();
@@ -429,7 +874,7 @@ router.post('/:id/leave', (req: AuthenticatedRequest, res: Response): void => {
   res.json({ meeting: state });
 });
 
-// Explicit End: LIVE -> ENDED
+// 13. Explicit End: LIVE -> ENDED
 router.post('/:id/end', (req: AuthenticatedRequest, res: Response): void => {
   const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
   if (!meeting) {
@@ -438,7 +883,6 @@ router.post('/:id/end', (req: AuthenticatedRequest, res: Response): void => {
   }
 
   if (meeting.status === 'ENDED') {
-    // Idempotent: return finalized state
     const state = computeLiveMeetingState(req.params.id);
     res.json({ meeting: state });
     return;
@@ -468,59 +912,167 @@ router.post('/:id/end', (req: AuthenticatedRequest, res: Response): void => {
       `).run(nowIso, dur, inv.id);
     }
 
-    // 2. Finalize each participant's measured_seconds and calculated_cost
-    const participants = db.prepare(`
-      SELECT * FROM meeting_participants WHERE meeting_id = ? AND selected = 1
-    `).all(req.params.id) as any[];
-
-    let accumulatedCost = 0;
-    let unknownCostCount = 0;
-
-    for (const p of participants) {
-      const intervals = db.prepare(`
-        SELECT duration_seconds FROM measurement_intervals WHERE participant_id = ?
-      `).all(p.id) as any[];
-
-      const totalSec = intervals.reduce((acc, curr) => acc + (curr.duration_seconds || 0), 0);
-      let pCost: number | null = null;
-
-      if (p.rate_known && p.hourly_rate_snapshot !== null) {
-        pCost = (p.hourly_rate_snapshot * totalSec) / 3600;
-        accumulatedCost += pCost;
-      } else {
-        unknownCostCount++;
-      }
-
-      db.prepare(`
-        UPDATE meeting_participants
-        SET measured_seconds = ?, calculated_cost = ?, updated_at = ?
-        WHERE id = ?
-      `).run(totalSec, pCost !== null ? Math.round(pCost * 100) / 100 : null, nowIso, p.id);
-    }
-
-    // 3. Finalize meeting
+    // 2. Set status to ENDED
     db.prepare(`
       UPDATE meetings
-      SET status = 'ENDED', ended_at = ?, accumulated_cost = ?, unknown_cost_count = ?,
-          total_duration_seconds = ?, updated_at = ?
+      SET status = 'ENDED', ended_at = ?, total_duration_seconds = ?, updated_at = ?
       WHERE id = ?
-    `).run(
-      nowIso,
-      Math.round(accumulatedCost * 100) / 100,
-      unknownCostCount,
-      totalDuration,
-      nowIso,
-      req.params.id
-    );
+    `).run(nowIso, totalDuration, nowIso, req.params.id);
   });
 
   tx();
 
-  const state = computeLiveMeetingState(req.params.id);
+  // 3. Recalculate & lock final values
+  const state = recalculateAndPersistMeeting(req.params.id);
   res.json({ meeting: state });
 });
 
-// Final Receipt summary
+// 14. Add / Replace External Costs on Meeting (PREPARED, LIVE, or post-End)
+router.post('/:id/external-costs', (req: AuthenticatedRequest, res: Response): void => {
+  const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
+  if (!meeting) {
+    res.status(404).json({ error: 'Meeting not found' });
+    return;
+  }
+
+  const now = new Date().toISOString();
+
+  // Case A: Batch update/sync of external costs array
+  if (req.body && Array.isArray(req.body.external_costs)) {
+    const tx = db.transaction(() => {
+      db.prepare(`DELETE FROM meeting_external_costs WHERE meeting_id = ?`).run(req.params.id);
+      const insertCost = db.prepare(`
+        INSERT INTO meeting_external_costs (
+          id, meeting_id, cost_library_id, name, amount, currency, is_overridden, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      for (const ec of req.body.external_costs) {
+        if (!ec.name || typeof ec.name !== 'string') continue;
+        insertCost.run(
+          ec.id || crypto.randomUUID(),
+          req.params.id,
+          ec.cost_library_id || null,
+          ec.name.trim(),
+          Math.max(0, parseFloat(ec.amount) || 0),
+          ec.currency || 'EUR',
+          ec.is_overridden ? 1 : 0,
+          ec.created_at || now,
+          now
+        );
+      }
+
+      db.prepare(`UPDATE meetings SET updated_at = ? WHERE id = ?`).run(now, req.params.id);
+    });
+
+    tx();
+
+    const state = recalculateAndPersistMeeting(req.params.id);
+    res.status(200).json({ meeting: state });
+    return;
+  }
+
+  // Case B: Single external cost item addition
+  const parseResult = externalCostInputSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    res.status(400).json({ error: parseResult.error.errors[0].message });
+    return;
+  }
+
+  const { cost_library_id, name, amount, currency, is_overridden } = parseResult.data;
+  const costId = crypto.randomUUID();
+
+  db.prepare(`
+    INSERT INTO meeting_external_costs (
+      id, meeting_id, cost_library_id, name, amount, currency, is_overridden, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    costId,
+    req.params.id,
+    cost_library_id || null,
+    name.trim(),
+    Math.max(0, amount),
+    currency || 'EUR',
+    is_overridden ? 1 : 0,
+    now,
+    now
+  );
+
+  db.prepare(`UPDATE meetings SET updated_at = ? WHERE id = ?`).run(now, req.params.id);
+
+  const state = recalculateAndPersistMeeting(req.params.id);
+  res.status(201).json({ meeting: state });
+});
+
+// 15. Edit External Cost item (works post-End as explicit exception to immutability)
+router.put('/:id/external-costs/:costId', (req: AuthenticatedRequest, res: Response): void => {
+  const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
+  if (!meeting) {
+    res.status(404).json({ error: 'Meeting not found' });
+    return;
+  }
+
+  const existingCost = db.prepare(`
+    SELECT id FROM meeting_external_costs WHERE id = ? AND meeting_id = ?
+  `).get(req.params.costId, req.params.id);
+
+  if (!existingCost) {
+    res.status(404).json({ error: 'External cost item not found' });
+    return;
+  }
+
+  const parseResult = externalCostInputSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    res.status(400).json({ error: parseResult.error.errors[0].message });
+    return;
+  }
+
+  const { cost_library_id, name, amount, currency, is_overridden } = parseResult.data;
+  const now = new Date().toISOString();
+
+  db.prepare(`
+    UPDATE meeting_external_costs
+    SET name = ?, amount = ?, currency = ?, cost_library_id = ?, is_overridden = ?, updated_at = ?
+    WHERE id = ? AND meeting_id = ?
+  `).run(
+    name.trim(),
+    Math.max(0, amount),
+    currency || 'EUR',
+    cost_library_id || null,
+    is_overridden ? 1 : 0,
+    now,
+    req.params.costId,
+    req.params.id
+  );
+
+  const state = recalculateAndPersistMeeting(req.params.id);
+  res.json({ meeting: state });
+});
+
+// 16. Delete External Cost item
+router.delete('/:id/external-costs/:costId', (req: AuthenticatedRequest, res: Response): void => {
+  const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
+  if (!meeting) {
+    res.status(404).json({ error: 'Meeting not found' });
+    return;
+  }
+
+  const existingCost = db.prepare(`
+    SELECT id FROM meeting_external_costs WHERE id = ? AND meeting_id = ?
+  `).get(req.params.costId, req.params.id);
+
+  if (!existingCost) {
+    res.status(404).json({ error: 'External cost item not found' });
+    return;
+  }
+
+  db.prepare(`DELETE FROM meeting_external_costs WHERE id = ? AND meeting_id = ?`).run(req.params.costId, req.params.id);
+
+  const state = recalculateAndPersistMeeting(req.params.id);
+  res.json({ meeting: state });
+});
+
+// 17. Final Receipt Summary
 router.get('/:id/receipt', (req: AuthenticatedRequest, res: Response): void => {
   const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(req.params.id, req.user!.id) as any;
   if (!meeting) {
@@ -535,7 +1087,6 @@ router.get('/:id/receipt', (req: AuthenticatedRequest, res: Response): void => {
     return;
   }
 
-  // Generate light, sarcastic quotes based on cost & duration
   const quotes = [
     "This definitely could have been an email.",
     "Time is money, and we just spent both.",
@@ -552,20 +1103,30 @@ router.get('/:id/receipt', (req: AuthenticatedRequest, res: Response): void => {
       meeting_id: meeting.id,
       title: meeting.title,
       status: meeting.status,
+      provenance: meeting.provenance || 'LIVE',
       creator: {
         id: user.id,
         name: user.name,
         email: user.email,
       },
-      currency: meeting.currency,
+      currency: meeting.currency || 'EUR',
+      planned_date: meeting.planned_date || null,
+      planned_time: meeting.planned_time || null,
+      manual_reason: meeting.manual_reason || null,
+      is_recurring: Boolean(meeting.is_recurring),
       created_at: meeting.created_at,
       started_at: meeting.started_at,
       ended_at: meeting.ended_at,
+      updated_at: state.updated_at,
       total_duration_seconds: state.elapsed_seconds,
-      final_estimated_cost: state.accumulated_cost,
+      participant_cost_total: state.participant_cost_total,
+      external_cost_total: state.external_cost_total,
+      final_estimated_cost: state.total_estimated_cost,
+      total_estimated_cost: state.total_estimated_cost,
       unknown_cost_count: state.unknown_cost_count,
       participants_count: state.participants.length,
       participants: state.participants,
+      external_costs: state.external_costs,
       tone_quote: quote,
       estimate_disclaimer: "MeetingMeter estimated calculation only. Not an official accounting, payroll, billing, or invoice document.",
     },

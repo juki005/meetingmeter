@@ -4,7 +4,7 @@ import { Meeting } from '../types/index.ts';
 import { CostDisplay } from '../components/CostDisplay.tsx';
 import { ElapsedTime } from '../components/ElapsedTime.tsx';
 import { ParticipantRow } from '../components/ParticipantRow.tsx';
-import { StopCircle, AlertTriangle, Users, Sparkles, Shield } from 'lucide-react';
+import { StopCircle, AlertTriangle, Users, Sparkles, Shield, Package, Layers } from 'lucide-react';
 
 interface LiveMeterPageProps {
   meetingId: string;
@@ -18,9 +18,9 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
   const [showEndModal, setShowEndModal] = useState(false);
   const [ending, setEnding] = useState(false);
 
-  // Local tick interpolation
+  // Local tick interpolation for participant cost
   const [tickSeconds, setTickSeconds] = useState(0);
-  const [tickCost, setTickCost] = useState(0);
+  const [tickParticipantCost, setTickParticipantCost] = useState(0);
 
   // Fetch authoritative live state from server
   const fetchLiveState = async () => {
@@ -28,7 +28,7 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
       const data = await apiRequest<{ meeting: Meeting }>(`/meetings/${meetingId}/live`);
       setMeeting(data.meeting);
       setTickSeconds(data.meeting.elapsed_seconds);
-      setTickCost(data.meeting.accumulated_cost);
+      setTickParticipantCost(data.meeting.accumulated_cost);
 
       if (data.meeting.status === 'ENDED') {
         onMeetingEnded(meetingId);
@@ -51,7 +51,7 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
       setTickSeconds((prev) => prev + 1);
       setMeeting((currentMeeting) => {
         if (!currentMeeting || currentMeeting.status !== 'LIVE') return currentMeeting;
-        setTickCost((prevCost) => prevCost + (currentMeeting.burn_rate_per_second || 0));
+        setTickParticipantCost((prevCost) => prevCost + (currentMeeting.burn_rate_per_second || 0));
         return currentMeeting;
       });
     }, 1000);
@@ -70,7 +70,7 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
         body: JSON.stringify({ participant_id: participantId }),
       });
       setMeeting(data.meeting);
-      setTickCost(data.meeting.accumulated_cost);
+      setTickParticipantCost(data.meeting.accumulated_cost);
     } catch (err: any) {
       alert('Failed to pause participant: ' + err.message);
     }
@@ -84,7 +84,7 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
         body: JSON.stringify({ participant_id: participantId }),
       });
       setMeeting(data.meeting);
-      setTickCost(data.meeting.accumulated_cost);
+      setTickParticipantCost(data.meeting.accumulated_cost);
     } catch (err: any) {
       alert('Failed to resume participant: ' + err.message);
     }
@@ -99,7 +99,7 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
         body: JSON.stringify({ participant_id: participantId }),
       });
       setMeeting(data.meeting);
-      setTickCost(data.meeting.accumulated_cost);
+      setTickParticipantCost(data.meeting.accumulated_cost);
     } catch (err: any) {
       alert('Failed to mark participant left: ' + err.message);
     }
@@ -140,6 +140,9 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
   }
 
   const activeParticipantsCount = meeting.participants.filter((p) => p.state === 'ACTIVE').length;
+  const externalCostsTotal = meeting.external_cost_total || (meeting.external_costs?.reduce((sum, c) => sum + c.amount, 0) || 0);
+  const combinedTotalCost = tickParticipantCost + externalCostsTotal;
+  const currencySymbol = meeting.currency === 'EUR' ? '€' : meeting.currency === 'USD' ? '$' : meeting.currency === 'GBP' ? '£' : '€';
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -173,7 +176,7 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
 
       {/* Main Cost Display HUD */}
       <CostDisplay
-        cost={tickCost}
+        cost={combinedTotalCost}
         currency={meeting.currency}
         isLive={true}
         burnRatePerHour={meeting.burn_rate_per_hour}
@@ -181,11 +184,63 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
         unknownCount={meeting.unknown_cost_count}
       />
 
+      {/* Sub-Totals Breakdown Banner if External Costs exist */}
+      {externalCostsTotal > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-4 bg-surface-card border border-border-subtle rounded-xl flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Users className="w-5 h-5 text-brand-primary" />
+              <div>
+                <div className="text-[10px] font-mono uppercase text-ink-muted">Live Participant Time Cost</div>
+                <div className="text-sm font-semibold text-ink-secondary">Synchronous headcount cost</div>
+              </div>
+            </div>
+            <div className="text-right font-mono font-bold text-ink-primary text-base">
+              {currencySymbol}{tickParticipantCost.toFixed(2)}
+            </div>
+          </div>
+
+          <div className="p-4 bg-surface-card border border-border-subtle rounded-xl flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Package className="w-5 h-5 text-brand-cyan" />
+              <div>
+                <div className="text-[10px] font-mono uppercase text-ink-muted">External Fixed Costs</div>
+                <div className="text-sm font-semibold text-ink-secondary">{meeting.external_costs?.length || 0} attached item(s)</div>
+              </div>
+            </div>
+            <div className="text-right font-mono font-bold text-brand-cyan text-base">
+              {currencySymbol}{externalCostsTotal.toFixed(2)}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sarcastic Ticker Banner */}
       <div className="p-3 bg-surface-elevated/60 border border-border-subtle rounded-xl flex items-center justify-center space-x-2 text-xs text-ink-secondary italic text-center">
         <Sparkles className="w-4 h-4 text-brand-primary flex-shrink-0" />
         <span>"Every 60 seconds that pass in this alignment, the meter keeps ticking."</span>
       </div>
+
+      {/* External Costs Manifest if present */}
+      {meeting.external_costs && meeting.external_costs.length > 0 && (
+        <div className="space-y-3 bg-surface-card border border-border-subtle p-5 rounded-2xl">
+          <h2 className="text-sm font-bold uppercase font-mono text-ink-muted flex items-center space-x-2">
+            <Package className="w-4 h-4 text-brand-cyan" />
+            <span>Attached External Costs ({meeting.external_costs.length})</span>
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {meeting.external_costs.map((c) => (
+              <div key={c.id} className="p-3 bg-surface-inset border border-border-subtle rounded-xl flex justify-between items-center text-xs font-mono">
+                <div>
+                  <div className="font-semibold text-ink-primary font-sans">{c.name}</div>
+                  <div className="text-[10px] text-ink-muted uppercase">{c.category || 'External'}</div>
+                </div>
+                <div className="font-bold text-brand-cyan">{currencySymbol}{c.amount.toFixed(2)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Participants Manifest Section */}
       <div className="space-y-4">
@@ -226,17 +281,27 @@ export const LiveMeterPage: React.FC<LiveMeterPageProps> = ({ meetingId, onMeeti
             </div>
 
             <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-              Ending the meeting will stop all active participant timers, close open intervals, finalize the accumulated estimated cost, and generate your immutable fiscal receipt.
+              Ending the meeting will stop all active participant timers, close open intervals, finalize the accumulated estimated cost, and generate your fiscal receipt.
             </p>
 
-            <div className="p-3 bg-surface-inset rounded-xl border border-border-subtle text-xs font-mono space-y-1">
+            <div className="p-3 bg-surface-inset rounded-xl border border-border-subtle text-xs font-mono space-y-1.5">
               <div className="flex justify-between text-ink-muted">
                 <span>Duration:</span>
                 <span className="text-ink-primary">{Math.floor(tickSeconds / 60)} min {tickSeconds % 60} sec</span>
               </div>
               <div className="flex justify-between text-ink-muted">
-                <span>Final Estimated Cost:</span>
-                <span className="font-bold text-brand-primary">{tickCost.toFixed(2)} {meeting.currency}</span>
+                <span>Participant Cost:</span>
+                <span className="text-ink-primary">{currencySymbol}{tickParticipantCost.toFixed(2)}</span>
+              </div>
+              {externalCostsTotal > 0 && (
+                <div className="flex justify-between text-ink-muted">
+                  <span>External Costs:</span>
+                  <span className="text-brand-cyan">{currencySymbol}{externalCostsTotal.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-ink-muted pt-1 border-t border-border-subtle">
+                <span className="font-bold text-ink-primary">Total Estimated Spend:</span>
+                <span className="font-extrabold text-brand-primary">{currencySymbol}{combinedTotalCost.toFixed(2)}</span>
               </div>
             </div>
 

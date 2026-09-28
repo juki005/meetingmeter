@@ -1,0 +1,422 @@
+AI SOFTWARE FACTORY
+DESIGN HANDOFF PACKAGE
+
+Artifact ID: DESIGN-HANDOFF
+Project: MeetingMeter
+Version: 1.1
+Status: DRAFT / PROPOSED
+Source: DESIGN
+Receiving Role: TECH / AG
+Upstream Product Baseline: PRODUCT-SPEC v1.1 — APPROVED
+Design Approval: NOT GRANTED
+DESIGN_APPROVAL = NOT APPROVED
+
+==================================================
+1. HANDOFF STATUS
+==================================================
+
+This is a proposed Design handoff package for MeetingMeter v1.1.
+
+The package is DRAFT / PROPOSED.
+
+It is not an approved technical handoff.
+
+DESIGN_APPROVAL remains NOT APPROVED.
+
+The current implementation and Stitch/Figma visual artifact are not
+modified by this package.
+
+==================================================
+2. CANONICAL INPUTS
+==================================================
+
+PRODUCT-SPEC-MeetingMeter-v1.1-APPROVED.txt
+- Version: 1.1
+- Status: APPROVED
+- Authority: Product
+- Functional/product requirements authority
+
+DESIGN-SPEC-MeetingMeter-v1.1.txt
+- Version: 1.1
+- Status: DRAFT / PROPOSED
+- Authority: Design intent for proposed v1.1
+
+DESIGN-SPEC-MeetingMeter-v1.0.txt
+- Version: 1.0
+- Status: APPROVED / PRESERVED
+- Historical prior Design baseline
+
+==================================================
+3. REVISED VISUAL BASELINE
+==================================================
+
+INTENDED v1.1 DESIGN DIRECTION:
+
+DARK / TACTICAL FINTECH
+
+The previous Light visual token set is superseded as the intended v1.1
+visual direction.
+
+The Light v1.0 Design artifact remains preserved and unchanged.
+
+Current visual reference:
+
+Figma file: MettingMetter-Stitch
+Figma key: cADavUHVEaBO1avbVxNRz6
+Node: 0:1
+URL:
+https://www.figma.com/design/cADavUHVEaBO1avbVxNRz6/MettingMetter-Stitch?node-id=0-1&p=f&t=DyXz9MF2HFJnBF92-0
+
+Observed baseline:
+- dark canvas;
+- dark slate surfaces;
+- emerald accent;
+- prominent numerical telemetry;
+- participant manifest;
+- compact tactical actions;
+- high-density operational hierarchy.
+
+The visual artifact is a reference for visual realization. Its
+implementation-specific concepts do not become Product requirements
+unless explicitly present in PRODUCT-SPEC v1.1.
+
+==================================================
+4. EXISTING DESIGN RETAINED
+==================================================
+
+Retain:
+- Home
+- People
+- Meetings / History
+- Profile
+- Active Meeting
+- CONFIGURE -> START -> LIVE METER -> END -> FINAL RESULT / RECEIPT
+  -> HISTORY
+- ACTIVE / PAUSED / RESUMED / LEFT participant behavior
+- core component system;
+- global states;
+- responsive principles;
+- accessibility principles;
+- estimate framing;
+- PDF/Image/CSV export;
+- creator-owned private History.
+
+==================================================
+5. V1.1 DESIGN ADDITIONS
+==================================================
+
+TECH / AG must account for the following approved Product v1.1
+capabilities as represented in the proposed Design:
+
+MANUAL ENTRY
+- required date;
+- required meeting duration;
+- participants;
+- individual participation duration;
+- optional time;
+- optional manual-entry reason;
+- MANUAL ENTRY provenance;
+- 0 <= participation <= meeting duration;
+- zero duration valid;
+- editing and recalculation;
+- no fabricated live events;
+- History and Receipt representation.
+
+PREPARED
+- saved future meeting;
+- no measurement before Start;
+- Edit;
+- Reschedule;
+- Delete;
+- Start.
+
+MISSED / NOT HELD
+- History representation;
+- distinct from ENDED;
+- not a zero-cost completed meeting;
+- Product-supported follow-up actions.
+
+RECURRING
+- visible tag/indicator;
+- duplication;
+- independent duplicated meeting records;
+- no recurrence engine/calendar synchronization.
+
+EXTERNAL COSTS
+- multiple items;
+- name/description;
+- amount;
+- EUR (€);
+- zero allowed;
+- negative prohibited;
+- participant/external separation;
+- combined total formula.
+
+COST LIBRARY
+- name;
+- default amount;
+- EUR (€);
+- copy default into meeting;
+- per-meeting override;
+- library default remains independent.
+
+POST-END EXTERNAL COST EDITING
+- participant measurement remains locked;
+- external costs can be edited;
+- current estimated total may change;
+- Last Updated changes;
+- Receipt/History update;
+- meeting does not restart.
+
+==================================================
+6. REQUIRED DESIGN COMPONENT EXTENSIONS
+==================================================
+
+Proposed extensions:
+- MeetingStatusBadge
+- ProvenanceBadge
+- RecurringIndicator
+- ExternalCostItem
+- ExternalCostList
+- CostLibraryItem
+- CostLibraryPicker
+- MeetingStateActions
+- ManualEntryForm
+- ManualParticipationInput
+- LastUpdatedIndicator
+
+Existing component system remains valid.
+
+These component names are Design-level structures, not independent
+Product requirements.
+
+==================================================
+7. REQUIRED STATE COVERAGE
+==================================================
+
+Meeting:
+- PREPARED
+- LIVE
+- ENDED
+- MISSED / NOT HELD
+- MANUAL ENTRY provenance
+- RECURRING indicator
+
+Participant:
+- ACTIVE
+- PAUSED
+- RESUMED
+- LEFT
+- unknown cost where applicable
+
+External Cost:
+- empty
+- populated
+- zero amount
+- invalid negative amount
+- library-derived
+- meeting override
+- editable after End
+- updated result
+
+Manual Entry:
+- empty
+- partially completed
+- validation error
+- valid
+- editing
+- recalculated result
+
+Global:
+- default
+- hover
+- focus
+- active
+- selected
+- disabled
+- loading
+- empty
+- error
+- success
+- validation
+
+==================================================
+8. RESPONSIVE REQUIREMENTS
+==================================================
+
+Desktop:
+- Dark cockpit hierarchy;
+- clear total and state;
+- multi-column where appropriate;
+- participant and external cost separation.
+
+Tablet:
+- collapsed navigation as needed;
+- no horizontal scrolling;
+- preserved cost/state/action hierarchy.
+
+Mobile:
+- single-column;
+- prominent total;
+- usable Manual Entry form;
+- stacked external cost items;
+- accessible Prepared actions;
+- readable Cost Library;
+- no horizontal scrolling.
+
+==================================================
+9. ACCESSIBILITY REQUIREMENTS
+==================================================
+
+- sufficient Dark-theme contrast;
+- visible keyboard focus;
+- semantic headings;
+- accessible labels and statuses;
+- non-color-only state communication;
+- usable touch targets;
+- dialog focus management;
+- keyboard operation;
+- reduced-motion consideration;
+- clear estimate labeling;
+- accessible validation messages.
+
+==================================================
+10. DOWNSTREAM TECHNICAL IMPACT
+==================================================
+
+TECH / AG should revalidate:
+
+1. Theme/token mapping against the Dark visual baseline.
+2. Component styling against the current Stitch/Figma reference.
+3. Meeting-state representation.
+4. Manual Entry presentation and validation.
+5. Prepared/reschedule/delete flows.
+6. MISSED / NOT HELD History presentation.
+7. Recurring indicator and duplication presentation.
+8. External cost persistence/display/editing.
+9. Cost Library and meeting-specific override presentation.
+10. Participant/external total separation.
+11. Post-End external-cost edit behavior.
+12. Last Updated.
+13. Receipt/History updates.
+14. Responsive behavior.
+15. Accessibility behavior.
+
+The current implementation code is not changed by this Design task.
+
+==================================================
+11. IMPLEMENTATION IMPACT
+==================================================
+
+Implementation change in this Design task:
+
+NONE.
+
+Current Stitch/Figma artifact:
+
+UNCHANGED.
+
+Current application implementation:
+
+UNCHANGED.
+
+The purpose of this handoff is documentation and governance
+reconciliation only.
+
+Any implementation change required later must proceed through the
+appropriate Technical / AG workflow and must remain within the
+approved Product and Design baselines.
+
+==================================================
+12. OPEN DESIGN DETAILS
+==================================================
+
+Before formal Design Approval, resolve:
+
+- Manual Entry screen composition;
+- Prepared/reschedule/delete composition;
+- MISSED / NOT HELD visual treatment;
+- Recurring indicator placement;
+- Cost Library selection pattern;
+- post-End external-cost editing interaction;
+- Last Updated placement;
+- responsive composition for new surfaces;
+- complete Dark token table where not exposed by the current
+  visual reference;
+- receipt/export treatment under the Dark direction.
+
+These are Design completion details, not Product changes.
+
+==================================================
+13. TRACEABILITY
+==================================================
+
+Upstream:
+- PRODUCT-SPEC-MeetingMeter-v1.1-APPROVED.txt
+- DESIGN-SPEC-MeetingMeter-v1.0.txt
+- PROJECT-STATE-v1.8.txt
+- QA-EXECUTION-MeetingMeter-v1.1.txt
+- AG-HANDOFF-MeetingMeter-v1.0.txt
+
+Current visual reference:
+- MettingMetter-Stitch
+- Figma key cADavUHVEaBO1avbVxNRz6
+
+Downstream:
+- TECH / AG revalidation;
+- revised technical definition after Design approval;
+- implementation revalidation;
+- QA revalidation.
+
+==================================================
+14. DESIGN APPROVAL READINESS
+==================================================
+
+DESIGN-SPEC v1.1:
+DRAFT / PROPOSED
+
+DESIGN-CHANGE-REVIEW v1.1:
+DRAFT / PROPOSED
+
+DESIGN-HANDOFF v1.1:
+DRAFT / PROPOSED
+
+DESIGN_APPROVAL:
+NOT APPROVED
+
+Readiness:
+PARTIALLY READY FOR FORMAL DESIGN APPROVAL REVIEW.
+
+Completed:
+- Dark governance direction reconciled;
+- Light baseline explicitly superseded for v1.1 intent;
+- current Stitch/Figma retained as visual reference;
+- Product v1.1 Design impacts documented;
+- existing valid Design retained;
+- technical and implementation boundaries documented;
+- responsive/accessibility impacts documented.
+
+Remaining:
+- resolve open Design details;
+- complete/validate key screens and flows;
+- complete responsive and accessibility verification;
+- confirm final Design handoff completeness;
+- obtain formal DESIGN_APPROVAL.
+
+==================================================
+15. FACTORY STATE BOUNDARY
+==================================================
+
+PASS in any later Design validation does not equal APPROVED.
+
+This artifact does not authorize progression to the next lifecycle state.
+
+Formal Design Approval is still required.
+
+No Product requirements are changed by this handoff.
+
+No implementation code is changed by this handoff.
+
+==================================================
+END OF DESIGN-HANDOFF-MeetingMeter-v1.1
+==================================================

@@ -1,0 +1,771 @@
+AI SOFTWARE FACTORY
+DESIGN SPECIFICATION
+
+Artifact ID: DESIGN-SPEC
+Project: MeetingMeter
+Version: 1.1
+Status: APPROVED
+Owner: DESIGN
+Approval Authority: Product Lead
+Approval Decision: APPROVED
+Upstream Product Baseline: PRODUCT-SPEC v1.1 — APPROVED
+Previous Design Baseline: DESIGN-SPEC v1.0 — APPROVED / PRESERVED
+Downstream Consumer: TECH / AG
+
+==================================================
+1. PURPOSE
+==================================================
+
+This proposed DESIGN-SPEC v1.1 updates the MeetingMeter Design baseline
+to represent the approved Product v1.1 changes and the retained current
+Dark / Tactical FinTech visual direction.
+
+It preserves all valid v1.0 Design requirements unless explicitly
+changed below.
+
+It does not modify Product requirements.
+
+It does not modify implementation code.
+
+It does not modify the current Stitch/Figma visual artifact.
+
+It is approved by the Product Lead at the DESIGN_APPROVAL gate.
+
+==================================================
+2. GOVERNANCE BASELINE
+==================================================
+
+PRODUCT-SPEC v1.1 = APPROVED and is the authoritative Product baseline.
+
+PRODUCT-SPEC v1.0 remains preserved as the historical prior baseline.
+
+DESIGN-SPEC v1.0 remains preserved as the prior approved Design
+baseline.
+
+The intended v1.1 visual direction is:
+
+DARK / TACTICAL FINTECH
+
+The previous Light visual token set from DESIGN-SPEC v1.0 is
+superseded as the intended visual baseline for v1.1.
+
+The previous Light values remain historical Design data and are not
+deleted from the v1.0 artifact.
+
+The current Stitch/Figma visual artifact is the visual reference for
+the proposed v1.1 Dark direction.
+
+==================================================
+3. CURRENT VISUAL ARTIFACT
+==================================================
+
+Figma file: MettingMetter-Stitch
+Figma key: cADavUHVEaBO1avbVxNRz6
+Node: 0:1
+URL:
+https://www.figma.com/design/cADavUHVEaBO1avbVxNRz6/MettingMetter-Stitch?node-id=0-1&p=f&t=DyXz9MF2HFJnBF92-0
+
+The artifact is retained unchanged and is the current visual reference
+for v1.1.
+
+The reference demonstrates a Dark / Tactical FinTech language with:
+- dark canvas;
+- dark slate surfaces;
+- emerald accent;
+- prominent numerical telemetry;
+- dense but structured operational information;
+- participant manifest treatment;
+- compact action controls;
+- responsive cockpit-like hierarchy.
+
+Visual reference does not automatically create Product requirements.
+Any additional Stitch concepts must remain visual/implementation
+reference unless explicitly supported by PRODUCT-SPEC v1.1.
+
+==================================================
+4. EXISTING DESIGN RETAINED
+==================================================
+
+4.1 INFORMATION ARCHITECTURE
+
+Primary areas:
+- Home
+- People
+- Meetings / History
+- Profile
+- Active Meeting
+
+4.2 CORE FLOW
+
+CONFIGURE -> START -> LIVE METER -> END -> FINAL RESULT / RECEIPT
+-> HISTORY
+
+4.3 PARTICIPANT LIFECYCLE
+
+ACTIVE <-> PAUSED
+ACTIVE -> LEFT
+RESUME returns PAUSED to active measurement.
+LEAVE ends measurement for that participant.
+
+4.4 CORE SURFACES
+
+HOME
+Primary entry, active/recent meeting context, navigation.
+
+MEETING CONFIGURATION
+Meeting setup, roster, individual selection, Select All, Guest
+handling, explicit Start.
+
+LIVE METER
+Meeting context, prominent real-time estimated total cost, elapsed
+time, participant manifest, participant states/actions, known and
+unknown cost treatment, explicit End.
+
+FINAL RESULT / RECEIPT
+Meeting, creator, date/time where known, duration, participants,
+participation times, relevant cost information, current estimated
+total, estimate framing, PDF/Image/CSV export.
+
+PEOPLE
+Organizer-managed internal people and Guests.
+
+PROFILE
+Name, job title, hourly rate.
+
+HISTORY / MEETINGS
+Creator-owned meetings and results, private access.
+
+4.5 COMPONENTS
+
+- AppShell
+- Navigation
+- PageHeader
+- PrimaryButton
+- SecondaryButton
+- DestructiveButton
+- Checkbox
+- ParticipantRow
+- ParticipantStatus
+- CostDisplay
+- ElapsedTime
+- MeetingCard
+- PeopleList
+- GuestIndicator
+- UnknownCostIndicator
+- ConfirmationDialog
+- Toast / StatusMessage
+- ExportActions
+- ReceiptSummary
+
+4.6 COMPONENT VARIANTS
+
+- Button / Primary
+- Button / Secondary
+- Button / Secondary / End
+- Participant Row / Active
+- Participant Row / Paused
+- Participant Row / Left
+- Participant Row / Unknown Cost
+
+4.7 GLOBAL STATES
+
+default
+hover
+focus
+active
+selected
+disabled
+loading
+empty
+error
+success
+validation
+
+4.8 RESPONSIVE PRINCIPLES
+
+Desktop:
+persistent/collapsible navigation as appropriate and multi-column
+composition where useful.
+
+Tablet:
+navigation may collapse; no horizontal scrolling; preserve cost and
+action hierarchy.
+
+Mobile:
+single-column composition; compact navigation; prominent cost;
+actionable participant rows; stacked secondary information; accessible
+touch targets.
+
+4.9 ACCESSIBILITY
+
+- sufficient contrast;
+- visible keyboard focus;
+- semantic headings;
+- accessible labels/statuses;
+- states not conveyed by color alone;
+- usable touch targets;
+- dialog focus management;
+- keyboard support;
+- reduced-motion consideration.
+
+4.10 TONE / ESTIMATE FRAMING
+
+MeetingMeter presents estimated cost, not official accounting, payroll,
+billing, or payment amounts.
+
+Humor is secondary to numerical clarity and must not obscure the
+numerical result.
+
+==================================================
+5. REVISED VISUAL SYSTEM
+==================================================
+
+5.1 VISUAL DIRECTION
+
+Cool, high-clarity product behavior is retained, but the visual
+expression is revised to the current Dark / Tactical FinTech direction.
+
+The Light v1.0 token set is superseded for v1.1 intended use.
+
+Historical v1.0 Light values:
+
+background #F5F7FA
+surface #FFFFFF
+surface.subtle #F8FAFD
+text.primary #172033
+text.secondary #687386
+border #DCE2EA
+primary #2F6FED
+primary.subtle #EEF3FF
+success #138A62
+warning #B97812
+error #D64545
+
+These values are preserved only as the prior v1.0 baseline.
+
+5.2 DARK REFERENCE VALUES
+
+Current Stitch/Figma reference establishes:
+
+background/canvas #090A0F
+dark surface #12141C
+dark slate surface #1E293B
+primary accent #10B981
+
+The current Figma/Stitch artifact remains the reference for exact
+visual application where additional values are needed.
+
+No unsupported token values are invented by this specification.
+
+5.3 RETAINED DESIGN PRINCIPLES
+
+- high numerical clarity;
+- low unnecessary visual noise;
+- strong hierarchy;
+- prominent estimated cost;
+- clear meeting state;
+- clear participant state;
+- accessible non-color state communication;
+- responsive usability.
+
+==================================================
+6. V1.1 MEETING STATES AND PRESENTATION
+==================================================
+
+6.1 PREPARED
+
+A saved future meeting.
+
+Design presentation:
+- planned meeting information;
+- clear PREPARED state;
+- no elapsed-time accumulation;
+- no accumulated cost;
+- editable before Start;
+- reschedulable before Start;
+- deletable before Start;
+- Start action.
+
+6.2 LIVE
+
+Active meeting with live participant measurement.
+
+Retain the existing Live Meter hierarchy while applying the Dark
+visual system.
+
+At minimum, preserve clear presentation of:
+- meeting context/state;
+- estimated cost;
+- elapsed time;
+- participant states;
+- primary actions;
+- supporting metadata.
+
+6.3 ENDED
+
+Completed meeting.
+
+Participant measurement is locked.
+
+The current result remains ESTIMATED.
+
+External-cost editing may occur after End as defined below.
+
+6.4 MISSED / NOT HELD
+
+A History representation for a PREPARED meeting whose planned
+date/time passed without Start.
+
+Design must distinguish it from ENDED and must not present it as a
+completed zero-cost meeting.
+
+Supported Product actions may include:
+- retain;
+- delete;
+- use as basis for Manual Entry.
+
+6.5 MANUAL ENTRY
+
+MANUAL ENTRY is provenance/type for a reconstructed historical
+meeting.
+
+It is not a live measurement state.
+
+The Design must not imply fabricated Start/Pause/Resume/Leave events.
+
+6.6 RECURRING
+
+RECURRING is a visible tag/indicator.
+
+Duplication creates an independent meeting record.
+
+The Design must not imply automatic recurrence or calendar
+synchronization.
+
+==================================================
+7. MANUAL ENTRY
+==================================================
+
+7.1 CREATION
+
+Provide a dedicated Manual Entry creation surface.
+
+Required:
+- date;
+- meeting duration;
+- participants;
+- individual participation duration.
+
+Optional:
+- time;
+- manual-entry reason.
+
+7.2 PROVENANCE
+
+MANUAL ENTRY must be visible as provenance on relevant creation,
+result, receipt, and History surfaces.
+
+7.3 VALIDATION
+
+For each participant:
+0 <= participation duration <= meeting duration
+
+Zero duration is valid.
+
+Negative duration is invalid.
+
+Participation durations do not need to sum to meeting duration.
+
+7.4 EDITING
+
+Manual meetings can be edited.
+
+Affected estimated results are recalculated.
+
+The UI should clearly indicate that the record is reconstructed data.
+
+7.5 RECEIPT / HISTORY
+
+Receipt includes, where applicable:
+- meeting;
+- creator;
+- date/time where known;
+- duration;
+- participants;
+- reconstructed participation;
+- relevant participant cost information;
+- external cost items;
+- participant total;
+- external total;
+- current total estimated meeting cost;
+- MANUAL ENTRY provenance;
+- manual-entry reason where applicable;
+- Last Updated where applicable.
+
+History identifies MANUAL ENTRY and displays the current result.
+
+==================================================
+8. PREPARED / MISSED / RECURRING
+==================================================
+
+8.1 PREPARED CREATION
+
+Saving a PREPARED meeting must not start measurement.
+
+8.2 PREPARED ACTIONS
+
+- Edit
+- Reschedule
+- Delete
+- Start
+
+8.3 RESCHEDULING
+
+Rescheduling updates the existing prepared meeting and shows a visible
+Last Updated or equivalent change indication.
+
+8.4 MISSED / NOT HELD
+
+The History representation must:
+- identify MISSED / NOT HELD;
+- distinguish it from ENDED;
+- avoid implying measured duration or zero cost;
+- support the Product-defined follow-up actions.
+
+8.5 RECURRING
+
+Recurring presentation:
+- visible RECURRING tag/indicator;
+- duplication action;
+- each duplicate visually treated as an independent meeting.
+
+No recurrence engine or calendar synchronization is introduced.
+
+==================================================
+9. EXTERNAL COSTS
+==================================================
+
+9.1 EXTERNAL COST ITEMS
+
+A meeting may contain zero or more external cost items.
+
+Each item supports:
+- description/name;
+- amount;
+- EUR (€) currency.
+
+Multiple items are supported.
+
+Zero is allowed.
+
+Negative amounts are prohibited.
+
+9.2 COST SEPARATION
+
+Participant and external costs remain visually separate.
+
+Display:
+
+Participant Cost Total
+External Cost Total
+Total Estimated Meeting Cost
+
+Calculation:
+
+Total Estimated Meeting Cost =
+Participant Cost Total + External Cost Total
+
+9.3 COST LIBRARY
+
+Cost Library provides reusable external cost items.
+
+Each library item contains:
+- name;
+- default amount;
+- EUR (€) currency.
+
+Selecting an item copies its default amount into the meeting.
+
+A meeting-specific override:
+- changes the applied meeting amount only;
+- does not change the library default;
+- remains independent of later library-default changes.
+
+9.4 POST-END EDITING
+
+After End:
+- participant measurement remains locked;
+- external costs may be edited;
+- editing does not restart measurement;
+- editing does not change participant measurement history;
+- current estimated total may change;
+- Last Updated changes;
+- Receipt/History reflect the current result.
+
+==================================================
+10. RECEIPT / HISTORY
+==================================================
+
+10.1 RECEIPT
+
+Receipt remains an estimate-oriented result surface.
+
+v1.1 extends it with:
+- MANUAL ENTRY provenance where applicable;
+- external cost items;
+- participant total;
+- external total;
+- combined current total;
+- Last Updated where applicable;
+- relevant prepared/missed/recurring context where applicable.
+
+10.2 HISTORY
+
+History remains private and creator-owned.
+
+v1.1 extends presentation with:
+- MANUAL ENTRY;
+- MISSED / NOT HELD;
+- RECURRING;
+- external cost summary;
+- current Total Estimated Meeting Cost;
+- Last Updated where applicable.
+
+==================================================
+11. COMPONENT EXTENSIONS
+==================================================
+
+Retain the v1.0 component system and extend it as needed with:
+
+- MeetingStatusBadge
+- ProvenanceBadge
+- RecurringIndicator
+- ExternalCostItem
+- ExternalCostList
+- CostLibraryItem
+- CostLibraryPicker
+- MeetingStateActions
+- ManualEntryForm
+- ManualParticipationInput
+- LastUpdatedIndicator
+
+These are Design-level component definitions. They do not by themselves
+create Product functionality beyond PRODUCT-SPEC v1.1.
+
+==================================================
+12. INTERACTION AND STATE REQUIREMENTS
+==================================================
+
+All retained global states continue to apply.
+
+Additional state coverage:
+
+Meeting:
+- PREPARED
+- LIVE
+- ENDED
+- MISSED / NOT HELD
+- MANUAL ENTRY provenance
+- RECURRING indicator
+
+External Cost:
+- empty
+- populated
+- zero amount
+- validation error
+- library-derived
+- meeting-specific override
+- editable after End
+- updated after edit
+
+Manual Entry:
+- empty
+- partially completed
+- validation error
+- valid
+- editing
+- recalculated result
+
+Destructive actions:
+- delete prepared meeting requires confirmation.
+
+==================================================
+13. RESPONSIVE DESIGN
+==================================================
+
+Desktop:
+- preserve the current Dark cockpit hierarchy;
+- support multi-column layouts where useful;
+- keep cost and state prominent;
+- maintain clear separation of participant and external cost data.
+
+Tablet:
+- collapse navigation as needed;
+- preserve meeting state and total visibility;
+- stack or regroup dense cost information without horizontal scrolling.
+
+Mobile:
+- single-column;
+- prominent total;
+- compact but accessible participant rows;
+- stacked external cost items;
+- usable Manual Entry form;
+- readable Cost Library selection;
+- accessible Prepared actions;
+- no horizontal scrolling.
+
+Receipt and History must remain legible and usable on narrow screens.
+
+==================================================
+14. ACCESSIBILITY
+==================================================
+
+Dark theme:
+- maintain sufficient contrast;
+- provide visible focus;
+- do not rely on color alone for state;
+- provide accessible state labels;
+- preserve semantic headings;
+- provide accessible form labels and validation;
+- maintain touch target sizes;
+- manage dialog focus;
+- support keyboard operation;
+- support reduced motion.
+
+Meeting states and provenance must be understandable without color.
+
+Numerical results must remain clearly labeled as estimates.
+
+==================================================
+15. DESIGN RECOMMENDATIONS
+==================================================
+
+- Use the current Dark reference's high-density telemetry hierarchy as
+  the visual language for MeetingMeter.
+- Keep the total estimated cost as the dominant numerical result.
+- Use distinct badges for PREPARED, MISSED / NOT HELD, MANUAL ENTRY,
+  and RECURRING.
+- Keep external costs visually separate from participant measurement.
+- Use clear edit affordances for post-End external-cost changes.
+- Preserve the current tactical/financial visual character without
+  introducing unsupported Product capabilities.
+- Keep humor subordinate to clarity.
+
+These are recommendations, not Product requirements.
+
+==================================================
+16. OPEN DESIGN DETAILS
+==================================================
+
+1. Exact Manual Entry form composition.
+2. Exact Prepared/reschedule/delete interaction composition.
+3. Exact MISSED / NOT HELD presentation and copy hierarchy.
+4. Exact Recurring indicator placement and duplication interaction.
+5. Exact Cost Library browsing and selection pattern.
+6. Exact external-cost edit interaction after End.
+7. Exact Last Updated placement.
+8. Exact tablet/mobile composition for new surfaces.
+9. Exact complete Dark token table where the current reference does not
+   expose authoritative values.
+10. Exact print/export treatment for receipts under the Dark direction.
+
+These details must be resolved before final Design approval if they
+affect implementation completeness.
+
+==================================================
+17. PRODUCT TRACEABILITY
+==================================================
+
+This Design Spec consumes PRODUCT-SPEC v1.1 — APPROVED.
+
+Product areas represented:
+- PREPARED;
+- MISSED / NOT HELD;
+- RECURRING;
+- MANUAL ENTRY;
+- manual editing/recalculation;
+- external costs;
+- Cost Library;
+- EUR (€);
+- participant/external cost separation;
+- Total Estimated Meeting Cost;
+- post-End external-cost editing;
+- Last Updated;
+- Receipt;
+- History.
+
+No Product requirement is changed by this Design Spec.
+
+==================================================
+18. TECHNICAL DOWNSTREAM IMPACT
+==================================================
+
+TECH / AG must revalidate implementation planning against:
+
+- Dark visual tokens and component styling;
+- revised meeting-state presentation;
+- Manual Entry data presentation and validation;
+- Prepared/Missed/Recurring flows;
+- External Cost and Cost Library surfaces;
+- post-End external-cost editing;
+- Last Updated;
+- Receipt/History changes;
+- responsive states;
+- accessibility states.
+
+The current implementation is not modified by this Design task.
+
+Any implementation discrepancy must be routed through Factory
+validation/change processes rather than silently changing Product scope.
+
+==================================================
+19. IMPLEMENTATION BOUNDARY
+==================================================
+
+No implementation code is changed.
+
+No Stitch/Figma visual artifact is changed.
+
+The revised Design documentation is aligned to the current Dark visual
+artifact.
+
+The current Figma file remains the visual reference:
+
+MettingMetter-Stitch
+cADavUHVEaBO1avbVxNRz6
+
+==================================================
+20. DESIGN APPROVAL READINESS
+==================================================
+
+Status:
+APPROVED
+
+DESIGN_APPROVAL = APPROVED
+
+The proposed v1.1 Design is materially aligned with:
+- approved Product v1.1;
+- retained valid Design v1.0 requirements;
+- current Dark visual direction.
+
+Approval record:
+- Approval Gate: DESIGN_APPROVAL
+- Decision: APPROVED
+- Approver: Product Lead
+- Approved Version: 1.1
+- Approved Direction: Dark / Tactical FinTech
+
+The Product Lead explicitly approved the revised Design baseline,
+including Manual Entry, Prepared / Recurring / Missed, External Costs /
+Cost Library / EUR, post-End external-cost editing, Last Updated,
+Receipt / History updates, responsive behavior, and accessibility.
+
+No Product requirements are modified by this Design approval.
+
+==================================================
+DESIGN_APPROVAL = APPROVED
+
+==================================================
+END OF DESIGN-SPEC-MeetingMeter-v1.1
+==================================================
+==================================================

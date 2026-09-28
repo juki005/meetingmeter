@@ -9,6 +9,8 @@ import { MeetingConfigPage } from './pages/MeetingConfigPage.tsx';
 import { LiveMeterPage } from './pages/LiveMeterPage.tsx';
 import { MeetingReceiptPage } from './pages/MeetingReceiptPage.tsx';
 import { HistoryPage } from './pages/HistoryPage.tsx';
+import { CostLibraryPage } from './pages/CostLibraryPage.tsx';
+import { ManualEntryPage } from './pages/ManualEntryPage.tsx';
 
 export const App: React.FC = () => {
   const { user, isLoading } = useAuth();
@@ -48,8 +50,18 @@ export const App: React.FC = () => {
       <main className="flex-1 pb-16">
         {currentTab === 'dashboard' && <DashboardPage onNavigate={handleNavigate} />}
         {currentTab === 'config' && (
-          <MeetingConfigPage onStartMeeting={(id) => handleNavigate('live', id)} />
+          <MeetingConfigPage
+            onStartMeeting={(id) => handleNavigate('live', id)}
+            onPreparedSaved={() => handleNavigate('dashboard')}
+          />
         )}
+        {currentTab === 'manual' && (
+          <ManualEntryPage
+            onSaved={(id) => handleNavigate('receipt', id)}
+            onCancel={() => handleNavigate('dashboard')}
+          />
+        )}
+        {currentTab === 'cost-library' && <CostLibraryPage />}
         {currentTab === 'live' && selectedMeetingId && (
           <LiveMeterPage
             meetingId={selectedMeetingId}
@@ -67,7 +79,7 @@ export const App: React.FC = () => {
       {/* Persistent Footer */}
       <footer className="border-t border-border-subtle/60 py-4 px-6 text-center text-xs font-mono text-ink-muted bg-surface-card/40">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>MeetingMeter v1.0 • Executive Telemetry HUD</span>
+          <span>MeetingMeter v1.1 • Executive Telemetry HUD</span>
           <span className="text-[11px] text-ink-muted">Estimated calculation only. Not official payroll/billing.</span>
         </div>
       </footer>

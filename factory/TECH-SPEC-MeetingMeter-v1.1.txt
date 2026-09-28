@@ -1,0 +1,999 @@
+AI SOFTWARE FACTORY
+TECHNICAL SPECIFICATION
+
+Artifact ID: TECH-SPEC
+Project: MeetingMeter
+Version: 1.1
+Status: REVALIDATED
+Owner: TECH / AG
+Lifecycle State: TECHNICAL_DEFINITION
+
+==================================================
+1. REVALIDATION AUTHORITY
+==================================================
+
+CURRENT CANONICAL PROJECT STATE
+- PROJECT-STATE-v1.9.txt
+- Lifecycle: TECHNICAL_DEFINITION
+- Status: ACTIVE
+- Active Role: 04 — TECH / AG
+
+APPROVED PRODUCT BASELINE
+- PRODUCT-SPEC-MeetingMeter-v1.1-APPROVED.txt
+- Version: 1.1
+- Status: APPROVED
+
+APPROVED DESIGN BASELINE
+- DESIGN-SPEC-MeetingMeter-v1.1-APPROVED.txt
+- Version: 1.1
+- Status: APPROVED
+- DESIGN-CHANGE-REVIEW-MeetingMeter-v1.1-APPROVED.txt
+- DESIGN-HANDOFF-MeetingMeter-v1.1-APPROVED.txt
+
+PREVIOUS TECHNICAL BASELINE
+- TECH-SPEC-MeetingMeter-v1.0.txt
+- IMPLEMENTATION-PLAN-MeetingMeter-v1.0.txt
+- AG-HANDOFF-MeetingMeter-v1.0.txt
+
+The v1.0 technical package is historical and is not assumed to remain
+aligned. This specification is the v1.1 technical baseline after
+explicit revalidation.
+
+No Product or Design requirement is changed by this artifact.
+
+==================================================
+2. REVALIDATION RESULT
+==================================================
+
+RESULT: READY
+
+TECHNICAL DEFINITION is sufficiently defined for downstream AG
+handoff.
+
+No unresolved technical blocker was found in the approved Product or
+Design sources.
+
+IMPLEMENTATION GATE:
+CLOSED until Antigravity performs the required Stitch MCP verification
+of the current MeetingMeter visual baseline.
+
+Current visual reference:
+- Figma file: MettingMetter-Stitch
+- Figma key: cADavUHVEaBO1avbVxNRz6
+- Node: 0:1
+
+Antigravity must retrieve the actual Stitch design context / Design DNA,
+verify artifact identity and compare it with DESIGN-SPEC v1.1 before
+implementation.
+
+==================================================
+3. TECHNICAL REQUIREMENTS THAT REMAIN UNCHANGED
+==================================================
+
+The following v1.0 technical requirements remain valid:
+
+- authenticated application;
+- protected user/profile data;
+- creator-owned private meetings/history;
+- server-side authorization;
+- internal people and Guests;
+- unknown cost is not zero;
+- explicit Start and End for live measurement;
+- ACTIVE / PAUSED / RESUMED / LEFT participant behavior;
+- interval-based participant measurement;
+- server-authoritative timestamps;
+- client display is not the financial source of truth;
+- deterministic participant cost calculation;
+- meeting-level historical rate snapshot;
+- idempotent/state-safe Start, Pause, Resume, Leave and End;
+- responsive client UI;
+- accessibility requirements;
+- PDF / Image / CSV export;
+- export generation must not mutate the meeting;
+- browser-level technical QA;
+- no accounting/payroll/billing/payment functionality;
+- no Zoom, Teams, Calendar, payroll, accounting, billing/payment,
+  automated attendance, organization-wide analytics, advanced
+  reporting, or automatic salary-derived cost calculation;
+- Cost Library is not an organization-wide shared pricing system;
+- multi-currency and currency conversion remain out of scope;
+- full immutable audit-log infrastructure remains out of scope.
+
+==================================================
+4. TECHNICAL REQUIREMENTS REVISED BY PRODUCT v1.1
+==================================================
+
+4.1 MEETING STATE MODEL
+
+v1.0:
+CONFIGURED -> LIVE -> ENDED
+
+v1.1:
+PREPARED -> LIVE -> ENDED
+
+Additional product/history representations:
+- MISSED / NOT HELD
+- MANUAL ENTRY provenance/type
+
+PREPARED is a persistent saved future meeting.
+
+PREPARED:
+- does not measure;
+- does not accumulate cost;
+- can be edited before Start;
+- can be rescheduled before Start;
+- can be deleted before Start;
+- can be started explicitly.
+
+MISSED / NOT HELD is a History representation for a PREPARED meeting
+whose planned date/time passed without Start.
+
+MISSED / NOT HELD:
+- does not accumulate cost;
+- is not an ENDED zero-cost meeting;
+- may be retained;
+- may be deleted;
+- may be used as the basis for Manual Entry.
+
+MANUAL ENTRY is provenance/type, not a fabricated live measurement
+state.
+
+4.2 FINAL RESULT STABILITY
+
+v1.0 absolute immutability is superseded.
+
+After End:
+- participant measurement is locked;
+- participant measurement history cannot change;
+- external cost items may be edited;
+- current Total Estimated Meeting Cost may change;
+- Receipt/History must reflect the current result;
+- Last Updated must change;
+- result remains ESTIMATED.
+
+4.3 TOTAL COST
+
+v1.0:
+meeting cost = participant costs
+
+v1.1:
+Participant Cost Total =
+sum of individual participant costs
+
+External Cost Total =
+sum of external cost items
+
+Total Estimated Meeting Cost =
+Participant Cost Total + External Cost Total
+
+Participant and external totals remain technically separate.
+
+==================================================
+5. TECHNICAL REQUIREMENTS INTRODUCED BY PRODUCT v1.1
+==================================================
+
+5.1 MANUAL ENTRY
+
+A Manual Entry meeting requires:
+- date;
+- meeting duration;
+- participants;
+- individual participation duration.
+
+Optional:
+- time;
+- manual-entry reason.
+
+Validation:
+0 <= individual participation duration <= meeting duration
+
+Zero duration is valid.
+
+Participation durations do not need to sum to meeting duration.
+
+Manual Entry:
+- has explicit MANUAL ENTRY provenance;
+- reconstructs historical data;
+- does not fabricate Start/Pause/Resume/Leave events;
+- is editable;
+- recalculates affected estimated results;
+- appears in History and Receipt;
+- may include the manual-entry reason.
+
+5.2 PREPARED EDITING
+
+PREPARED meetings require persistence before Start.
+
+Required operations:
+- create/save;
+- edit;
+- reschedule;
+- delete;
+- Start.
+
+Rescheduling updates the existing prepared record and provides a visible
+Last Updated or equivalent change indication.
+
+No automatic recurrence engine is introduced.
+
+5.3 MISSED / NOT HELD
+
+The system must be able to represent a PREPARED meeting as MISSED /
+NOT HELD when its planned date/time passes without Start.
+
+This representation must be distinct from:
+- ENDED;
+- zero-cost completed meeting.
+
+5.4 RECURRING
+
+Recurring is:
+- a tag/indicator;
+- plus duplication.
+
+Each duplicated occurrence is an independent meeting record.
+
+No recurrence scheduler or calendar synchronization is introduced.
+
+5.5 EXTERNAL COSTS
+
+A meeting supports zero or more external cost items.
+
+Each item contains:
+- description/name;
+- amount;
+- EUR (€).
+
+Rules:
+- zero is valid;
+- negative values are invalid;
+- multiple items are valid.
+
+Participant costs and external costs are separate.
+
+5.6 COST LIBRARY
+
+A user-level reusable Cost Library contains:
+- name;
+- default amount;
+- EUR (€).
+
+Selecting an item copies its default amount into the meeting.
+
+A meeting-specific override:
+- changes only the meeting's applied amount;
+- does not change the library default;
+- is stored independently;
+- remains the applied historical price even if the library default
+  later changes.
+
+5.7 POST-END EXTERNAL COST EDITING
+
+After End:
+- external costs may be edited;
+- participant measurement remains locked;
+- meeting does not restart;
+- participant measurement history is unchanged;
+- current total is recalculated;
+- Receipt/History reflect the current result;
+- Last Updated changes;
+- result remains ESTIMATED.
+
+==================================================
+6. NEW DATA-MODEL REQUIREMENTS
+==================================================
+
+The minimum conceptual model is extended as follows.
+
+USER
+Existing:
+- id
+- authentication identity
+- name
+- job title
+- hourly rate
+- timestamps
+
+PERSON
+Existing:
+- id
+- owner/user id
+- internal / guest type
+- name
+- role
+- organization
+- default hourly rate where known
+- rate-known state
+- timestamps
+
+MEETING
+Required v1.1 additions:
+- lifecycle status: PREPARED / LIVE / ENDED
+- history representation for MISSED / NOT HELD
+- provenance/type including MANUAL ENTRY
+- planned date/time for PREPARED meetings
+- meeting duration where applicable
+- recurring indicator
+- participant cost total
+- external cost total
+- total estimated meeting cost
+- Last Updated metadata
+- manual-entry reason where supplied
+- result/history representation
+
+MEETING PARTICIPANT
+Existing plus:
+- participation mode/provenance where needed for Manual Entry
+- manual/reconstructed participation duration where applicable
+- locked measured participation data after live End
+- participant cost derived from the applicable rate and participation
+  duration
+
+MEASUREMENT INTERVAL
+Retained for live measurement:
+- id
+- meeting participant id
+- started timestamp
+- ended timestamp
+- duration
+
+Manual Entry must not create fabricated live intervals/events merely
+to make the data appear as live measurement.
+
+EXTERNAL COST ITEM
+New:
+- id
+- meeting id
+- description/name
+- applied amount
+- currency = EUR
+- optional Cost Library source reference
+- whether amount was overridden for this meeting
+- created/updated timestamps
+
+COST LIBRARY ITEM
+New:
+- id
+- owner/user id
+- name
+- default amount
+- currency = EUR
+- created/updated timestamps
+
+MEETING CHANGE / HISTORY METADATA
+Required where needed to support:
+- Last Updated;
+- prepared rescheduling/change indication;
+- current post-End external-cost result.
+
+This does NOT imply a full immutable audit-log product feature, which
+remains out of scope.
+
+==================================================
+7. STATE AND LIFECYCLE REQUIREMENTS
+==================================================
+
+MEETING
+
+PREPARED -> LIVE -> ENDED
+
+PREPARED may:
+- EDIT;
+- RESCHEDULE;
+- DELETE;
+- START.
+
+PREPARED whose planned date/time passes without Start:
+- represented in History as MISSED / NOT HELD.
+
+MISSED / NOT HELD:
+- no measurement;
+- no cost accumulation;
+- not an ENDED zero-cost meeting;
+- may be deleted;
+- may be used as Manual Entry basis.
+
+MANUAL ENTRY is provenance/type for reconstructed historical data and
+must not fabricate live events.
+
+LIVE participant states:
+- ACTIVE;
+- PAUSED;
+- RESUMED transition to ACTIVE;
+- LEFT.
+
+ENDED:
+- participant measurement locked;
+- external cost editing remains permitted.
+
+EXTERNAL COST EDIT AFTER END:
+- no transition back to LIVE;
+- no participant measurement restart;
+- recalculation only.
+
+==================================================
+8. CALCULATION REQUIREMENTS
+==================================================
+
+LIVE PARTICIPANT COST
+
+participant_cost =
+hourly_rate * measured_seconds / 3600
+
+PARTICIPANT COST TOTAL
+
+Participant Cost Total =
+sum of known participant costs
+
+UNKNOWN PARTICIPANT COST
+
+Unknown cost remains explicitly unknown and is not represented as
+zero.
+
+MANUAL PARTICIPATION
+
+manual participant cost =
+hourly_rate * manual_participation_duration / 3600
+
+Zero duration:
+- valid;
+- participant remains represented;
+- participant cost is zero.
+
+EXTERNAL COST TOTAL
+
+External Cost Total =
+sum of external cost item amounts
+
+COMBINED TOTAL
+
+Total Estimated Meeting Cost =
+Participant Cost Total + External Cost Total
+
+EDITING
+
+Manual Entry edits:
+- recalculate affected participant/result values.
+
+External-cost edits after End:
+- recalculate External Cost Total;
+- recalculate Total Estimated Meeting Cost;
+- do not recalculate or alter locked participant measurement.
+
+All current/final results remain ESTIMATED.
+
+==================================================
+9. PERSISTENCE AND EDITING REQUIREMENTS
+==================================================
+
+PREPARED
+- persistent before Start;
+- editable;
+- reschedulable;
+- deletable.
+
+LIVE
+- participant measurement state is authoritative;
+- timestamps/intervals are persisted;
+- live participant data is authoritative.
+
+ENDED
+- participant measurement becomes locked;
+- finalized participant measurement is retained.
+
+POST-END
+- external cost records remain mutable;
+- participant measurement remains immutable;
+- current combined total is recalculated;
+- Last Updated changes;
+- History/Receipt reflect the current result.
+
+COST LIBRARY
+- library defaults are independent of meeting-applied amounts;
+- meeting-specific overrides are persisted on the meeting;
+- later library changes do not rewrite historical meeting-applied
+  amounts.
+
+MANUAL ENTRY
+- manual values are persisted directly;
+- no fabricated live events are required;
+- edits trigger recalculation.
+
+==================================================
+10. API / SERVICE REQUIREMENTS
+==================================================
+
+AUTHENTICATION
+- register/login/session handling;
+- authenticated-user retrieval.
+
+PROFILE
+- get own profile;
+- update own profile.
+
+PEOPLE
+- list owned people;
+- create/update internal person;
+- create/update Guest.
+
+COST LIBRARY
+New:
+- list own library items;
+- create library item;
+- update library item;
+- delete/archive library item according to implementation needs;
+- use library item when creating meeting external cost;
+- apply meeting-specific override without mutating library default.
+
+MEETINGS
+Existing:
+- create;
+- retrieve;
+- update configuration;
+- select/deselect participants;
+- Start;
+- live state;
+- Pause;
+- Resume;
+- Leave;
+- End;
+- final result;
+- history;
+- export.
+
+New:
+- create/save PREPARED meeting;
+- edit PREPARED meeting;
+- reschedule PREPARED meeting;
+- delete PREPARED meeting;
+- represent/query MISSED / NOT HELD;
+- duplicate recurring meeting;
+- create MANUAL ENTRY;
+- edit MANUAL ENTRY;
+- recalculate Manual Entry;
+- add/update/delete external cost item;
+- edit external costs after End;
+- retrieve current recalculated result;
+- expose Last Updated;
+- preserve provenance.
+
+All meeting mutations require owner authorization.
+
+State-transition mutations must be validated transactionally.
+
+==================================================
+11. HISTORY / AUDIT REQUIREMENTS
+==================================================
+
+History must support:
+- ENDED meetings;
+- MANUAL ENTRY meetings;
+- MISSED / NOT HELD prepared meetings;
+- RECURRING indicator;
+- Last Updated;
+- external cost summary/current total;
+- Manual Entry provenance;
+- manual-entry reason where supplied.
+
+Rescheduling requires visible Last Updated or equivalent change
+indication.
+
+Post-End external-cost edits require current-result and Last Updated
+reflection.
+
+The source Product explicitly keeps full immutable audit-log
+infrastructure out of scope. Therefore this technical baseline does
+not invent a full audit-log subsystem.
+
+==================================================
+12. RECEIPT / EXPORT REQUIREMENTS
+==================================================
+
+Receipt minimum:
+- meeting;
+- creator;
+- date/time where known;
+- duration;
+- participants;
+- measured/reconstructed participation times;
+- participant cost information;
+- external cost items;
+- Participant Cost Total;
+- External Cost Total;
+- current Total Estimated Meeting Cost;
+- measurement/provenance;
+- Last Updated where applicable;
+- manual-entry reason where applicable.
+
+Manual Entry receipt must clearly identify reconstructed data.
+
+History and Receipt must reflect post-End external-cost edits.
+
+Exports:
+- PDF;
+- Image;
+- CSV.
+
+Exports must represent the current applicable result and must not mutate
+the meeting.
+
+Exact print/export visual treatment is subject to the approved Dark
+Design baseline and its documented implementation details; no
+unsupported visual values are invented here.
+
+==================================================
+13. DESIGN TECHNICAL REQUIREMENTS
+==================================================
+
+The current visual direction is:
+
+DARK / TACTICAL FINTECH
+
+The v1.0 Light visual system is superseded for current implementation.
+
+Approved current visual reference:
+- MettingMetter-Stitch
+- Figma key cADavUHVEaBO1avbVxNRz6
+- Node 0:1
+
+Reference values explicitly provided by DESIGN-SPEC v1.1:
+- background/canvas #090A0F
+- dark surface #12141C
+- dark slate surface #1E293B
+- primary accent #10B981
+
+The implementation must retain:
+- high numerical clarity;
+- low unnecessary visual noise;
+- strong hierarchy;
+- prominent estimated cost;
+- clear meeting state;
+- clear participant state;
+- non-color state communication;
+- responsive usability.
+
+New design states requiring technical support:
+- PREPARED;
+- MISSED / NOT HELD;
+- MANUAL ENTRY provenance;
+- RECURRING indicator;
+- external-cost item states;
+- Cost Library states;
+- post-End external-cost editing;
+- Last Updated;
+- Manual Entry validation/editing/recalculation.
+
+Responsive:
+- desktop Dark cockpit hierarchy;
+- tablet without horizontal scrolling;
+- mobile single-column and prominent total;
+- usable Manual Entry;
+- readable Cost Library;
+- stacked external cost items;
+- accessible Prepared actions;
+- legible Receipt/History.
+
+Accessibility:
+- Dark-theme contrast;
+- visible focus;
+- semantic headings;
+- accessible labels/statuses;
+- non-color-only state communication;
+- touch targets;
+- dialog focus management;
+- keyboard operation;
+- reduced-motion consideration;
+- clear estimate semantics.
+
+==================================================
+14. CONTRADICTIONS / OBSOLETE V1.0 ASSUMPTIONS
+==================================================
+
+OBSOLETE / REVISED: V1.0 `CONFIGURED` meeting state.
+Replacement: PREPARED / LIVE / ENDED, with MISSED / NOT HELD history
+representation and MANUAL ENTRY provenance.
+
+OBSOLETE / REVISED: v1.0 statement that completed meeting final
+calculated result cannot drift or change.
+Replacement: participant measurement is locked after End, while
+external-cost edits may change the current estimated total.
+
+OBSOLETE / REVISED: v1.0 meeting cost equals participant costs only.
+Replacement: participant total + external total.
+
+OBSOLETE / REVISED: v1.0 data model has no persistent future meeting
+state.
+Replacement: PREPARED requires persistent planned configuration.
+
+OBSOLETE / REVISED: v1.0 historical model only assumes completed live
+meetings.
+Replacement: History can include ENDED, MANUAL ENTRY, and MISSED / NOT
+HELD.
+
+OBSOLETE / REVISED: v1.0 export model is only a completed-meeting
+export.
+Replacement: receipt/export must represent Manual Entry and current
+post-End external-cost result where applicable.
+
+OBSOLETE / REVISED: v1.0 statement that any correction workflow after
+End is outside MVP.
+Replacement: external-cost edits after End are explicitly supported.
+Participant measurement remains locked.
+
+OBSOLETE / REVISED: v1.0 technical model has no Cost Library.
+Replacement: user-level Cost Library with independent meeting
+overrides.
+
+OBSOLETE / REVISED: v1.0 technical model has no recurring/prepared
+duplication semantics.
+Replacement: recurring tag + independent duplication only.
+
+RETAINED:
+The v1.0 statement that full immutable audit-log infrastructure is
+outside MVP remains compatible with v1.1. v1.1 requires visible Last
+Updated/change indication, not a general-purpose audit-log product.
+
+RETAINED:
+The v1.0 Stitch/Figma verification concept remains valid, but the
+current Design baseline is now explicitly Dark / Tactical FinTech.
+
+==================================================
+15. DEPENDENCIES
+==================================================
+
+Required source dependencies:
+- PROJECT-STATE-v1.9
+- PRODUCT-SPEC-MeetingMeter-v1.1-APPROVED
+- DESIGN-SPEC-MeetingMeter-v1.1-APPROVED
+- DESIGN-CHANGE-REVIEW-MeetingMeter-v1.1-APPROVED
+- DESIGN-HANDOFF-MeetingMeter-v1.1-APPROVED
+
+Visual implementation dependency:
+- MettingMetter-Stitch
+- cADavUHVEaBO1avbVxNRz6
+- Node 0:1
+
+Execution dependency:
+- Antigravity/Stitch MCP must retrieve and verify actual design
+  context / Design DNA before implementation.
+
+No Calendar engine is a dependency because Calendar integration is
+out of scope.
+
+==================================================
+16. TECHNICAL RISKS
+==================================================
+
+R-01 State complexity
+PREPARED, LIVE, ENDED, MISSED / NOT HELD, and MANUAL ENTRY provenance
+increase lifecycle complexity.
+
+Mitigation:
+explicit state/provenance model and transition tests.
+
+R-02 Historical data ambiguity
+Manual Entry must not be mistaken for live measurement.
+
+Mitigation:
+explicit provenance and separate reconstructed data semantics.
+
+R-03 Post-End mutation
+External costs can change after End while participant measurement
+cannot.
+
+Mitigation:
+separate participant measurement persistence from mutable external
+cost data and recalculate only permitted totals.
+
+R-04 Cost inconsistency
+Participant and external totals could diverge.
+
+Mitigation:
+centralized deterministic calculation service and persisted applied
+external amounts.
+
+R-05 Cost Library historical drift
+Library defaults could incorrectly rewrite existing meetings.
+
+Mitigation:
+copy/override persistence on meeting records.
+
+R-06 Prepared scheduling semantics
+Automatic recurrence/calendar behavior could be accidentally added.
+
+Mitigation:
+explicitly limit recurring to tag + duplication.
+
+R-07 Unknown cost semantics
+Unknown participant cost could accidentally become zero.
+
+Mitigation:
+explicit nullable/known state throughout model/API/UI/export.
+
+R-08 Design mismatch
+Implementation may diverge from the approved Dark/Stitch baseline.
+
+Mitigation:
+mandatory Antigravity Stitch MCP verification gate.
+
+R-09 Export divergence
+Receipt/export could omit new v1.1 totals/provenance.
+
+Mitigation:
+export from the canonical result model and verify against v1.1
+acceptance criteria.
+
+R-10 Change-history overreach
+Technical implementation could accidentally introduce a full audit
+system.
+
+Mitigation:
+support required Last Updated/change indication only unless a later
+approved requirement explicitly adds audit logging.
+
+==================================================
+17. TECHNICAL QA REQUIREMENTS
+==================================================
+
+Regression coverage:
+1. authentication;
+2. profile;
+3. people;
+4. Guests;
+5. known/unknown participant rate;
+6. Select All;
+7. explicit Start;
+8. ACTIVE;
+9. Pause;
+10. Resume;
+11. Leave;
+12. independent participant measurement;
+13. live elapsed time;
+14. live participant cost;
+15. live participant total;
+16. live total;
+17. End;
+18. private History;
+19. PDF;
+20. Image;
+21. CSV;
+22. responsive behavior;
+23. accessibility;
+24. authorization.
+
+v1.1 lifecycle coverage:
+25. PREPARED persistence;
+26. PREPARED edit;
+27. PREPARED reschedule;
+28. PREPARED delete;
+29. PREPARED Start;
+30. MISSED / NOT HELD classification;
+31. MISSED retention/deletion;
+32. MISSED-to-Manual-Entry basis;
+33. RECURRING indicator;
+34. recurring duplication independence.
+
+Manual Entry coverage:
+35. required date;
+36. optional time;
+37. required meeting duration;
+38. participant participation duration;
+39. zero duration;
+40. negative duration rejection;
+41. duration greater than meeting duration rejection;
+42. participation durations need not sum to meeting duration;
+43. MANUAL ENTRY provenance;
+44. no fabricated live events;
+45. Manual Entry edit;
+46. Manual Entry recalculation;
+47. manual-entry reason persistence/visibility where supplied.
+
+External cost coverage:
+48. zero external costs;
+49. one external cost;
+50. multiple external costs;
+51. EUR currency;
+52. zero amount accepted;
+53. negative amount rejected;
+54. Participant Cost Total;
+55. External Cost Total;
+56. combined total formula;
+57. Cost Library create;
+58. Cost Library selection;
+59. default amount copy;
+60. per-meeting override;
+61. library default remains unchanged;
+62. meeting applied amount remains independent.
+
+Post-End coverage:
+63. external-cost edit after End;
+64. participant measurement remains locked;
+65. live measurement does not restart;
+66. participant intervals unchanged;
+67. current total recalculates;
+68. Last Updated changes;
+69. Receipt updates;
+70. History updates;
+71. estimate framing remains present.
+
+Concurrency/idempotency:
+72. duplicate Start;
+73. duplicate Pause;
+74. duplicate Resume;
+75. duplicate Leave;
+76. duplicate End;
+77. concurrent external-cost mutation;
+78. concurrent Manual Entry edit.
+
+Historical stability:
+79. profile rate change after meeting;
+80. Cost Library default change after meeting;
+81. meeting-specific external amount remains stable until explicitly
+edited;
+82. ended participant measurement remains stable.
+
+Security:
+83. cross-user meeting access denied;
+84. cross-user History access denied;
+85. Cost Library ownership enforced;
+86. protected exports;
+87. protected profile/rate data.
+
+Browser verification:
+88. core live flow;
+89. Manual Entry flow;
+90. Prepared flow;
+91. Missed/History flow;
+92. Recurring duplication;
+93. External Cost flow;
+94. post-End edit flow;
+95. Receipt;
+96. History;
+97. exports;
+98. mobile;
+99. tablet;
+100. desktop;
+101. keyboard/accessibility states.
+
+==================================================
+18. IMPLEMENTATION IMPACT
+==================================================
+
+IMPACT: MATERIAL
+
+The v1.1 Product additions require changes across:
+- domain/state model;
+- persistence;
+- calculation service;
+- API/service layer;
+- History;
+- Receipt;
+- export generation;
+- UI state handling;
+- technical QA.
+
+The existing v1.0 live measurement engine remains reusable.
+
+The existing authentication/privacy foundation remains reusable.
+
+The existing interval-based measurement approach remains reusable for
+live meetings.
+
+The implementation must not be treated as a small styling update.
+
+==================================================
+19. HANDOFF GATE
+==================================================
+
+TECHNICAL_DEFINITION may transition to AG_HANDOFF when:
+- this v1.1 technical baseline is complete;
+- implementation tasks are decomposed;
+- technical QA requirements are explicit;
+- Product/Design traceability is preserved;
+- Stitch MCP verification is explicitly assigned to Antigravity.
+
+Implementation must not begin from this ChatGPT conversation.
+
+==================================================
+END OF TECH-SPEC-MeetingMeter-v1.1
+==================================================

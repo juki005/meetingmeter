@@ -1,0 +1,233 @@
+CHANGE-REQUEST
+
+Change ID: MM-CHANGE-002
+Title: Retroactive / Manual Entry
+Artifact Status: PENDING PRODUCT APPROVAL
+Routing: PRODUCT
+
+==================================================
+1. EXISTING APPROVED BEHAVIOR
+==================================================
+
+The approved PRODUCT-SPEC v1.0 defines the normal MeetingMeter flow as:
+
+- meeting is created/configured;
+- the organizer explicitly starts measurement;
+- active participant time is measured;
+- participants may be paused, resumed, or marked as having left;
+- the organizer explicitly ends the meeting;
+- a final estimated result is generated;
+- the completed meeting is retained in History.
+
+The approved baseline distinguishes overall meeting duration from each
+participant's measured participation time.
+
+The approved baseline does not define a retroactive/manual-entry flow,
+manual-entry provenance, manually reconstructed participant duration,
+or post-creation editing/recalculation rules for manual meetings.
+
+PRODUCT-SPEC v1.0 remains unchanged by this CHANGE-REQUEST.
+
+==================================================
+2. PROPOSED NEW REQUIREMENTS
+==================================================
+
+MR-002-01  A user can create a meeting retrospectively as MANUAL ENTRY
+when the meeting was genuinely held but live measurement was not used.
+
+MR-002-02  Manual Entry requires a meeting date.
+
+MR-002-03  Meeting time is optional and may be omitted when the exact
+time is not known.
+
+MR-002-04  Manual Entry requires a meeting duration.
+
+MR-002-05  Manual Entry supports adding internal people and guests using
+the existing participant model.
+
+MR-002-06  For each participant, the user can enter individual measured /
+reconstructed participation duration directly. Arrival/departure may be
+used as an equivalent input method if supported by the final design, but
+the canonical product value is individual participation duration.
+
+MR-002-07  A participant may have zero minutes of participation. A zero-
+duration participant remains a participant but contributes zero
+participant cost.
+
+MR-002-08  Individual participation duration must satisfy:
+0 <= individual participation duration <= meeting duration.
+Negative duration is invalid.
+
+MR-002-09  Individual participation durations do not need to sum to the
+meeting duration.
+
+MR-002-10  Manual Entry uses the same applicable hourly-rate/cost-profile
+rules as the normal meeting cost calculation.
+
+MR-002-11  Manual Entry is explicitly identified with provenance:
+MEASUREMENT TYPE: MANUAL ENTRY.
+
+MR-002-12  A manual-entry reason may be entered by the user and is stored
+with the meeting for History/detail visibility. The reason is not a
+required controlled category list unless separately approved.
+
+MR-002-13  Manual meetings can be edited after creation.
+
+MR-002-14  Editing a manual meeting recalculates the affected result.
+
+MR-002-15  Manual meetings do not fabricate Start/Pause/Resume/Leave
+measurement events. They represent reconstructed meeting data.
+
+MR-002-16  The receipt/result identifies the meeting as Manual Entry and
+makes clear that the result was not produced by live measurement.
+
+MR-002-17  Manual meetings are retained in History as meetings created
+through Manual Entry.
+
+==================================================
+3. PRODUCT RULES
+==================================================
+
+PR-002-01  A manual meeting is a genuine historical meeting record, not
+a live measurement session performed retroactively.
+
+PR-002-02  Meeting duration and individual participation duration are
+separate values.
+
+PR-002-03  A participant who was expected to attend but did not attend
+may be included with 0 minutes of participation.
+
+PR-002-04  Zero participation is valid and produces zero participant
+cost; zero must not be interpreted as unknown cost.
+
+PR-002-05  Individual participation duration cannot be negative or exceed
+meeting duration.
+
+PR-002-06  Individual participation durations are independent and do not
+have to add up to the meeting duration.
+
+PR-002-07  Manual Entry must remain visibly distinguishable from live
+measurement in History and the receipt/result.
+
+PR-002-08  Editing a manual meeting changes the reconstructed data and
+recalculates the estimated result.
+
+PR-002-09  Manual Entry must not imply a false live event history.
+
+PR-002-10  The existing estimated-cost framing and non-accounting,
+non-payroll character of MeetingMeter remain applicable.
+
+==================================================
+4. OPEN QUESTIONS
+==================================================
+
+None required for the core Product decision package at this stage.
+
+Implementation/design may still need to resolve UI-level details such as
+whether duration is entered in minutes or through an hours/minutes control,
+without changing the product rules above.
+
+==================================================
+5. PRODUCT LEAD DECISIONS REQUIRED
+==================================================
+
+PLD-002-01  Approve or reject the proposed MANUAL ENTRY capability and
+requirements MR-002-01 through MR-002-17.
+
+PLD-002-02  Confirm that the proposed validation and zero-duration
+participant rule are accepted.
+
+PLD-002-03  Confirm that manual meetings may be edited with recalculation,
+while live measurement event history is not fabricated.
+
+PLD-002-04  If approved, authorize incorporation into a new Product Spec
+version through the Factory change process.
+
+No approval is granted by this CHANGE-REQUEST.
+
+==================================================
+6. OUT OF SCOPE
+==================================================
+
+- Fabricating or importing historical Start/Pause/Resume/Leave events.
+- Automated reconstruction of attendance.
+- Calendar integration for discovering past meetings.
+- Payroll/accounting/billing/payment functionality.
+- Automatic salary or hourly-rate inference.
+- Manipulation of another user's private meeting history.
+- Any change to the approved Product character or privacy model unless
+  separately approved.
+
+==================================================
+7. DEPENDENCIES
+==================================================
+
+- Meeting entity and meeting history.
+- Existing participant roster model.
+- Internal and guest participant handling.
+- Hourly rates / cost profiles.
+- Existing participant cost calculation.
+- Meeting duration and individual participation duration.
+- Final result and receipt.
+- History and export representation.
+- Change to the approved final-result rules must be coordinated with
+  any other approved/pending changes that affect post-completion editing.
+
+==================================================
+8. DOWNSTREAM DESIGN IMPACT
+==================================================
+
+Design must add a clear Manual Entry flow without confusing it with live
+measurement.
+
+Design impact includes:
+- Manual Entry creation form;
+- required date and optional time;
+- meeting duration input;
+- participant-level participation duration input;
+- support for 0-minute participants;
+- validation messaging for invalid duration values;
+- manual-entry provenance indicator;
+- optional manual-entry reason;
+- History/detail presentation of Manual Entry;
+- receipt/result presentation showing Manual Entry provenance;
+- edit/recalculate experience for manual meetings.
+
+Design must preserve the existing distinction between meeting duration
+and individual measured participation time.
+
+==================================================
+9. DOWNSTREAM TECHNICAL IMPACT
+==================================================
+
+Technical definition must support:
+- meeting provenance / measurement type MANUAL_ENTRY;
+- persisted manual meeting date and optional time;
+- meeting duration;
+- persisted participant participation durations;
+- zero-duration participants;
+- validation that participation duration is within meeting duration;
+- recalculation after manual edits;
+- persisted manual-entry reason where supplied;
+- History/receipt/export representation of manual provenance;
+- separation between reconstructed manual data and live measurement events.
+
+Technical implementation must not silently alter the approved live-meeting
+state machine or create fake live measurement events.
+
+==================================================
+CHANGE STATUS
+==================================================
+
+PENDING PRODUCT APPROVAL
+
+Decision Status: PENDING
+Approval: No approval has been granted by this CHANGE-REQUEST.
+PRODUCT-SPEC v1.0: UNCHANGED
+
+If approved, this change must be incorporated through the Factory change
+process and downstream Design / Technical / QA revalidation as required.
+
+==================================================
+END CHANGE-REQUEST MM-CHANGE-002
+==================================================

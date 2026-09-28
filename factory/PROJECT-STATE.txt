@@ -1,294 +1,386 @@
-# PROJECT-STATE — MeetingMeter
+AI SOFTWARE FACTORY
+PROJECT STATE
 
-## Artifact Identity
+==================================================
+PROJECT IDENTITY
+==================================================
 
-* Artifact ID: PROJECT-STATE
-* Project: MeetingMeter
-* Version: 1.4
-* Status: ACTIVE
-* Owner: CONTROL
-* Source Idea: IDEA-MEETINGMETER-001
-* Updated: 2026-09-27
+Artifact ID: PROJECT-STATE
+Project: MeetingMeter
+Version: 2.0
+Status: READY
+Owner: CONTROL
+Source Idea: IDEA-MEETINGMETER-001
+Updated: 2026-09-28
 
----
+==================================================
+CURRENT LIFECYCLE STATE
+==================================================
 
-## Current Lifecycle State
+AG_HANDOFF
 
-**IMPLEMENTATION**
+==================================================
+CURRENT STATUS
+==================================================
 
-## Current Status
+READY
 
-**ACTIVE**
+Technical Definition v1.1 has been validated as sufficiently complete
+for the Factory transition from TECHNICAL_DEFINITION to AG_HANDOFF.
 
-## Active Role
+The execution package is ready for Antigravity consumption.
 
-**TECH / AG / Antigravity**
+Implementation has NOT started.
 
----
+The implementation gate remains CLOSED until the mandatory Stitch MCP
+verification is successfully completed by Antigravity.
 
-## Approved Product Baseline
+==================================================
+ACTIVE ROLE
+==================================================
 
-**PRODUCT-SPEC v1.0 — APPROVED**
+04 — TECH / AG / Antigravity
 
-* Product Approval Gate: PRODUCT_APPROVAL
-* Decision: APPROVE
-* Approver: Product Lead
-* Approved Version: 1.0
+Responsible execution context:
+TECH / AG with Antigravity as receiving/execution environment.
 
-**Product requirements unchanged.**
+==================================================
+APPROVED PRODUCT BASELINE
+==================================================
 
-PRODUCT-SPEC v1.0 remains the canonical product requirements baseline.
+PRODUCT-SPEC v1.1 — APPROVED
 
----
+Product Approval Gate: PRODUCT_APPROVAL
+Decision: APPROVED
+Approver: Product Lead
+Approved Version: 1.1
 
-## Approved Design Baseline
+Canonical Product artifact:
+PRODUCT-SPEC-MeetingMeter-v1.1-APPROVED.txt
 
-**DESIGN-SPEC v1.0 — APPROVED**
+Approved Product changes represented in v1.1:
+- MM-CHANGE-002 — Manual Entry
+- MM-CHANGE-003 — Prepared / Recurring Meetings
+- MM-CHANGE-004 — External Costs / Cost Library / EUR (€)
 
-* Design Approval Gate: DESIGN_APPROVAL
-* Decision: APPROVED
-* Approver: Product Lead
-* Approved Version: 1.0
+PRODUCT-SPEC v1.0 remains preserved as the previous approved Product
+baseline. No approved v1.0 Product requirements are intentionally lost.
 
-**Approved Design requirements unchanged.**
+==================================================
+APPROVED DESIGN BASELINE
+==================================================
 
-DESIGN-SPEC v1.0 remains the canonical textual design-intent baseline.
+DESIGN-SPEC v1.1 — APPROVED
 
----
+Design Approval Gate: DESIGN_APPROVAL
+Decision: APPROVED
+Approver: Product Lead
+Approved Version: 1.1
 
-## Technical Definition
+Canonical Design artifact:
+DESIGN-SPEC-MeetingMeter-v1.1-APPROVED.txt
 
-**TECH-SPEC v1.0 — COMPLETE FOR HANDOFF**
+Current approved Design direction:
+- Dark / Tactical FinTech
+- Manual Entry UX
+- Prepared / Recurring / Missed UX
+- External Costs / Cost Library / EUR UX
+- post-End external-cost editing
+- Last Updated
+- Receipt / History updates
+- responsive behavior
+- accessibility requirements
 
-Technical definition satisfied the Factory exit condition for autonomous execution.
+DESIGN-SPEC v1.0 remains preserved as the previous approved Design
+baseline. The former Light visual direction is historical and is
+superseded by the approved v1.1 Design baseline.
 
----
+Current approved visual reference:
+Figma file: MettingMetter-Stitch
+Figma key: cADavUHVEaBO1avbVxNRz6
+Node: 0:1
 
-## Implementation Plan
+Product requirements are unchanged by the Design approval.
 
-**IMPLEMENTATION-PLAN v1.0 — COMPLETE FOR EXECUTION**
+==================================================
+DESIGN GOVERNANCE
+==================================================
 
-The implementation sequence and technical QA requirements are defined in the approved handoff package.
+STATUS: RESOLVED
 
----
+The previously identified Light-vs-Dark governance conflict was
+resolved through formal Product Lead approval of Design v1.1.
 
-## AG Handoff
+Current canonical visual direction:
+DARK / TACTICAL FINTECH
 
-**AG-HANDOFF v1.0 — VALIDATED**
+No Design governance blocker remains.
 
-Required inputs are present and internally consistent:
+==================================================
+VALIDATED TECHNICAL BASELINE
+==================================================
 
-* PRODUCT-SPEC v1.0 — APPROVED
-* DESIGN-SPEC v1.0 — APPROVED
-* acceptance criteria
-* relevant project state
-* TECH-SPEC v1.0
-* IMPLEMENTATION-PLAN v1.0
-* implementation and QA instructions
+TECHNICAL BASELINE: v1.1
 
----
+Validated working artifacts:
+
+- TECH-SPEC-MeetingMeter-v1.1.txt
+  Status in submitted draft: REVALIDATED
+  Validation result: READY
+
+- IMPLEMENTATION-PLAN-MeetingMeter-v1.1.txt
+  Status in submitted draft: REVALIDATED
+  Validation result: READY
+
+- AG-HANDOFF-MeetingMeter-v1.1.txt
+  Status in submitted draft: READY_FOR_HANDOFF
+  Validation result: READY
+
+These artifacts were supplied as working/draft artifacts and were not
+treated as canonical until their contents were validated against the
+current approved Product, Design, Factory State Machine, Handoff Rules,
+and Artifact Registry.
+
+Validation is now complete.
+
+The validated v1.1 technical baseline is sufficiently defined for
+autonomous downstream execution preparation.
+
+==================================================
+TECHNICAL DEFINITION EXIT VALIDATION
+==================================================
+
+RESULT: PASS
+
+The Factory State Machine requires Technical Definition to produce:
+
+- Technical Specification;
+- Architecture / technical decisions;
+- Implementation Plan;
+- Antigravity requirements;
+- Technical QA requirements.
+
+The validated v1.1 package provides the required technical definition
+through the TECH-SPEC, IMPLEMENTATION-PLAN, and AG-HANDOFF artifacts.
 
-## Stitch Verification
+Verified areas include:
 
-**PASS**
+- v1.1 Product traceability;
+- v1.1 Design traceability;
+- revised lifecycle/state model;
+- persistence/data model;
+- calculation authority;
+- API/service expectations;
+- Manual Entry;
+- Prepared / Missed / Not Held;
+- Recurring duplication;
+- External Costs;
+- Cost Library;
+- post-End external-cost editing;
+- History / Receipt / Export requirements;
+- Dark / Tactical FinTech implementation requirements;
+- responsive/accessibility requirements;
+- technical QA coverage;
+- browser verification expectations;
+- implementation sequencing;
+- implementation risks and constraints;
+- explicit Stitch verification gate.
 
-Antigravity completed the mandatory Stitch MCP verification gate.
+No unresolved material Product or Design ambiguity was found in the
+validated technical package.
 
-Verified:
+==================================================
+AG HANDOFF
+==================================================
 
-* Stitch MCP connected and active
-* `MettingMetter-Stitch` identified
-* Figma key `cADavUHVEaBO1avbVxNRz6` identified
-* Node `0:1` identified
-* Design DNA retrieved
-* Primary MeetingMeter screens retrieved
-* Design context successfully accessed
-* Retrieved design compared against approved `PRODUCT-SPEC v1.0`
-* Retrieved design compared against approved `DESIGN-SPEC v1.0`
-* No blocking missing information
-* Exploratory visual concepts correctly treated as visual references only
-* No exploratory visual concept was converted into new Product functionality
+AG-HANDOFF v1.1:
+READY
 
-The Stitch verification gate is therefore **OPEN / PASSED** for implementation.
+Artifact:
+AG-HANDOFF-MeetingMeter-v1.1.txt
 
----
+Receiving Role:
+Antigravity / AG
 
-## Implementation Visual Baseline
+The handoff explicitly references:
 
-**MettingMetter-Stitch**
+- approved Product v1.1;
+- approved Design v1.1;
+- approved Design Change Review v1.1;
+- approved Design Handoff v1.1;
+- revalidated TECH-SPEC v1.1;
+- revalidated IMPLEMENTATION-PLAN v1.1.
 
-* Figma key: `cADavUHVEaBO1avbVxNRz6`
-* Node: `0:1`
+The handoff includes:
 
-This is the current implementation visual baseline.
+- product/design baseline references;
+- Stitch/Figma implementation reference;
+- mandatory Stitch MCP verification gate;
+- core v1.1 requirements;
+- data/persistence requirements;
+- state invariants;
+- API/service expectations;
+- calculation authority;
+- History/Receipt/Export requirements;
+- Design implementation requirements;
+- technical QA requirements;
+- implementation order;
+- prohibited actions;
+- AG acceptance conditions.
 
-The former:
+==================================================
+MANDATORY STITCH VERIFICATION GATE
+==================================================
 
-`MeetingMeter — DESIGN / rs3UKR6fkIVuzDKmZz3i1q`
+STATUS: REQUIRED / PENDING IN ANTIGRAVITY
 
-is no longer the project-state implementation reference.
+Before implementation, Antigravity must:
 
-This reference update does not modify approved Product or Design requirements.
+1. Connect to Stitch MCP.
+2. Confirm MeetingMeter / MettingMetter-Stitch identity.
+3. Confirm Figma key cADavUHVEaBO1avbVxNRz6.
+4. Confirm node 0:1.
+5. Retrieve actual Stitch Design DNA/context.
+6. Compare it against approved DESIGN-SPEC v1.1.
+7. Record match status, discrepancies, missing information, and any
+   required review.
+8. Proceed to implementation only if no material discrepancy remains
+   unresolved within approved Product/Design boundaries.
 
----
+A visual element must not be converted into a new Product requirement.
 
-## Approved / Current Artifacts
+==================================================
+IMPLEMENTATION STATUS
+==================================================
 
-| Artifact            | Version | Status                         |
-| ------------------- | ------: | ------------------------------ |
-| PRODUCT-SPEC        |     1.0 | APPROVED                       |
-| DESIGN-SPEC         |     1.0 | APPROVED                       |
-| DESIGN-HANDOFF      |     1.0 | READY_FOR_TECHNICAL_DEFINITION |
-| TECH-SPEC           |     1.0 | COMPLETE FOR HANDOFF           |
-| IMPLEMENTATION-PLAN |     1.0 | COMPLETE FOR EXECUTION         |
-| AG-HANDOFF          |     1.0 | VALIDATED                      |
-| PROJECT-STATE       |     1.4 | ACTIVE                         |
+IMPLEMENTATION:
+NOT STARTED
 
----
+IMPLEMENTATION GATE:
+CLOSED UNTIL STITCH VERIFICATION PASSES
 
-## Pending Approvals
+The technical package does not authorize implementation before the
+Stitch verification gate.
 
-**None.**
+No implementation code was modified by this validation.
 
-No Product Lead approval is required for:
+==================================================
+QA / ACCEPTANCE STATUS
+==================================================
 
-`AG_HANDOFF → IMPLEMENTATION`
+QA-EXECUTION v1.1:
+COMPLETE / PASS
 
----
+QA-REPORT:
+NOT APPROVED
 
-## Blockers
+PRODUCT-ACCEPTANCE:
+NOT PERFORMED
 
-**None recorded.**
+No technical PASS is being treated as Product Acceptance.
 
-The mandatory Stitch verification gate has passed.
+==================================================
+BLOCKERS
+==================================================
 
----
+No current Product blocker.
 
-## Open Decisions / Unknowns
+No current Design governance blocker.
 
-No new Product or Design decisions are introduced.
+No current Technical Definition blocker.
 
-Exploratory visual concepts retrieved from Stitch remain non-requirement visual references unless and until formally adopted through the Factory change/approval process.
+Execution gate still pending:
 
-Antigravity must not infer new functionality from those concepts.
+- Stitch MCP verification by Antigravity.
 
----
+If Stitch verification identifies a material discrepancy that cannot be
+resolved safely within the approved Product and Design boundaries,
+implementation must stop and the issue must be routed to the appropriate
+Factory role.
 
-## Dependencies
+==================================================
+DECISIONS REQUIRED
+==================================================
 
-### Upstream
+No Product Lead decision is required for this transition.
 
-* PRODUCT-SPEC v1.0 — APPROVED
-* DESIGN-SPEC v1.0 — APPROVED
-* DESIGN-HANDOFF v1.0
-* TECH-SPEC v1.0
-* IMPLEMENTATION-PLAN v1.0
-* AG-HANDOFF v1.0
-* Product Lead PRODUCT_APPROVAL
-* Product Lead DESIGN_APPROVAL
+Antigravity must perform the mandatory Stitch verification.
 
-### Current
+If the verification discovers a material Product or Design conflict,
+route it through the Factory rather than silently changing requirements
+or code.
 
-* Antigravity execution environment
-* `MettingMetter-Stitch`
-* Figma key `cADavUHVEaBO1avbVxNRz6`
-* Node `0:1`
-* Stitch verification = PASS
+==================================================
+NEXT VALID ACTION
+==================================================
 
-### Downstream
+STITCH VERIFICATION → IMPLEMENTATION
 
-* TECHNICAL_QA
-* QA_REVIEW
-* PRODUCT_ACCEPTANCE
-* RELEASE_READY
-* RELEASED
+Specifically:
 
----
+1. Antigravity accepts the READY AG-HANDOFF.
+2. Perform Stitch MCP verification against the approved v1.1 Design.
+3. If verification passes, transition AG_HANDOFF → IMPLEMENTATION.
+4. If verification identifies an unresolved material discrepancy,
+   remain at the appropriate review/block state and route to the actual
+   root cause.
 
-## Next Valid Action
+==================================================
+SOURCE / GOVERNANCE RULE
+==================================================
 
-**IMPLEMENTATION**
+The validated technical working drafts are now eligible to serve as the
+v1.1 Technical Definition / AG Handoff package for this transition.
 
-Antigravity may now begin implementation using the approved Product/Design baselines, Technical Specification, Implementation Plan, and verified Stitch design context.
+No Product or Design artifact was modified.
 
-Implementation must preserve all approved Product and Design requirements.
+Approved Product and Design baselines remain authoritative.
 
----
+Technical artifacts must not silently alter approved Product or Design
+requirements.
 
-## Next Required Actor
+==================================================
+LAST COMPLETED TRANSITION
+==================================================
 
-**TECH / AG / Antigravity**
+TECHNICAL_DEFINITION
+→ AG_HANDOFF
 
-### Required Action
+Transition determination:
+VALIDATED
 
-Begin implementation according to:
+Reason:
+Technical Definition v1.1 satisfies the Factory exit condition and the
+AG handoff package is complete and internally consistent, while the
+mandatory implementation gate remains explicitly pending in
+Antigravity.
 
-* TECH-SPEC v1.0
-* IMPLEMENTATION-PLAN v1.0
-* AG-HANDOFF v1.0
-* approved PRODUCT-SPEC v1.0
-* approved DESIGN-SPEC v1.0
-* verified `MettingMetter-Stitch` design context
+==================================================
+FACTORY STATE DETERMINATION
+==================================================
 
-Antigravity must continue to distinguish:
+TRANSITION VALIDATED
 
-* technical implementation decisions;
-* approved Product requirements;
-* approved Design requirements;
-* visual references;
-* new proposed functionality.
+Current canonical project state:
 
-New functionality must not be inferred from exploratory visual concepts.
+AG_HANDOFF
+/
+READY
+/
+04 — TECH / AG / Antigravity
 
----
+with:
 
-## Product Lead Action
+PRODUCT-SPEC v1.1 = APPROVED
+DESIGN-SPEC v1.1 = APPROVED
+TECHNICAL BASELINE = v1.1
+AG-HANDOFF = READY
+IMPLEMENTATION = NOT STARTED
+STITCH VERIFICATION = REQUIRED / PENDING
+QA-EXECUTION v1.1 = PASS
+QA-REPORT = NOT APPROVED
+PRODUCT-ACCEPTANCE = NOT PERFORMED
 
-**NONE**
-
-No Product Lead approval is required at this transition.
-
-Product Lead involvement remains required if implementation exposes a material Product decision or change to approved scope.
-
----
-
-## Last Completed Transition
-
-**AG_HANDOFF → IMPLEMENTATION**
-
-### Transition Evidence
-
-* AG-HANDOFF v1.0 exists and is complete for execution.
-* Required upstream Product and Design approvals exist.
-* TECH-SPEC v1.0 exists.
-* IMPLEMENTATION-PLAN v1.0 exists.
-* Mandatory Stitch MCP verification completed.
-* Stitch project identified as `MettingMetter-Stitch`.
-* Figma key verified as `cADavUHVEaBO1avbVxNRz6`.
-* Node `0:1` verified.
-* Design DNA retrieved.
-* Primary MeetingMeter screens retrieved.
-* Design context accessible.
-* Retrieved design compared against approved Product and Design baselines.
-* No blocking missing information reported.
-* Exploratory visual concepts were not promoted into Product requirements.
-* No Product requirements changed.
-* No approved Design requirements changed.
-* No Product Lead approval required for the transition.
-* Factory State Machine permits `AG_HANDOFF → IMPLEMENTATION`.
-
----
-
-## CONTROL State Determination
-
-**TRANSITION VALIDATED**
-
-**LIFECYCLE STATE:** IMPLEMENTATION
-**STATUS:** ACTIVE
-**ACTIVE ROLE:** TECH / AG / Antigravity
-**STITCH VERIFICATION:** PASS
-**PRODUCT REQUIREMENTS:** UNCHANGED
-**APPROVED DESIGN REQUIREMENTS:** UNCHANGED
-**BLOCKERS:** NONE
-**PRODUCT LEAD ACTION:** NONE
-**NEXT VALID ACTION:** IMPLEMENTATION
+==================================================
+END OF PROJECT-STATE
+==================================================

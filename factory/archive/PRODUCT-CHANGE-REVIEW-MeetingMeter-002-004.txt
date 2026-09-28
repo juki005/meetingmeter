@@ -1,0 +1,506 @@
+PRODUCT CHANGE REVIEW
+
+Project: MeetingMeter
+Review Package: MM-CHANGE-002 / MM-CHANGE-003 / MM-CHANGE-004
+Prepared for: 02 — PRODUCT
+Artifact Status: PENDING PRODUCT APPROVAL
+Approved Product Baseline: PRODUCT-SPEC v1.0 — APPROVED
+
+==================================================
+1. PURPOSE
+==================================================
+
+This package consolidates the Product Change Review for three proposed
+MeetingMeter changes:
+
+- MM-CHANGE-002 — Retroactive / Manual Entry
+- MM-CHANGE-003 — Upcoming / Prepared / Recurring Meetings
+- MM-CHANGE-004 — External Costs
+
+The package records the Product decisions and clarifications established
+during the current review while preserving the approved PRODUCT-SPEC v1.0
+unchanged.
+
+These are proposed changes only. None of the three CHANGE-REQUESTs is
+approved by this package.
+
+==================================================
+2. CURRENT APPROVED BASELINE
+==================================================
+
+PRODUCT-SPEC v1.0 remains the canonical approved Product baseline.
+
+Its existing core behavior includes:
+- explicit Start before live measurement;
+- participant measurement states and measured participation time;
+- meeting duration distinct from individual participation time;
+- live estimated participant/meeting cost;
+- explicit End;
+- final estimated result;
+- receipt and History;
+- final-result stability after End;
+- estimated/non-accounting framing.
+
+No requirement in PRODUCT-SPEC v1.0 has been silently changed by this
+review package.
+
+==================================================
+3. CHANGE 002 — RETROACTIVE / MANUAL ENTRY
+==================================================
+
+Classification:
+FEATURE / MATERIAL PRODUCT CHANGE TO THE EXISTING MEETING MODEL
+
+--------------------------------------------------
+3.1 Existing approved behavior
+--------------------------------------------------
+
+The approved baseline covers live MeetingMeter measurement from explicit
+Start through End. It does not define retrospective reconstruction.
+
+--------------------------------------------------
+3.2 Proposed new requirements
+--------------------------------------------------
+
+The proposed capability allows a genuinely held meeting to be entered
+retroactively when live measurement was not used.
+
+Core requirements:
+- date required;
+- time optional when known;
+- meeting duration required;
+- participants and applicable rates/cost profiles;
+- individual participation duration per participant;
+- zero-minute participants allowed;
+- participation duration must be >= 0 and <= meeting duration;
+- individual durations do not need to sum to meeting duration;
+- manual provenance: MANUAL ENTRY;
+- optional user-entered manual-entry reason stored with the meeting;
+- manual meetings editable after creation;
+- editing recalculates the estimated result;
+- receipt/History identify Manual Entry;
+- manual entries do not fabricate live measurement events.
+
+--------------------------------------------------
+3.3 Product rules
+--------------------------------------------------
+
+Manual Entry is a reconstructed historical record, not a retroactively
+simulated live session. Meeting duration and participant participation
+duration remain separate values. A person who did not attend can remain on
+the participant list with zero participation.
+
+--------------------------------------------------
+3.4 Open questions
+--------------------------------------------------
+
+No core Product questions remain open. UI input details may be resolved
+downstream.
+
+--------------------------------------------------
+3.5 Product Lead decisions required
+--------------------------------------------------
+
+Formal approval of the Manual Entry capability, validation rules,
+provenance, editing/recalculation behavior, and History/receipt treatment.
+
+--------------------------------------------------
+3.6 Out of scope
+--------------------------------------------------
+
+No automated attendance reconstruction, calendar integration, fabricated
+live event history, payroll/accounting/payment behavior, or rate inference.
+
+--------------------------------------------------
+3.7 Dependencies
+--------------------------------------------------
+
+Meeting entity, participant roster, rates, cost calculation, History,
+receipt/export, and downstream handling of post-completion edits.
+
+--------------------------------------------------
+3.8 Downstream Design impact
+--------------------------------------------------
+
+New Manual Entry creation/edit flow, date/time/duration inputs,
+participant-duration inputs, zero-duration handling, provenance indicator,
+optional reason, History/detail treatment, receipt treatment, and
+recalculation UI.
+
+--------------------------------------------------
+3.9 Downstream Technical impact
+--------------------------------------------------
+
+New meeting provenance, manual date/time fields, reconstructed participant
+durations, validation, recalculation, reason persistence, and explicit
+separation from live measurement events.
+
+==================================================
+4. CHANGE 003 — UPCOMING / PREPARED / RECURRING
+==================================================
+
+Classification:
+FEATURE / LIFECYCLE EXTENSION
+
+--------------------------------------------------
+4.1 Existing approved behavior
+--------------------------------------------------
+
+The approved baseline supports meeting configuration followed by explicit
+Start, live measurement, End, receipt, and History. It does not define a
+persistent future meeting state.
+
+--------------------------------------------------
+4.2 Proposed new requirements
+--------------------------------------------------
+
+The proposed capability introduces:
+- persistent PREPARED meeting;
+- no measurement or cost accumulation while PREPARED;
+- edit before Start;
+- reschedule before Start;
+- visible indication of rescheduling/change;
+- delete before Start;
+- MISSED / NOT HELD History representation when planned time passes
+  without Start;
+- option to retain, delete, or use a missed meeting as the basis for
+  Manual Entry;
+- RECURRING tag/indicator;
+- duplication of a recurring meeting into an independent meeting;
+- independent editing of duplicated occurrences;
+- lifecycle PREPARED -> LIVE -> ENDED, with MISSED / NOT HELD as the
+  historical outcome for an unstarted planned meeting.
+
+--------------------------------------------------
+4.3 Product rules
+--------------------------------------------------
+
+PREPARED is a saved product state, not unsaved configuration and not a
+reusable template. It has no timer and no cost accumulation. Cancellation
+is not a separate required state. Recurring is intentionally a tag plus
+duplication convenience, not a recurrence engine.
+
+--------------------------------------------------
+4.4 Open questions
+--------------------------------------------------
+
+No core Product questions remain open. Exact UI treatment of MISSED / NOT
+HELD and reschedule indicators may be resolved downstream.
+
+--------------------------------------------------
+4.5 Product Lead decisions required
+--------------------------------------------------
+
+Formal approval of the PREPARED state, MISSED / NOT HELD treatment,
+rescheduling/deletion behavior, and recurring-as-tag-plus-duplication model.
+
+--------------------------------------------------
+4.6 Out of scope
+--------------------------------------------------
+
+Calendar integration, automatic invitations, automatic recurrence engines,
+complex recurrence rules, automatic attendance detection, and a separate
+cancellation workflow.
+
+--------------------------------------------------
+4.7 Dependencies
+--------------------------------------------------
+
+Meeting lifecycle, persistence, roster, rates, History, date/time handling,
+MM-CHANGE-002 for manual conversion, and compatibility with MM-CHANGE-004.
+
+--------------------------------------------------
+4.8 Downstream Design impact
+--------------------------------------------------
+
+Prepared state/list/detail, edit/reschedule/delete, change indicator,
+MISSED / NOT HELD presentation, Manual Entry conversion, recurring tag,
+and duplicate action.
+
+--------------------------------------------------
+4.9 Downstream Technical impact
+--------------------------------------------------
+
+Persistent PREPARED state, planned date/time, rescheduling metadata,
+delete-before-start, lifecycle transitions, missed detection/representation,
+recurring tag, independent duplication, and no cost accumulation while
+prepared.
+
+==================================================
+5. CHANGE 004 — EXTERNAL COSTS
+==================================================
+
+Classification:
+SCOPE CHANGE / NEW CAPABILITY
+
+Reason for material classification:
+The proposed capability adds a new cost domain, a persistent Cost Library,
+and permits external-cost mutation after finalization while live participant
+measurement remains locked. This materially affects the approved final-result
+stability rule and downstream model.
+
+--------------------------------------------------
+5.1 Existing approved behavior
+--------------------------------------------------
+
+The approved baseline calculates meeting cost from participant costs and
+states that the final estimated result does not increase after End. It does
+not define external costs or a Cost Library.
+
+--------------------------------------------------
+5.2 Proposed new requirements
+--------------------------------------------------
+
+The proposed capability introduces:
+- zero or more external cost items;
+- description + amount;
+- zero allowed, negative prohibited;
+- multiple items;
+- separate participant and external totals;
+- combined total = participant total + external total;
+- editing external costs after finalization;
+- recalculation after every edit;
+- updated Receipt and History;
+- Last Updated indication;
+- persistent ESTIMATED framing;
+- EUR (€) meeting currency;
+- Cost Library with item name + default price;
+- selection of a library item into a meeting;
+- per-meeting price override;
+- override does not modify the library default;
+- meeting stores the applied price independently of later library changes.
+
+--------------------------------------------------
+5.3 Product rules
+--------------------------------------------------
+
+Live participant measurement remains locked after End. External costs may be
+edited after End if this change is approved. Such edits do not restart the
+meeting and do not alter participant measurement history; they only
+recalculate the estimated total. The meeting currency is EUR (€).
+
+--------------------------------------------------
+5.4 Open questions
+--------------------------------------------------
+
+No core Product questions remain open. UI/library interaction details may
+be resolved downstream.
+
+--------------------------------------------------
+5.5 Product Lead decisions required
+--------------------------------------------------
+
+Formal approval is specifically required for:
+- external cost capability;
+- post-finalization external-cost editing;
+- recalculated final total;
+- Last Updated indication;
+- Cost Library and per-meeting override;
+- EUR (€) currency rule.
+
+--------------------------------------------------
+5.6 Out of scope
+--------------------------------------------------
+
+Accounting/payroll/payment, negative costs, refunds/credits, currency
+conversion, multi-currency meetings, third-party price lookup, OCR, required
+categories, shared organization-wide libraries, and full immutable audit-log
+infrastructure.
+
+--------------------------------------------------
+5.7 Dependencies
+--------------------------------------------------
+
+Meeting result, participant cost calculation, receipt, History, exports,
+post-finalization editing, EUR representation, Cost Library, MM-CHANGE-002,
+and MM-CHANGE-003.
+
+--------------------------------------------------
+5.8 Downstream Design impact
+--------------------------------------------------
+
+External Costs UI, item editing, validation, separate totals, combined total,
+Cost Library selection, price override, Last Updated, updated receipt/history,
+and persistent estimate framing.
+
+--------------------------------------------------
+5.9 Downstream Technical impact
+--------------------------------------------------
+
+External cost persistence, calculation, validation, post-finalization edits,
+Last Updated metadata, receipt/history/export updates, Cost Library
+persistence, selection/copy semantics, per-meeting override, and preservation
+of applied historical price.
+
+==================================================
+6. COMBINED PRODUCT IMPACT
+==================================================
+
+Together, MM-CHANGE-002, MM-CHANGE-003, and MM-CHANGE-004 extend the
+MeetingMeter model in three dimensions:
+
+1. HISTORY / PROVENANCE
+   Manual Entry allows a genuinely held meeting to be reconstructed when
+   live measurement was unavailable.
+
+2. LIFECYCLE / PLANNING
+   Prepared meetings allow future meeting configuration before Start, with
+   missed/not-held History handling and lightweight recurring duplication.
+
+3. COST MODEL
+   External costs extend the meeting total beyond participant time and add
+   a reusable Cost Library. External costs may remain editable after End,
+   while live participant measurement remains locked.
+
+Combined conceptual model:
+
+PREPARED
+  -> LIVE
+      -> ENDED
+
+PREPARED
+  -> MISSED / NOT HELD
+      -> retain / delete / use as basis for MANUAL ENTRY
+
+MANUAL ENTRY
+  -> editable reconstructed meeting
+
+LIVE / ENDED
+  -> participant measurement remains locked after End
+  -> external costs may be edited after End if MM-CHANGE-004 is approved
+
+Combined total:
+Participant Cost Total + External Cost Total
+= Total Estimated Meeting Cost
+
+Currency:
+EUR (€)
+
+==================================================
+7. CROSS-CHANGE DEPENDENCIES
+==================================================
+
+- MM-CHANGE-003 can hand a MISSED / NOT HELD meeting to MM-CHANGE-002 for
+  reconstruction if the meeting actually occurred.
+- MM-CHANGE-004 external costs can apply to live meetings and, if approved,
+  to manual meetings.
+- If prepared meetings support configuring external costs before Start,
+  that behavior must be explicitly represented consistently in Design and
+  Technical definitions.
+- MM-CHANGE-004 introduces a deliberate exception to the existing
+  final-result stability rule: participant measurement is locked, but the
+  overall estimated result may change because external costs are edited.
+- All three changes affect the Meeting entity, History, receipt/result, and
+  downstream Design/Technical/QA validation.
+
+==================================================
+8. APPROVED BASELINE REQUIREMENTS POTENTIALLY AFFECTED
+==================================================
+
+The following existing Product areas require explicit re-baselining if the
+changes are approved:
+
+- Meeting lifecycle and state model.
+- Meeting creation/start/end behavior.
+- Meeting history and retained meeting states.
+- Meeting cost calculation.
+- Final-result stability after End.
+- Receipt/result contents.
+- Export representation.
+- MVP scope.
+- Acceptance criteria.
+- Assumptions and dependencies where they describe only live meetings.
+
+The approved PRODUCT-SPEC v1.0 is not changed by this review package.
+
+==================================================
+9. PRODUCT LEAD APPROVAL PACKAGE
+==================================================
+
+Product Lead is asked to make one formal decision over the proposed change
+package, with the option to accept/reject individual changes if desired:
+
+MM-CHANGE-002
+Approve / reject Manual Entry capability.
+
+MM-CHANGE-003
+Approve / reject PREPARED + MISSED / NOT HELD + recurring tag/duplication.
+
+MM-CHANGE-004
+Approve / reject External Costs + Cost Library + post-finalization external
+cost editing + EUR currency.
+
+If any change is approved, the next Product action is to incorporate the
+approved requirements into a new Product Spec version through the Factory
+change process. Downstream Design / Technical / QA artifacts must then be
+reviewed/revalidated according to impact.
+
+If changes are rejected or require modification, they return to PRODUCT
+DEFINITION / CHANGE REVIEW as appropriate.
+
+==================================================
+10. CHANGE STATUS
+==================================================
+
+MM-CHANGE-002: PENDING PRODUCT APPROVAL
+MM-CHANGE-003: PENDING PRODUCT APPROVAL
+MM-CHANGE-004: PENDING PRODUCT APPROVAL
+
+Consolidated package: PENDING PRODUCT APPROVAL
+
+No approval is inferred from this package.
+No Product Spec version is changed by this package.
+PRODUCT-SPEC v1.0 remains APPROVED and unchanged.
+
+==================================================
+11. DOWNSTREAM IMPACT SUMMARY
+==================================================
+
+DESIGN
+- New prepared/manual/external-cost states and flows.
+- New History statuses and provenance indicators.
+- New editing and rescheduling interactions.
+- New Cost Library UI.
+- Receipt/result changes.
+- Clear distinction between live participant measurement and reconstructed
+  or post-finalization cost data.
+
+TECHNICAL
+- Meeting state/lifecycle extension.
+- Manual provenance and reconstructed duration data.
+- MISSED / NOT HELD representation.
+- Recurring tag and duplication.
+- External cost persistence/calculation.
+- Cost Library persistence and copy/override semantics.
+- Post-finalization external-cost mutation with participant measurement
+  remaining immutable.
+- History/receipt/export updates.
+
+QA
+- New acceptance coverage will be required for all approved change
+  requirements.
+- Existing final-result stability tests must be revised only if the
+  external-cost exception is formally approved.
+- Regression coverage must verify that End still locks participant
+  measurement and that external-cost edits do not restart measurement.
+
+==================================================
+12. FACTORY / STATE IMPLICATION
+==================================================
+
+The project is currently in QA_REVIEW with PRODUCT-SPEC v1.0 as the approved
+baseline. These changes are being reviewed without silently changing that
+baseline.
+
+Because the proposed changes materially affect product requirements and
+scope, approval requires the Factory change process and appropriate
+ downstream revalidation. A Product approval would therefore not mean that
+current downstream Design/Technical/QA artifacts automatically become
+valid for the new requirements.
+
+The project must follow the applicable change routing before the changed
+requirements can become the canonical product baseline.
+
+==================================================
+END PRODUCT CHANGE REVIEW PACKAGE
+==================================================

@@ -1,0 +1,1299 @@
+AI SOFTWARE FACTORY
+PRODUCT SPECIFICATION
+
+Artifact ID: PRODUCT-SPEC
+Project: MeetingMeter
+Version: 1.1
+Status: APPROVED
+Owner: PRODUCT
+Approval Authority: Product Lead
+Approval Decision: APPROVE
+Source Artifact: PRODUCT-IDEA v1.0
+Originating Idea: IDEA-MEETINGMETER-001
+Downstream Consumer: DESIGN
+
+==================================================
+1. PRODUCT OBJECTIVE
+==================================================
+
+PROBLEM
+Meetings consume the time of multiple people, but their cumulative
+estimated cost is often not visible while the meeting is taking place.
+
+OBJECTIVE
+Enable the person who creates and starts a MeetingMeter session to
+see the estimated cost of the meeting in real time, based on the
+people currently included in measurement.
+
+CORE OUTCOME
+The organizer can configure a meeting, include people, start the
+Meter, see the estimated cost accumulate according to individual
+measured participation time, end the meeting, and review/export the
+final result.
+
+==================================================
+2. PRODUCT CHARACTER
+==================================================
+
+MeetingMeter is not intended to be an accounting, payroll, billing,
+or payment system.
+
+It is an informative tool that presents the estimated cost of a
+meeting in a cool, light, and mildly humorous/sarcastic way.
+
+Core concept:
+"How much is this meeting costing us?"
+
+Humor is directed at the situation and the time/resource consumed by
+the meeting, not at individual users.
+
+Example tone direction:
+"Meeting cost: EUR 184.20"
+"This could have been an email."
+
+The product tone must not obscure the actual numerical result.
+
+==================================================
+3. USERS AND ROLES
+==================================================
+
+3.1 MEETING ORGANIZER / CREATOR
+
+The primary user is the person who creates and starts the MeetingMeter
+session.
+
+The organizer:
+- creates the meeting;
+- adds people;
+- adds guests;
+- selects who is currently being measured;
+- starts the Meter;
+- monitors cost;
+- pauses participants;
+- resumes participants;
+- marks participants as having left;
+- ends the meeting;
+- reviews meeting history;
+- exports the result.
+
+The meeting belongs to its creator.
+
+3.2 REGISTERED USER
+
+A registered user has a MeetingMeter account and a personal profile.
+
+The personal profile contains at minimum:
+- name;
+- job title;
+- hourly rate.
+
+The user is responsible for their own hourly rate.
+
+The user's profile is personal and protected.
+
+3.3 INTERNAL PERSON
+
+An internal person is a person available to the organizer as part of
+the organizer's people/organization context.
+
+The organizer can create and add people for use in meetings.
+
+3.4 GUEST / EXTERNAL PERSON
+
+A Guest is a person who participates in a meeting but does not have a
+MeetingMeter account and is not necessarily part of the organizer's
+organization.
+
+Typical example:
+An agency has a meeting with a client who is external to the agency.
+
+A Guest may have known or unknown information.
+
+Known Guest information may include:
+- name;
+- role;
+- organization;
+- hourly rate.
+
+A Guest does not need a MeetingMeter account.
+
+==================================================
+4. PERSONAL PROFILE
+==================================================
+
+A registered user has a personal profile containing:
+- Name
+- Job title
+- Hourly rate
+
+The hourly rate is the value MeetingMeter uses for that person's
+meeting-cost calculation.
+
+The user is responsible for maintaining their own hourly rate.
+
+The personal profile is protected.
+
+The organizer may see the hourly rate of participants in the
+organizer's meeting.
+
+==================================================
+5. PEOPLE MODEL
+==================================================
+
+The person who runs MeetingMeter creates and manages the people
+available for their meetings.
+
+The organizer can maintain people and then select them when
+configuring a meeting.
+
+The model includes:
+- internal people;
+- external Guests.
+
+A registered internal person may have their own MeetingMeter profile.
+
+A Guest does not need an account.
+
+For a Guest whose cost is known, the organizer may provide the
+relevant cost information.
+
+For a Guest whose cost is not known, the cost remains explicitly
+unknown.
+
+Unknown cost must not be treated as zero.
+
+==================================================
+6. MEETING MODEL
+==================================================
+
+A meeting is a session created by an organizer.
+
+In v1.1, a meeting may exist in one of the following product states:
+- PREPARED;
+- LIVE;
+- ENDED;
+- MISSED / NOT HELD (History representation for a prepared meeting
+  whose planned date/time passed without Start);
+- MANUAL ENTRY (provenance/type for a reconstructed historical meeting).
+
+A meeting contains:
+- creator/owner;
+- roster;
+- participant measurement states where applicable;
+- individual measured participation time;
+- individual estimated cost where known;
+- external cost items where applicable;
+- participant cost total;
+- external cost total;
+- total estimated meeting cost;
+- final/result record;
+- history record;
+- measurement type/provenance where applicable.
+
+The creator owns the meeting and its history.
+
+Other users do not automatically have access to the creator's
+meeting history.
+
+UNCHANGED FROM v1.0:
+The meeting remains owned by its creator and retains the existing
+participant, cost, result, history, and privacy concepts.
+
+NEW IN v1.1:
+PREPARED and MISSED / NOT HELD are introduced for prepared-meeting
+planning/history behavior. MANUAL ENTRY is introduced as explicit
+provenance. External cost items and separate cost totals are introduced.
+
+==================================================
+
+7. MEETING ROSTER
+==================================================
+
+The organizer can add people to the meeting roster.
+
+The roster may contain:
+- internal people;
+- Guests.
+
+The organizer can select individual people or use Select All.
+
+The organizer does not need to obtain confirmation from each
+participant before measuring them.
+
+Participants do not need to be active MeetingMeter users.
+
+==================================================
+8. PARTICIPANT MEASUREMENT LIFECYCLE
+==================================================
+
+Each participant has an individual measurement state.
+
+ACTIVE
+The participant is currently included in measurement. Their measured
+participation time increases.
+
+PAUSED
+The participant is temporarily excluded from measurement. Their
+measured participation time and cost stop increasing. The participant
+remains part of the meeting and can be resumed.
+
+RESUMED
+A paused participant can be activated again. Measurement continues
+from the point of resumption.
+
+LEFT
+When a participant leaves the meeting, their measurement for that
+meeting ends.
+
+LEFT is distinct from PAUSED.
+
+Example:
+Temporary absence: PAUSE -> RESUME
+Participant leaves the meeting: LEAVE
+
+==================================================
+8.1 PREPARED MEETING LIFECYCLE
+==================================================
+
+NEW IN v1.1
+
+A PREPARED meeting is a persistent, saved meeting that has been
+configured but has not yet been started.
+
+PREPARED:
+- has planned/configured information;
+- does not run a timer;
+- does not accumulate meeting cost;
+- may be edited before Start;
+- may be rescheduled before Start;
+- may be deleted before Start.
+
+The normal live lifecycle is:
+
+PREPARED -> LIVE -> ENDED
+
+If the planned date/time passes without Start, the meeting may be
+represented in History as MISSED / NOT HELD.
+
+A MISSED / NOT HELD meeting:
+- does not accumulate cost;
+- is not treated as a completed live meeting with zero cost;
+- may be retained in History;
+- may be deleted;
+- may be used as the basis for Manual Entry if the meeting actually
+  occurred.
+
+Cancellation is not a separate product state required by v1.1.
+
+Rescheduling updates the existing prepared meeting and records a
+visible Last Updated or equivalent change indication.
+
+RECURRING
+
+NEW IN v1.1
+
+A meeting may have a RECURRING indicator/tag.
+
+Recurring behavior is limited to:
+- marking a meeting as recurring;
+- duplicating it into another meeting for easier preparation.
+
+A duplicated occurrence is an independent meeting record and can be
+edited independently.
+
+Recurring is not an automatic recurrence/calendar scheduling engine.
+No calendar event is automatically created or synchronized by this
+capability.
+
+==================================================
+
+9. MEASUREMENT START
+==================================================
+
+Measurement begins only after the organizer explicitly starts the
+Meter.
+
+Creating, configuring, or saving a PREPARED meeting does not by itself start
+measurement.
+
+For a PREPARED meeting, Start is the transition from PREPARED to LIVE.
+
+When Start is activated:
+- the meeting becomes active;
+- active selected participants begin accumulating measured time;
+- live cost begins accumulating according to the calculation model.
+
+==================================================
+10. CALCULATION MODEL
+==================================================
+
+Individual participant cost =
+hourly rate x measured participation time
+
+Participant Cost Total =
+sum of individual participant costs
+
+External Cost Total =
+sum of external cost items
+
+Total Estimated Meeting Cost =
+Participant Cost Total + External Cost Total
+
+Meeting duration and individual measured participation time are
+therefore not necessarily the same.
+
+A participant may be:
+- active for the whole meeting;
+- paused for part of the meeting;
+- resumed later;
+- marked as having left before the meeting ends.
+
+Only measured active participation time contributes to that person's
+cost.
+
+KNOWN COST
+Participants with known hourly rates contribute to the calculated
+participant cost.
+
+UNKNOWN COST
+A participant whose hourly cost is unknown is not treated as having
+zero cost.
+
+The meeting may still be completed.
+
+The final result must make incomplete cost information visible, for
+example:
+Meeting cost: EUR 247.80
++ 1 participant with unknown cost
+
+==================================================
+10.1 EXTERNAL COSTS
+==================================================
+
+NEW IN v1.1
+
+A meeting may contain zero or more external cost items.
+
+Each external cost item contains:
+- description/name;
+- amount;
+- meeting currency.
+
+Currency for MeetingMeter v1.1 is EUR (€).
+
+Zero amount is allowed.
+
+Negative amounts are not allowed.
+
+Multiple external cost items are allowed.
+
+Participant costs and external costs are displayed separately, with
+the combined Total Estimated Meeting Cost calculated as:
+
+Participant Cost Total + External Cost Total.
+
+External cost items may be edited after the meeting has ended.
+
+Each approved external-cost edit recalculates the Total Estimated
+Meeting Cost.
+
+Post-finalization external-cost edits:
+- do not restart the meeting;
+- do not change participant measurement history;
+- do not alter recorded live participant measurement;
+- may change the current estimated total;
+- update the receipt/history result;
+- update Last Updated information;
+- retain the result as ESTIMATED.
+
+==================================================
+10.2 COST LIBRARY
+==================================================
+
+NEW IN v1.1
+
+MeetingMeter includes a Cost Library for reusable external cost
+items.
+
+A Cost Library item contains at minimum:
+- name;
+- default amount;
+- currency.
+
+A user may select a Cost Library item when adding an external cost to
+a meeting.
+
+The selected default amount is copied into the meeting's external
+cost item.
+
+The applied meeting price may be overridden for that specific
+meeting.
+
+A per-meeting override:
+- does not modify the Cost Library default;
+- is stored independently on the meeting;
+- remains the applied historical price even if the Cost Library
+  default is changed later.
+
+==================================================
+
+11. LIVE METER
+==================================================
+
+During an active meeting, the organizer can see at minimum:
+- active measurement state;
+- elapsed meeting time;
+- current total estimated cost;
+- participant measurement states;
+- current participant cost total;
+- current external cost total where external costs have been added;
+- current total estimated meeting cost.
+
+The accumulated cost changes according to currently active
+participants and their measured participation times.
+
+Individual participant measurement is reflected in the total.
+
+==================================================
+12. MEETING END
+==================================================
+
+The organizer explicitly ends the meeting.
+
+When the meeting ends:
+- active measurement stops;
+- active participant timers stop;
+- the live participant measurement result is finalized/locked;
+- the meeting result is stored in meeting history;
+- the meeting no longer accumulates participant measurement over time.
+
+UNCHANGED FROM v1.0:
+A completed meeting does not continue accumulating participant cost
+because time continues to pass.
+
+SUPERSEDED BY v1.1:
+The v1.0 rule that the entire final result is permanently fixed after
+End is no longer universally applicable.
+
+NEW IN v1.1:
+After End, external cost items may be edited if this capability is
+approved. Such edits recalculate the Total Estimated Meeting Cost and
+update the stored receipt/history result.
+
+The live participant measurement itself remains locked after End.
+
+The result remains explicitly ESTIMATED.
+
+==================================================
+
+13. FINAL RECEIPT
+==================================================
+
+The final receipt is the visual final record of the estimated meeting
+cost.
+
+It is not an official financial document, payroll record, or
+accounting document.
+
+The final receipt contains enough information to understand the
+result, including at minimum:
+- meeting;
+- creator;
+- date/time where known;
+- duration;
+- participants;
+- measured/reconstructed participation times where applicable;
+- relevant participant cost information;
+- external cost items where applicable;
+- participant cost total;
+- external cost total;
+- final/current total estimated cost;
+- measurement type/provenance where applicable;
+- Last Updated where applicable.
+
+For Manual Entry meetings, the receipt identifies the meeting as
+Manual Entry and makes clear that the result was reconstructed rather
+than produced by live measurement.
+
+The final/current result is exportable.
+
+The result remains explicitly ESTIMATED and is not an official
+financial, payroll, or accounting amount.
+
+==================================================
+
+14. EXPORT
+==================================================
+
+The final meeting result can be exported in:
+- PDF;
+- Image;
+- CSV.
+
+==================================================
+15. MEETING HISTORY
+==================================================
+
+Completed meetings are retained in history.
+
+NEW IN v1.1:
+History may also contain:
+- MANUAL ENTRY meetings;
+- MISSED / NOT HELD prepared meetings.
+
+The creator can review their meetings and their results.
+
+History identifies relevant provenance/state, including where
+applicable:
+- MANUAL ENTRY;
+- MISSED / NOT HELD;
+- RECURRING indicator;
+- Last Updated.
+
+For external-cost edits after finalization, History reflects the
+current recalculated estimated total and Last Updated information.
+
+Manual Entry may include the user-entered manual-entry reason in
+History/detail visibility.
+
+Meeting history is private.
+
+A user cannot automatically access another user's private meeting
+history.
+
+==================================================
+
+16. AUTHENTICATION AND PRIVACY
+==================================================
+
+The MVP uses a login/account model.
+
+Authentication and access protection are required because MeetingMeter
+contains potentially sensitive information including:
+- personal hourly rates;
+- meeting history;
+- meeting costs;
+- organizational relationships.
+
+Default product rule:
+A user can access their own data and meetings they own.
+
+Another user's private meeting data is not automatically available.
+
+The exact technical implementation of authentication and authorization
+belongs to downstream technical definition.
+
+==================================================
+17. MVP SCOPE
+==================================================
+
+The MVP includes:
+1. Account/login
+2. Personal profile
+3. Name
+4. Job title
+5. Hourly rate
+6. Internal people
+7. Guest people
+8. Meeting creation
+9. Meeting roster
+10. Individual participant selection
+11. Select All
+12. Start
+13. Individual active state
+14. Pause
+15. Resume
+16. Leave
+17. Live elapsed time
+18. Live individual cost
+19. Live total cost
+20. End
+21. Final receipt
+22. Meeting history
+23. Access protection
+24. Export
+25. PDF export
+26. Image export
+27. CSV export
+28. Manual Entry
+29. Prepared meetings
+30. Rescheduling prepared meetings
+31. Prepared meeting deletion before Start
+32. MISSED / NOT HELD History representation
+33. Recurring tag/indicator
+34. Recurring meeting duplication
+35. External cost items
+36. EUR (€) meeting currency
+37. Cost Library
+38. Per-meeting external-cost price override
+39. Post-finalization external-cost editing
+40. Last Updated indication
+
+==================================================
+18. OUT OF SCOPE
+==================================================
+
+- Zoom integration
+- Microsoft Teams integration
+- Calendar integration
+- payroll integration
+- accounting integration
+- billing/payment
+- automated attendance detection
+- organization-wide analytics
+- advanced reporting
+- automated cost calculation from salary
+- SaaS/multi-tenant business model
+
+The future SaaS direction remains open.
+
+NEW IN v1.1, EXPLICITLY OUT OF SCOPE:
+- automatic recurring-series engine;
+- automatic calendar scheduling from recurring meetings;
+- calendar synchronization;
+- multi-currency meetings or currency conversion;
+- third-party price lookup;
+- shared organization-wide Cost Library;
+- OCR-based cost capture;
+- refunds/credits/negative external costs;
+- full immutable audit-log infrastructure.
+
+The Cost Library in v1.1 is a product-level reusable library for the
+user's available external cost items, not an organization-wide shared
+pricing system.
+
+==================================================
+19. BUSINESS RULES
+==================================================
+
+BR-01 Only actively measured participant time contributes to
+individual meeting cost.
+
+BR-02 Pause stops measurement for that participant.
+
+BR-03 Resume continues measurement for that participant.
+
+BR-04 Leave ends measurement for that participant for the meeting.
+
+BR-05 Start is an explicit organizer action.
+
+BR-06 End is an explicit organizer action.
+
+BR-07 SUPERSEDED BY v1.1
+A completed meeting's live participant measurement result does not
+change because time continues to pass. External cost edits after End
+may change the current Total Estimated Meeting Cost.
+
+BR-08 Unknown cost is not equivalent to zero cost.
+
+BR-09 A Guest does not require a MeetingMeter account.
+
+BR-10 A registered user manages their own hourly rate.
+
+BR-11 The organizer may see the hourly rate of participants in the
+organizer's meeting.
+
+BR-12 Meeting history belongs to the creator.
+
+BR-13 Another user's meeting history is not automatically accessible.
+
+BR-14 MeetingMeter presents estimated cost, not an official
+financial, payroll, or accounting amount.
+
+BR-15 Humor must not obscure the numerical result.
+
+==================================================
+==================================================
+19.1 NEW BUSINESS RULES IN v1.1
+==================================================
+
+BR-16 A PREPARED meeting is saved but does not measure time or
+accumulate cost until Start.
+
+BR-17 A PREPARED meeting can be edited, rescheduled, or deleted before
+Start.
+
+BR-18 Rescheduling updates the existing prepared meeting and leaves a
+visible Last Updated or equivalent change indication.
+
+BR-19 A prepared meeting whose planned date/time passes without Start
+may be represented in History as MISSED / NOT HELD.
+
+BR-20 MISSED / NOT HELD does not mean a completed meeting with zero
+cost.
+
+BR-21 A MISSED / NOT HELD meeting may be retained, deleted, or used as
+the basis for Manual Entry.
+
+BR-22 Recurring is a tag/indicator plus duplication, not an automatic
+recurrence engine.
+
+BR-23 Each duplicated recurring occurrence is an independent meeting
+record.
+
+BR-24 Manual Entry requires a date; meeting time is optional.
+
+BR-25 Manual Entry requires meeting duration.
+
+BR-26 Individual manual participation duration must satisfy:
+0 <= individual participation duration <= meeting duration.
+
+BR-27 Zero-duration participants are valid participants and contribute
+zero participant cost.
+
+BR-28 Individual participation durations do not need to sum to meeting
+duration.
+
+BR-29 Manual Entry is explicitly identified as MANUAL ENTRY provenance.
+
+BR-30 Manual Entry does not fabricate live Start/Pause/Resume/Leave
+events.
+
+BR-31 Manual Entry edits recalculate the affected estimated result.
+
+BR-32 External cost amounts may be zero but may not be negative.
+
+BR-33 Meeting currency is EUR (€).
+
+BR-34 External cost items are separate from participant costs.
+
+BR-35 Total Estimated Meeting Cost equals Participant Cost Total plus
+External Cost Total.
+
+BR-36 External costs may be edited after End without restarting the
+meeting.
+
+BR-37 External-cost edits do not alter locked live participant
+measurement.
+
+BR-38 External-cost edits update the current estimated total and
+Last Updated information.
+
+BR-39 Cost Library selection copies the library default into the
+meeting item.
+
+BR-40 A per-meeting external-cost override does not modify the Cost
+Library default.
+
+BR-41 The meeting stores its applied external-cost amount independently
+of later Cost Library default changes.
+
+BR-42 All final/current cost results remain ESTIMATED and are not
+official financial, payroll, or accounting amounts.
+
+==================================================
+
+20. ACCEPTANCE CRITERIA
+==================================================
+
+AC-01 ACCOUNT
+A user can access a MeetingMeter account.
+
+AC-02 PERSONAL PROFILE
+A registered user can define their name, job title, and hourly rate.
+
+AC-03 PEOPLE
+The organizer can select existing people for a meeting.
+
+AC-04 GUEST
+The organizer can add a person without a MeetingMeter account as a
+Guest.
+
+AC-05 GUEST COST
+The organizer can provide a known hourly rate for a Guest.
+
+AC-06 UNKNOWN GUEST COST
+The system distinguishes unknown cost from a zero cost.
+
+AC-07 SELECT ALL
+The organizer can include all appropriate roster participants using
+Select All.
+
+AC-08 START
+An explicit Start action begins measurement.
+
+AC-09 INDIVIDUAL TRACKING
+Each active participant has their own measured participation time.
+
+AC-10 PAUSE
+Pause stops measurement for that participant without ending their
+meeting participation.
+
+AC-11 RESUME
+Resume continues measurement for a previously paused participant.
+
+AC-12 LEAVE
+Leave ends measurement for that participant for the meeting.
+
+AC-13 LIVE COST
+Live total cost changes according to currently active participants
+and their measured participation times.
+
+AC-14 END
+The organizer can end the meeting and stop measurement.
+
+AC-15 FINAL RESULT
+The system generates a final estimated meeting cost.
+
+AC-16 FINAL RESULT STABILITY — SUPERSEDED BY v1.1
+The live participant measurement result does not increase merely
+because time continues to pass after the meeting has ended. The
+current Total Estimated Meeting Cost may change if external costs
+are subsequently edited.
+
+AC-17 RECEIPT
+The final receipt contains sufficient information for the organizer
+to understand the final result.
+
+AC-18 EXPORT
+The organizer can export the final result as PDF, Image, and CSV.
+
+AC-19 HISTORY
+Completed meetings remain available to their creator.
+
+AC-20 PRIVACY
+A user cannot access another user's private meeting results without
+the appropriate access.
+
+AC-21 ESTIMATE FRAMING
+The product clearly presents the result as an estimate rather than
+an official financial or payroll document.
+
+AC-22 TONE
+The product experience may use a cool, light, mildly humorous and
+sarcastic tone without reducing functional clarity.
+
+==================================================
+==================================================
+20.1 NEW ACCEPTANCE CRITERIA IN v1.1
+==================================================
+
+AC-23 PREPARED MEETING
+A meeting can be saved as PREPARED before Start without accumulating
+time or cost.
+
+AC-24 PREPARED EDITING
+A PREPARED meeting can be edited before Start.
+
+AC-25 RESCHEDULE
+A PREPARED meeting can be rescheduled and the change is visibly
+indicated.
+
+AC-26 DELETE PREPARED
+A PREPARED meeting can be deleted before Start.
+
+AC-27 MISSED / NOT HELD
+A prepared meeting whose planned date/time passes without Start can
+appear in History as MISSED / NOT HELD and does not accumulate cost.
+
+AC-28 MISSED CONVERSION
+A MISSED / NOT HELD meeting can be used as the basis for Manual Entry
+when the meeting actually occurred.
+
+AC-29 RECURRING DUPLICATION
+A meeting marked RECURRING can be duplicated into an independent
+meeting.
+
+AC-30 MANUAL ENTRY
+A user can create a historical meeting as MANUAL ENTRY with a required
+date, optional time, and required meeting duration.
+
+AC-31 MANUAL PARTICIPATION
+A Manual Entry meeting supports individual participation durations,
+including zero minutes.
+
+AC-32 MANUAL VALIDATION
+Manual individual participation duration cannot be negative or exceed
+meeting duration.
+
+AC-33 MANUAL PROVENANCE
+A Manual Entry meeting is visibly identified as MANUAL ENTRY and does
+not fabricate live measurement events.
+
+AC-34 MANUAL EDIT
+A Manual Entry meeting can be edited and its estimated result
+recalculated.
+
+AC-35 EXTERNAL COSTS
+A meeting can contain multiple external cost items with description
+and amount.
+
+AC-36 EXTERNAL COST VALIDATION
+External cost amount may be zero but cannot be negative.
+
+AC-37 EXTERNAL COST TOTAL
+The system calculates External Cost Total separately and combines it
+with Participant Cost Total into Total Estimated Meeting Cost.
+
+AC-38 COST LIBRARY
+A user can create and select reusable Cost Library items with a
+default amount.
+
+AC-39 COST OVERRIDE
+A selected Cost Library price can be overridden for a specific meeting
+without modifying the library default.
+
+AC-40 APPLIED PRICE PERSISTENCE
+A meeting retains its applied external-cost amount independently of
+later Cost Library changes.
+
+AC-41 POST-FINALIZATION EDIT
+External cost items can be edited after End.
+
+AC-42 POST-FINALIZATION RECALCULATION
+An approved external-cost edit recalculates the current Total
+Estimated Meeting Cost without restarting the meeting or changing
+locked participant measurement.
+
+AC-43 LAST UPDATED
+Post-finalization external-cost editing updates Last Updated
+information.
+
+AC-44 ESTIMATE FRAMING
+The current result remains clearly identified as ESTIMATED after
+external-cost edits.
+
+==================================================
+
+21. ASSUMPTIONS
+==================================================
+
+A-01 The organizer has the information required to configure the
+meeting.
+
+A-02 The organizer can manage the meeting roster without requiring
+participant confirmation.
+
+A-03 Participants do not need their own accounts to be included in a
+meeting.
+
+A-04 Manual participant selection is acceptable for the MVP.
+
+A-05 Registered users can maintain their own hourly rates.
+
+A-06 Guest hourly cost may be unknown.
+
+A-07 Estimated cost has value even when it is not an official
+accounting amount.
+
+A-08 Login is acceptable for the intended initial user group.
+
+A-09 Meeting history should be retained.
+
+A-10 Meeting cost information is treated as sensitive internal data.
+
+A-11 The initial distribution is intended for a small circle of
+users within and around an organization.
+
+NEW IN v1.1:
+A-12 The organizer may need to reconstruct a genuinely held meeting
+when live measurement was not used.
+
+A-13 A participant who did not attend may remain in a Manual Entry
+roster with zero participation.
+
+A-14 Prepared meetings are useful as persistent future meeting
+configurations without requiring calendar integration.
+
+A-15 Recurring duplication is sufficient for the intended lightweight
+recurring workflow.
+
+A-16 External cost information is user-provided and may be changed
+after finalization without changing live participant measurement.
+
+A-17 EUR (€) is sufficient as the meeting currency for v1.1.
+
+==================================================
+22. DEPENDENCIES
+==================================================
+
+Downstream Design must consume this approved PRODUCT-SPEC as the
+product baseline.
+
+Downstream technical definition must preserve the approved product
+behavior and privacy requirements.
+
+No design or technical artifact may silently alter approved product
+requirements.
+
+Material changes require the Factory change process and, where
+applicable, Product Lead approval.
+
+For v1.1, downstream Design, Technical, and QA artifacts must account
+for:
+- PREPARED / LIVE / ENDED and MISSED / NOT HELD lifecycle behavior;
+- MANUAL ENTRY provenance and reconstructed durations;
+- external cost persistence and calculation;
+- Cost Library and per-meeting override semantics;
+- post-finalization external-cost editing;
+- Last Updated behavior;
+- EUR (€) currency representation;
+- revised final-result stability semantics.
+
+==================================================
+23. TRACEABILITY
+==================================================
+
+Derived from:
+- PRODUCT-IDEA v1.0
+- IDEA-MEETINGMETER-001
+- accepted Product Lead decisions during PRODUCT_DEFINITION
+- Product Lead APPROVE decision at PRODUCT_APPROVAL
+
+This proposed specification is the candidate product baseline for
+downstream DESIGN, TECH / AG, and QA only if and when Product Lead
+approval is granted.
+
+The following change artifacts are incorporated into this proposal:
+- CHANGE-REQUEST-MeetingMeter-002
+- CHANGE-REQUEST-MeetingMeter-003
+- CHANGE-REQUEST-MeetingMeter-004
+- PRODUCT-CHANGE-REVIEW-MeetingMeter-002-004
+
+PRODUCT-SPEC v1.0 remains the currently approved baseline and is not
+modified by this artifact.
+
+==================================================
+24. PRODUCT LEAD REVIEW SUMMARY
+==================================================
+
+This v1.1 specification consolidates the completed Product Change
+Review for MM-CHANGE-002, MM-CHANGE-003, and MM-CHANGE-004.
+
+PRODUCT LEAD REVIEW STATUS
+
+MM-CHANGE-002 — MANUAL ENTRY
+- Manual Entry is proposed as a new historical/reconstructed meeting
+  capability.
+- Date is required; time is optional.
+- Meeting duration is required.
+- Individual participation duration is entered/reconstructed directly.
+- Zero-minute participants are allowed and remain participants with
+  zero participant cost.
+- Individual duration cannot be negative or exceed meeting duration.
+- Manual Entry is explicitly identified as MANUAL ENTRY provenance.
+- A manual-entry reason may be stored with the meeting.
+- Manual meetings are editable and recalculated.
+- Manual Entry does not fabricate live measurement events.
+
+MM-CHANGE-003 — PREPARED / RECURRING
+- PREPARED is a persistent saved future meeting state.
+- PREPARED does not accumulate time or cost.
+- PREPARED meetings can be edited, rescheduled, or deleted before
+  Start.
+- Rescheduling updates the existing meeting and leaves a visible
+  change indication.
+- A missed prepared meeting may appear in History as MISSED / NOT HELD.
+- A MISSED / NOT HELD meeting may be retained, deleted, or used as the
+  basis for Manual Entry.
+- Recurring is a tag/indicator plus duplication.
+- Recurring does not introduce an automatic recurrence engine or
+  calendar integration.
+
+MM-CHANGE-004 — EXTERNAL COSTS
+- External costs are supported as multiple cost items.
+- Zero is allowed; negative amounts are prohibited.
+- Meeting currency is EUR (€).
+- Participant and external cost totals are separate.
+- Total Estimated Meeting Cost is participant total plus external
+  total.
+- External cost items may be edited after End.
+- Such edits recalculate the current estimated total.
+- Live participant measurement remains locked.
+- Receipt/History show the updated result and Last Updated.
+- Cost Library is included.
+- Cost Library items have a name and default amount.
+- Selecting a library item copies its default into the meeting.
+- A meeting-specific price override does not change the library
+  default.
+- The meeting retains its applied price independently of later library
+  changes.
+
+==================================================
+24.1 UNCHANGED FROM v1.0
+==================================================
+
+The following remain unchanged unless explicitly superseded above:
+- MeetingMeter is an estimated-cost information tool, not accounting,
+  payroll, billing, or payment.
+- Existing user roles and privacy model.
+- Personal profile and hourly-rate ownership.
+- Internal people and Guests.
+- Unknown cost is not zero.
+- Roster and Select All behavior.
+- ACTIVE / PAUSED / RESUMED / LEFT participant measurement states.
+- Explicit Start and End.
+- Participant cost calculation based on measured active participation.
+- Live Meter core behavior.
+- PDF / Image / CSV export.
+- Private creator-owned History.
+- Authentication/access protection.
+- Existing out-of-scope integrations and business model boundaries.
+- Product tone and requirement that humor does not obscure numerical
+  results.
+
+==================================================
+24.2 NEWLY INTRODUCED IN v1.1
+==================================================
+
+- PREPARED state and its lifecycle behavior.
+- MISSED / NOT HELD History representation.
+- RECURRING tag/indicator and duplication.
+- MANUAL ENTRY provenance and reconstructed meeting flow.
+- Manual-entry reason storage.
+- External cost items.
+- Participant Cost Total, External Cost Total, and combined Total
+  Estimated Meeting Cost.
+- EUR (€) meeting currency.
+- Cost Library and per-meeting price override.
+- Post-finalization external-cost editing.
+- Last Updated for relevant changes.
+- Acceptance criteria AC-23 through AC-44.
+
+==================================================
+24.3 REMOVED / SUPERSEDED IN v1.1
+==================================================
+
+v1.0 BR-07 / AC-16 is superseded as an absolute rule that the entire
+final result can never change after End.
+
+The replacement rule is:
+- live participant measurement is locked after End;
+- external-cost edits may change the current Total Estimated Meeting
+  Cost after End;
+- the result remains ESTIMATED.
+
+No other approved v1.0 requirement is intentionally removed by this
+proposal.
+
+==================================================
+24.4 EXACT PRODUCT LEAD DECISIONS REQUIRED
+==================================================
+
+PLD-V11-01
+Approve or reject MM-CHANGE-002 and the Manual Entry requirements
+MR-002-01 through MR-002-17.
+
+PLD-V11-02
+Approve or reject MM-CHANGE-003 and the PREPARED / MISSED / NOT HELD /
+RECURRING requirements MR-003-01 through MR-003-15.
+
+PLD-V11-03
+Approve or reject MM-CHANGE-004 and the External Costs / Cost Library /
+post-finalization editing / EUR requirements defined in the
+corresponding MM-CHANGE-004 artifact.
+
+PLD-V11-04
+If MM-CHANGE-004 is approved, explicitly approve the supersession of
+v1.0 BR-07 and AC-16 so that participant measurement is locked after
+End while external-cost edits may change the current estimated total.
+
+PLD-V11-05
+Approve this PRODUCT-SPEC v1.1 as the new Product baseline, or return
+it for revision.
+
+The Product Lead has approved PRODUCT-SPEC v1.1 as the new Product
+baseline. PRODUCT-SPEC v1.0 remains preserved as the prior approved
+baseline and is not modified.
+
+==================================================
+24.5 APPROVAL RECORD
+==================================================
+
+Approval Gate: PRODUCT_APPROVAL
+Decision: PENDING PRODUCT APPROVAL
+Approver: Product Lead
+Proposed Version: 1.1
+Artifact Status: APPROVED
+
+Approval is explicitly recorded from the Product Lead in the
+Product Approval decision for MeetingMeter v1.1.
+
+==================================================
+25. DOWNSTREAM HANDOFF
+==================================================
+
+Next Role: DESIGN
+
+This v1.1 artifact is the approved Product baseline.
+
+Downstream Design, Technical, and QA work must revalidate against:
+- PREPARED / LIVE / ENDED lifecycle;
+- MISSED / NOT HELD History;
+- recurring tag/duplication;
+- MANUAL ENTRY flows and provenance;
+- manual editing/recalculation;
+- external cost entry and editing;
+- Cost Library;
+- EUR (€) currency;
+- post-finalization external-cost editing;
+- Last Updated;
+- revised receipt/History/result behavior.
+
+==================================================
+25.1 CHANGE STATUS
+==================================================
+
+MM-CHANGE-002: PENDING PRODUCT APPROVAL
+MM-CHANGE-003: PENDING PRODUCT APPROVAL
+MM-CHANGE-004: PENDING PRODUCT APPROVAL
+
+PRODUCT-SPEC v1.1: APPROVED
+
+PRODUCT-SPEC v1.0: APPROVED as prior baseline and unchanged.
+
+==================================================
+25.2 DOWNSTREAM IMPACT SUMMARY
+==================================================
+
+DESIGN
+- Prepared meeting creation/edit/reschedule/delete flows.
+- Missed/not-held History representation.
+- Recurring tag and duplication flow.
+- Manual Entry flow, validation, provenance, and editing.
+- External cost item entry, validation, display, and editing.
+- Cost Library selection and per-meeting price override.
+- Separate participant/external totals and combined total.
+- Post-finalization editing and Last Updated.
+- Receipt/history/export changes.
+- Clear distinction between live measurement and reconstructed or
+  post-finalization cost data.
+
+TECHNICAL
+- Meeting lifecycle/state extension.
+- Manual provenance and reconstructed duration data.
+- MISSED / NOT HELD representation.
+- Recurring tag and duplication semantics.
+- External cost persistence and calculation.
+- Cost Library persistence and copy/override semantics.
+- EUR currency representation.
+- Post-finalization external-cost mutation while participant
+  measurement remains immutable.
+- Last Updated metadata.
+- Receipt/history/export updates.
+
+QA
+- New acceptance coverage for AC-23 through AC-44.
+- Regression coverage for all unchanged v1.0 behavior.
+- Revised final-result stability tests reflecting the external-cost
+  exception.
+- Verification that external-cost edits do not restart measurement or
+  alter participant measurement history.
+
+==================================================
+25.3 FACTORY / STATE IMPLICATION
+==================================================
+
+PRODUCT-SPEC v1.1 is now the approved Product baseline.
+
+Because v1.1 is a material Product change, the applicable Factory
+change routing and downstream Design / Technical / QA revalidation
+are required before downstream artifacts can be considered aligned
+with the new baseline.
+
+PASS in downstream verification does not itself constitute Product
+approval.
+
+==================================================
+END OF PRODUCT-SPEC v1.1
+==================================================

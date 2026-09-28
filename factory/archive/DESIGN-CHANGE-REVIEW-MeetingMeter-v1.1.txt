@@ -1,0 +1,680 @@
+AI SOFTWARE FACTORY
+DESIGN CHANGE REVIEW
+
+Artifact ID: DESIGN-CHANGE-REVIEW
+Project: MeetingMeter
+Version: 1.1
+Status: DRAFT / PROPOSED
+Owner: DESIGN
+Approval Authority: Product Lead
+Design Approval: NOT GRANTED
+Upstream Product Baseline: PRODUCT-SPEC v1.1 — APPROVED
+Previous Design Baseline: DESIGN-SPEC v1.0 — APPROVED / PRESERVED
+Current Visual Reference: MettingMetter-Stitch / exported Figma artifact
+
+==================================================
+1. REVIEW PURPOSE
+==================================================
+
+This Design Change Review formally reconciles the approved Product
+v1.1 baseline with the current MeetingMeter Dark / Tactical FinTech
+visual implementation and Stitch-generated visual artifact.
+
+The Product baseline is not modified by this review.
+
+The implementation code is not modified by this review.
+
+The current Stitch/Figma visual artifact is not modified by this review.
+
+The purpose is to establish a proposed Design v1.1 direction that
+matches the Product v1.1 requirements and the current Dark visual
+baseline, while preserving all valid v1.0 Design requirements.
+
+This artifact is DRAFT / PROPOSED only.
+
+DESIGN_APPROVAL = NOT APPROVED.
+
+==================================================
+2. SOURCE AND AUTHORITY ORDER
+==================================================
+
+1. PROJECT-STATE-v1.8.txt
+2. PRODUCT-SPEC-MeetingMeter-v1.1-APPROVED.txt
+3. Existing approved DESIGN-SPEC-MeetingMeter-v1.0.txt
+4. Current supporting technical / QA / AG artifacts
+5. Current Stitch/Figma visual reference for visual realization
+
+Product requirements remain governed by PRODUCT-SPEC v1.1.
+
+Textual Design intent is governed by this proposed DESIGN-SPEC v1.1
+once approved.
+
+The Stitch/Figma artifact supplies the current visual reference and
+implementation-facing visual evidence. Its visual details do not create
+new Product functionality merely by appearing in the artifact.
+
+==================================================
+3. GOVERNANCE DECISION — DARK RETAINED
+==================================================
+
+DECISION:
+
+DARK / TACTICAL FINTECH is the intended canonical visual direction
+for the proposed MeetingMeter DESIGN-SPEC v1.1.
+
+The current Stitch/Figma visual artifact is retained as the visual
+baseline/reference for this revised Design direction.
+
+The previous Light visual token set is superseded as the intended
+visual direction for v1.1.
+
+The previous Light Design baseline is not deleted or rewritten.
+DESIGN-SPEC v1.0 remains preserved as the historical approved Design
+baseline.
+
+RATIONALE:
+
+- The current MeetingMeter implementation and Stitch-generated visual
+  artifact already establish a coherent Dark / Tactical FinTech
+  direction.
+- QA-EXECUTION v1.1 verified conformance to the Stitch reference while
+  documenting the discrepancy against the older Light Design tokens.
+- PROJECT-STATE v1.8 identifies the Light-vs-Dark conflict as a Design
+  governance issue rather than a Product requirement conflict.
+- The Product v1.1 baseline does not require a Light visual theme and
+  preserves the existing product tone, estimate framing, numerical
+  clarity, and core behavior.
+- The Product Lead has now explicitly selected retention of the current
+  Dark direction as the intended Design direction for this revision.
+
+GOVERNANCE CONSEQUENCE:
+
+- The Dark direction is promoted into the proposed DESIGN-SPEC v1.1.
+- The Light token set is explicitly superseded for the revised v1.1
+  intended visual baseline.
+- DESIGN-SPEC v1.0 remains preserved and is not altered.
+- The current Stitch/Figma artifact remains the visual reference.
+- No visual regeneration from the Light baseline is requested.
+- No implementation code change is made by this Design review.
+- The revised Design package remains DRAFT / PROPOSED until the formal
+  DESIGN_APPROVAL gate.
+- Technical progression remains governed by Factory state and requires
+  Design approval before the revised Design baseline is treated as
+  approved.
+
+==================================================
+4. CURRENT VISUAL REFERENCE
+==================================================
+
+Current visual reference:
+
+Figma file: MettingMetter-Stitch
+Figma key: cADavUHVEaBO1avbVxNRz6
+Node reference: 0:1
+URL:
+https://www.figma.com/design/cADavUHVEaBO1avbVxNRz6/MettingMetter-Stitch?node-id=0-1&p=f&t=DyXz9MF2HFJnBF92-0
+
+This artifact is the visual baseline for the proposed Dark Design
+direction.
+
+Observed visual characteristics documented by the current artifacts
+include:
+
+- dark canvas/background;
+- dark slate surfaces;
+- emerald primary accent;
+- high-contrast numerical telemetry;
+- tactical / financial-operations visual language;
+- prominent meeting cost / telemetry treatment;
+- participant manifest treatment;
+- compact action controls;
+- responsive cockpit-like information hierarchy.
+
+The reference may contain implementation-specific concepts such as
+telemetry, navigation structures, or visual widgets that are not
+themselves Product requirements. Such concepts must only become
+functional requirements where they are explicitly supported by
+PRODUCT-SPEC v1.1.
+
+==================================================
+5. EXISTING DESIGN RETAINED
+==================================================
+
+The following approved v1.0 Design requirements remain valid unless
+explicitly changed below:
+
+INFORMATION ARCHITECTURE
+- Home
+- People
+- Meetings / History
+- Profile
+- Active Meeting
+
+CORE FLOW
+CONFIGURE -> START -> LIVE METER -> END -> FINAL RESULT / RECEIPT
+-> HISTORY
+
+PARTICIPANT LIFECYCLE
+ACTIVE <-> PAUSED
+ACTIVE -> LEFT
+RESUME returns PAUSED to active measurement.
+LEAVE ends measurement for that participant.
+
+CORE DESIGN COMPONENTS
+- AppShell
+- Navigation
+- PageHeader
+- PrimaryButton
+- SecondaryButton
+- DestructiveButton
+- Checkbox
+- ParticipantRow
+- ParticipantStatus
+- CostDisplay
+- ElapsedTime
+- MeetingCard
+- PeopleList
+- GuestIndicator
+- UnknownCostIndicator
+- ConfirmationDialog
+- Toast / StatusMessage
+- ExportActions
+- ReceiptSummary
+
+RETAINED COMPONENT STATES
+- default
+- hover
+- focus
+- active
+- selected
+- disabled
+- loading
+- empty
+- error
+- success
+- validation
+
+PARTICIPANT STATES
+- ACTIVE
+- PAUSED
+- RESUMED
+- LEFT
+- unknown cost where applicable
+
+RESPONSIVE PRINCIPLES
+- desktop multi-column / persistent or collapsible navigation as
+  appropriate;
+- tablet navigation may collapse;
+- mobile single-column treatment;
+- prominent estimated cost;
+- no horizontal scrolling;
+- accessible touch targets.
+
+ACCESSIBILITY PRINCIPLES
+- sufficient contrast;
+- visible keyboard focus;
+- semantic headings;
+- accessible labels and statuses;
+- states not conveyed by color alone;
+- usable touch targets;
+- dialog focus management;
+- keyboard operation;
+- reduced-motion consideration.
+
+ESTIMATE FRAMING
+Cost remains an estimate, not an accounting, payroll, billing, or
+payment amount.
+
+Humor remains secondary to numerical clarity and must not obscure the
+result.
+
+==================================================
+6. REVISED VISUAL BASELINE
+==================================================
+
+The proposed v1.1 visual baseline is DARK / TACTICAL FINTECH.
+
+The previous Light token set from DESIGN-SPEC v1.0 is superseded for
+the intended v1.1 visual direction.
+
+The preserved v1.0 Light values were:
+
+background #F5F7FA
+surface #FFFFFF
+surface.subtle #F8FAFD
+text.primary #172033
+text.secondary #687386
+border #DCE2EA
+primary #2F6FED
+primary.subtle #EEF3FF
+success #138A62
+warning #B97812
+error #D64545
+
+Those values remain historical v1.0 Design data and are not the
+intended v1.1 visual baseline.
+
+The current Dark reference establishes, at minimum:
+
+background/canvas: #090A0F
+dark surface: #12141C
+dark slate surface: #1E293B
+primary accent: #10B981
+
+The current Stitch/Figma artifact remains the source for the precise
+application of these visual characteristics.
+
+Spacing, typography, radii, component anatomy, and responsive
+composition remain governed by the existing approved Design principles
+except where the Dark reference or the v1.1 Design additions require
+an explicit revision.
+
+No new visual token values are invented here where the current
+reference does not provide a sufficiently authoritative value.
+
+==================================================
+7. NEW V1.1 DESIGN REQUIREMENTS
+==================================================
+
+7.1 MANUAL ENTRY
+
+Provide a dedicated Manual Entry creation/edit experience.
+
+Required inputs:
+- date;
+- meeting duration;
+- participants;
+- individual participation duration.
+
+Optional inputs:
+- time;
+- manual-entry reason.
+
+The interface must visibly identify the record as MANUAL ENTRY.
+
+Validation must communicate:
+- participation duration cannot be negative;
+- participation duration cannot exceed meeting duration;
+- zero participation duration is valid;
+- individual durations do not need to sum to meeting duration.
+
+Manual Entry must be visually distinct from a live measured meeting
+without suggesting a different Product calculation model.
+
+The UI must not fabricate Start, Pause, Resume, or Leave events.
+
+Editing a Manual Entry must visibly communicate that the meeting is
+being reconstructed/edited and that the affected estimated result is
+recalculated.
+
+History must identify MANUAL ENTRY.
+
+Receipt must identify MANUAL ENTRY and include the relevant date/time
+where known, duration, reconstructed participation, relevant
+participant cost information, current estimated total, estimate
+framing, and optional reason where applicable.
+
+7.2 PREPARED
+
+Provide a saved future-meeting presentation.
+
+PREPARED must visually communicate:
+- not started;
+- no accumulated time;
+- no accumulated meeting cost;
+- planned meeting information where available.
+
+Supported actions:
+- Edit
+- Reschedule
+- Delete
+- Start
+
+Delete must be treated as a destructive action and use the retained
+confirmation pattern.
+
+Rescheduling must show a visible Last Updated or equivalent change
+indication.
+
+7.3 MISSED / NOT HELD
+
+A PREPARED meeting whose planned date/time passes without Start may be
+represented in History as MISSED / NOT HELD.
+
+The visual treatment must distinguish MISSED / NOT HELD from:
+- ENDED;
+- LIVE;
+- PREPARED;
+- MANUAL ENTRY.
+
+MISSED / NOT HELD must not look like a completed meeting with zero
+cost.
+
+The interface may expose the Product-supported actions to retain,
+delete, or use the record as the basis for Manual Entry.
+
+7.4 RECURRING
+
+A recurring meeting receives a visible RECURRING tag/indicator.
+
+Duplication is presented as a deliberate action that creates an
+independent meeting record.
+
+The Design must not imply an automatic recurrence engine or calendar
+synchronization.
+
+7.5 EXTERNAL COSTS
+
+Provide an external-cost area within relevant meeting configuration,
+live, result, receipt, and history contexts.
+
+External cost items support:
+- name/description;
+- amount;
+- EUR (€) currency;
+- multiple items.
+
+Validation:
+- zero is valid;
+- negative amounts are invalid.
+
+Participant costs and external costs must remain visually separate.
+
+The UI must show:
+
+Participant Cost Total
++
+External Cost Total
+=
+Total Estimated Meeting Cost
+
+The combined total must remain clearly framed as estimated.
+
+7.6 COST LIBRARY
+
+Provide a Cost Library selection experience for reusable external
+cost items.
+
+A library item contains:
+- name;
+- default amount;
+- EUR (€) currency.
+
+Selecting a library item copies its default amount into the meeting.
+
+A meeting-specific override must be visibly distinct from the library
+default.
+
+Changing the applied meeting price must not imply that the library
+default was changed.
+
+The applied meeting price must be represented as belonging to the
+meeting independently of later library-default changes.
+
+7.7 POST-END EXTERNAL-COST EDITING
+
+After End, participant measurement is locked.
+
+External-cost items remain editable as permitted by Product v1.1.
+
+The UI must make clear that:
+- participant measurement is not restarting;
+- participant measurement history is not changing;
+- the current estimated total may change;
+- Last Updated changes after an external-cost edit.
+
+The result remains ESTIMATED.
+
+Receipt and History must reflect the current result and Last Updated
+where applicable.
+
+==================================================
+8. CHANGED DESIGN REQUIREMENTS
+==================================================
+
+8.1 VISUAL SYSTEM
+
+Changed from v1.0:
+- intended visual direction changes from Light to Dark / Tactical
+  FinTech;
+- v1.0 Light tokens are superseded for the v1.1 intended baseline;
+- current Stitch/Figma becomes the visual reference for the revised
+  baseline.
+
+Unchanged:
+- numerical clarity;
+- estimate framing;
+- restrained information hierarchy;
+- accessibility requirements;
+- no color-only state communication.
+
+8.2 FINAL RESULT STABILITY
+
+The v1.0 Design treatment of a stable final result is retained for
+participant measurement.
+
+It is revised only to represent the approved Product v1.1 exception:
+external-cost edits may change the current Total Estimated Meeting Cost
+after End.
+
+The UI must therefore distinguish:
+- locked participant measurement;
+- editable external cost;
+- current estimated total;
+- Last Updated.
+
+8.3 HISTORY / RECEIPT
+
+History and Receipt are extended to support:
+- MANUAL ENTRY provenance;
+- MISSED / NOT HELD;
+- RECURRING indicator;
+- external cost items;
+- separate participant/external totals;
+- current combined total;
+- Last Updated where applicable.
+
+==================================================
+9. DESIGN RECOMMENDATIONS
+==================================================
+
+These are Design recommendations, not new Product requirements:
+
+- Use the Dark visual hierarchy to make the estimated total the primary
+  numerical focal point.
+- Use emerald accent treatment consistently for primary positive/live
+  telemetry while preserving non-color state indicators.
+- Use distinct visual badges for PREPARED, LIVE, ENDED, MISSED /
+  NOT HELD, MANUAL ENTRY, and RECURRING.
+- Treat external costs as a visually separate ledger/category rather
+  than merging them into participant rows.
+- Make post-End external-cost editing visibly different from editing
+  participant measurement.
+- Preserve compact, high-density telemetry patterns from the current
+  Stitch reference without promoting unsupported telemetry features
+  into Product requirements.
+- Keep humor subordinate to cost/result clarity.
+- Maintain accessible focus, keyboard, contrast, and status semantics
+  in the Dark theme.
+
+==================================================
+10. OPEN DESIGN DETAILS
+==================================================
+
+The following remain Design details to resolve before formal approval:
+
+1. Exact screen composition for Manual Entry creation/edit.
+2. Exact presentation of planned date/time and rescheduling controls.
+3. Exact visual treatment and copy hierarchy for MISSED / NOT HELD.
+4. Exact placement and component anatomy of the RECURRING indicator.
+5. Exact Cost Library browsing/selection pattern.
+6. Exact external-cost editing interaction after End.
+7. Exact Last Updated placement across History, Receipt, and result views.
+8. Exact responsive composition for the new Manual Entry and external
+   cost surfaces at tablet and mobile widths.
+9. Exact final Dark token values where the Stitch reference is not
+   sufficiently explicit.
+10. Exact treatment of receipt/export layouts under the Dark design
+    direction where the exported artifact requires a print-oriented
+    presentation.
+
+These are Design completion details. They are not Product changes.
+
+==================================================
+11. PRODUCT REQUIREMENTS AFFECTED
+==================================================
+
+This Design revision consumes the already approved PRODUCT-SPEC v1.1.
+
+Affected Product areas:
+- PREPARED lifecycle;
+- MISSED / NOT HELD History representation;
+- RECURRING tag and duplication;
+- MANUAL ENTRY provenance and reconstructed meeting flow;
+- manual editing/recalculation;
+- external cost items;
+- Cost Library;
+- EUR (€);
+- participant/external cost separation;
+- Total Estimated Meeting Cost formula;
+- post-End external-cost editing;
+- Last Updated;
+- Receipt and History updates.
+
+No Product requirement is added, removed, or reinterpreted by this
+Design artifact.
+
+The Design visual decision is not being used to infer new Product
+functionality from the Stitch artifact.
+
+==================================================
+12. DOWNSTREAM TECHNICAL IMPACT
+==================================================
+
+TECH / AG must account for:
+
+- Dark theme tokens and component styling;
+- meeting state presentation for PREPARED, LIVE, ENDED, MISSED /
+  NOT HELD, and MANUAL ENTRY;
+- recurring indicator and duplication presentation;
+- Manual Entry forms and validation;
+- reconstructed participation data;
+- external cost item presentation and editing;
+- Cost Library presentation;
+- participant/external cost separation;
+- post-End external-cost edit state;
+- Last Updated;
+- Receipt / History changes;
+- responsive implementation for new surfaces;
+- accessibility semantics for all new states.
+
+The current implementation architecture must not be silently changed
+because of visual Design work.
+
+Any technical feasibility issue must be reported through the Factory
+process.
+
+==================================================
+13. IMPLEMENTATION IMPACT
+==================================================
+
+IMPLEMENTATION CODE CHANGE:
+
+None in this Design task.
+
+The current implementation and current Stitch/Figma visual artifact
+are explicitly preserved.
+
+This Design revision changes the documented intended Design baseline
+to align with the retained Dark direction.
+
+If later technical work finds implementation/design mismatches, they
+must be classified and routed rather than silently resolved as Product
+changes.
+
+==================================================
+14. RESPONSIVE / ACCESSIBILITY IMPACT
+==================================================
+
+Responsive:
+- Manual Entry must remain usable on mobile without horizontal
+  scrolling.
+- Prepared actions must remain accessible on narrow screens.
+- External cost lists must remain readable with multiple items.
+- Cost Library selection must work in compact layouts.
+- Receipt/result hierarchy must preserve total-cost prominence.
+- Dark visual density must not reduce touch target usability.
+- Tablet must preserve meeting state, total, and primary action
+  hierarchy.
+
+Accessibility:
+- contrast must remain sufficient in the Dark theme;
+- color cannot be the sole indicator of meeting state;
+- state labels/badges require accessible text;
+- keyboard focus must remain visible;
+- dialogs must manage focus;
+- validation must be announced clearly;
+- touch targets remain usable;
+- reduced-motion behavior remains supported;
+- numerical result and estimate framing remain semantically clear.
+
+==================================================
+15. DESIGN APPROVAL READINESS
+==================================================
+
+Current status:
+
+DESIGN-SPEC v1.1 = DRAFT / PROPOSED
+DESIGN-CHANGE-REVIEW v1.1 = DRAFT / PROPOSED
+DESIGN-HANDOFF v1.1 = DRAFT / PROPOSED
+
+DESIGN_APPROVAL = NOT APPROVED
+
+Readiness:
+
+PARTIALLY READY FOR DESIGN APPROVAL REVIEW.
+
+Completed:
+- Dark governance direction resolved;
+- previous Light baseline explicitly superseded for v1.1 intent;
+- current Stitch/Figma retained as visual reference;
+- approved Product v1.1 changes mapped into Design;
+- existing valid v1.0 Design retained;
+- downstream impact identified;
+- responsive/accessibility impact identified;
+- implementation boundary preserved.
+
+Remaining before Design Approval:
+- resolve listed open Design details;
+- ensure revised Dark visual specification is sufficiently complete for
+  implementation;
+- validate key screens/flows and responsive states against the revised
+  Design Spec;
+- confirm traceability and handoff completeness.
+
+No Design Approval is granted by this artifact.
+
+==================================================
+16. GOVERNANCE RESULT
+==================================================
+
+The Light-vs-Dark governance conflict is resolved for the purpose of
+this proposed Design revision:
+
+DARK / TACTICAL FINTECH = INTENDED CANONICAL v1.1 DESIGN DIRECTION
+
+The current Stitch/Figma artifact remains the visual reference.
+
+The previous Light Design remains preserved as v1.0 historical approved
+Design and is not rewritten.
+
+PRODUCT-SPEC v1.1 remains the sole Product requirements authority.
+
+No implementation code is modified.
+
+The revised Design package remains DRAFT / PROPOSED pending formal
+DESIGN_APPROVAL.
+
+==================================================
+END OF DESIGN-CHANGE-REVIEW-MeetingMeter-v1.1
+==================================================

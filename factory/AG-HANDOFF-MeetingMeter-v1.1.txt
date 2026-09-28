@@ -1,0 +1,583 @@
+AI SOFTWARE FACTORY
+ANTIGRAVITY HANDOFF
+
+Artifact ID: AG-HANDOFF
+Project: MeetingMeter
+Version: 1.1
+Status: READY_FOR_HANDOFF
+Receiving Role: Antigravity / AG
+
+==================================================
+1. HANDOFF PURPOSE
+==================================================
+
+This handoff supersedes the v1.0 technical execution package for
+implementation planning.
+
+It is based on:
+- PROJECT-STATE-v1.9.txt
+- PRODUCT-SPEC-MeetingMeter-v1.1-APPROVED.txt
+- DESIGN-SPEC-MeetingMeter-v1.1-APPROVED.txt
+- DESIGN-CHANGE-REVIEW-MeetingMeter-v1.1-APPROVED.txt
+- DESIGN-HANDOFF-MeetingMeter-v1.1-APPROVED.txt
+- revalidated v1.1 TECH-SPEC
+- revalidated v1.1 IMPLEMENTATION-PLAN
+
+Do not modify Product or Design artifacts.
+
+Do not start implementation until the required Stitch verification gate
+has passed.
+
+==================================================
+2. APPROVED BASELINES
+==================================================
+
+PRODUCT
+PRODUCT-SPEC-MeetingMeter-v1.1-APPROVED.txt
+Status: APPROVED
+
+DESIGN
+DESIGN-SPEC-MeetingMeter-v1.1-APPROVED.txt
+Status: APPROVED
+
+DESIGN CHANGE REVIEW
+DESIGN-CHANGE-REVIEW-MeetingMeter-v1.1-APPROVED.txt
+Status: APPROVED
+
+DESIGN HANDOFF
+DESIGN-HANDOFF-MeetingMeter-v1.1-APPROVED.txt
+Status: READY_FOR_TECHNICAL_DEFINITION
+
+PROJECT STATE
+PROJECT-STATE-v1.9.txt
+Lifecycle: TECHNICAL_DEFINITION
+Active Role: TECH / AG
+
+==================================================
+3. VISUAL IMPLEMENTATION BASELINE
+==================================================
+
+Current approved visual direction:
+
+DARK / TACTICAL FINTECH
+
+Current visual reference:
+Figma file: MettingMetter-Stitch
+Figma key: cADavUHVEaBO1avbVxNRz6
+Node: 0:1
+
+Antigravity must use the connected Stitch MCP to retrieve the actual
+design context / Design DNA.
+
+ChatGPT-side inability to inspect this Figma artifact is not an
+implementation blocker, but the AG-side Stitch verification is a
+mandatory implementation gate.
+
+The superseded Light v1.0 visual system must not be reintroduced as
+the current visual baseline.
+
+==================================================
+4. MANDATORY STITCH MCP VERIFICATION GATE
+==================================================
+
+Before implementation:
+
+V-01 CONNECT
+Connect to Stitch MCP.
+
+V-02 IDENTIFY
+Confirm:
+- project = MeetingMeter;
+- visual artifact = MettingMetter-Stitch;
+- Figma key = cADavUHVEaBO1avbVxNRz6;
+- node = 0:1.
+
+V-03 RETRIEVE
+Retrieve actual Stitch design context / Design DNA.
+
+V-04 VERIFY
+Confirm retrieved context corresponds to the approved MeetingMeter
+Design baseline.
+
+V-05 COMPARE
+Compare retrieved design against DESIGN-SPEC v1.1.
+
+At minimum compare:
+- Dark / Tactical FinTech direction;
+- meeting states;
+- Manual Entry;
+- Prepared;
+- Missed / Not Held;
+- Recurring;
+- External Costs;
+- Cost Library;
+- post-End editing;
+- Last Updated;
+- Receipt;
+- History;
+- responsive behavior;
+- accessibility.
+
+V-06 REPORT
+Record:
+- retrieved artifact identity;
+- Design DNA/context availability;
+- match status;
+- material discrepancies;
+- missing information;
+- required review.
+
+V-07 GATE
+If a material discrepancy exists and cannot be safely resolved within
+approved Product/Design boundaries:
+- do not implement the disputed behavior;
+- set REVIEW_REQUIRED or BLOCKED as appropriate;
+- route the issue to the correct Factory role.
+
+A visual element does not create a Product requirement by itself.
+
+==================================================
+5. CORE V1.1 PRODUCT/TECHNICAL REQUIREMENTS
+==================================================
+
+PRESERVED V1.0 BEHAVIOR
+- authentication;
+- profile;
+- internal people;
+- Guests;
+- unknown cost != zero;
+- roster and Select All;
+- explicit Start/End;
+- ACTIVE/PAUSED/RESUMED/LEFT;
+- live participant measurement;
+- live elapsed time;
+- participant cost;
+- private creator-owned History;
+- PDF/Image/CSV;
+- responsive/accessibility;
+- estimate framing.
+
+NEW/REVISED V1.1
+
+PREPARED
+- persistent saved future meeting;
+- no timer/cost before Start;
+- edit;
+- reschedule;
+- delete;
+- Start.
+
+LIFECYCLE
+PREPARED -> LIVE -> ENDED
+
+MISSED / NOT HELD
+- History representation;
+- not an ENDED zero-cost meeting;
+- no cost accumulation;
+- retain/delete;
+- Manual Entry basis.
+
+RECURRING
+- tag/indicator;
+- duplication only;
+- duplicated records independent;
+- no recurrence engine/calendar sync.
+
+MANUAL ENTRY
+- required date;
+- optional time;
+- required duration;
+- participants;
+- individual participation duration;
+- optional manual-entry reason;
+- 0 <= participation <= meeting duration;
+- zero duration valid;
+- durations need not sum to meeting duration;
+- explicit MANUAL ENTRY provenance;
+- no fabricated live events;
+- editable;
+- recalculating.
+
+EXTERNAL COSTS
+- multiple items;
+- name/description;
+- EUR;
+- zero allowed;
+- negative prohibited;
+- participant/external separation;
+- combined total.
+
+COST LIBRARY
+- user-level library;
+- name/default amount/EUR;
+- default copied into meeting;
+- per-meeting override;
+- library default independent;
+- applied meeting amount persisted independently.
+
+POST-END EXTERNAL COST EDIT
+- allowed after End;
+- participant measurement locked;
+- no restart;
+- no participant-history mutation;
+- total recalculated;
+- Last Updated changes;
+- Receipt/History update;
+- result remains ESTIMATED.
+
+==================================================
+6. DATA / PERSISTENCE REQUIREMENTS
+==================================================
+
+Persist:
+- PREPARED planned information;
+- meeting duration;
+- MANUAL ENTRY provenance;
+- manual-entry reason where supplied;
+- recurring indicator;
+- Last Updated;
+- external cost items;
+- Cost Library;
+- meeting-specific external amount;
+- Participant Cost Total;
+- External Cost Total;
+- Total Estimated Meeting Cost;
+- reconstructed participation duration.
+
+Keep live measurement interval data authoritative for live meetings.
+
+Do not fabricate live intervals for Manual Entry.
+
+Do not let later Cost Library default changes rewrite a meeting's
+applied historical amount.
+
+Do not let later profile-rate changes rewrite a completed meeting's
+participant measurement result.
+
+==================================================
+7. STATE INVARIANTS
+==================================================
+
+1. PREPARED does not measure.
+2. Only explicit Start begins live measurement.
+3. PREPARED can be edited/rescheduled/deleted before Start.
+4. PREPARED -> LIVE is the live start transition.
+5. LIVE -> ENDED stops participant measurement.
+6. Participant measurement cannot restart after End.
+7. MISSED / NOT HELD has no measured cost.
+8. MANUAL ENTRY is provenance, not fabricated live state.
+9. Manual participation cannot be negative or exceed meeting duration.
+10. Zero manual participation is valid.
+11. Recurring duplication creates an independent meeting.
+12. External costs may be edited after End.
+13. External edits never modify participant measurement.
+14. External edits never transition ENDED -> LIVE.
+15. Total = Participant Cost Total + External Cost Total.
+16. Unknown participant cost is not zero.
+17. All current/final results are ESTIMATED.
+
+==================================================
+8. API / SERVICE EXPECTATIONS
+==================================================
+
+Existing:
+- auth/session;
+- profile;
+- people;
+- meeting CRUD;
+- participant state transitions;
+- live state;
+- history;
+- exports.
+
+New:
+- Prepared create/edit/reschedule/delete;
+- Missed/Not Held classification;
+- recurring duplication;
+- Manual Entry create/edit/recalculate;
+- Cost Library CRUD;
+- external cost item CRUD;
+- post-End external cost mutation;
+- current total recalculation;
+- Last Updated retrieval;
+- provenance retrieval.
+
+All protected operations require server-side ownership checks.
+
+State-changing operations must be transactional/idempotent.
+
+==================================================
+9. CALCULATION AUTHORITY
+==================================================
+
+Participant:
+hourly_rate * measured_seconds / 3600
+
+Manual:
+hourly_rate * reconstructed_participation_seconds / 3600
+
+Participant Cost Total:
+sum known participant costs
+
+External Cost Total:
+sum external cost items
+
+Total Estimated Meeting Cost:
+Participant Cost Total + External Cost Total
+
+Unknown participant cost:
+explicitly unknown, not zero.
+
+Centralize this calculation to avoid UI/API/export divergence.
+
+==================================================
+10. HISTORY / RECEIPT / EXPORT
+==================================================
+
+History must support:
+- ENDED;
+- MANUAL ENTRY;
+- MISSED / NOT HELD;
+- RECURRING;
+- Last Updated;
+- current estimated total.
+
+Receipt must include applicable:
+- meeting;
+- creator;
+- date/time;
+- duration;
+- participants;
+- measured/reconstructed participation;
+- participant costs;
+- external items;
+- Participant Cost Total;
+- External Cost Total;
+- current combined total;
+- provenance;
+- Last Updated;
+- manual-entry reason.
+
+Exports:
+- PDF;
+- Image;
+- CSV.
+
+Post-End external-cost edits must be visible in current Receipt/History
+and exports where applicable.
+
+==================================================
+11. DESIGN IMPLEMENTATION REQUIREMENTS
+==================================================
+
+Current:
+DARK / TACTICAL FINTECH
+
+Reference:
+MettingMetter-Stitch / cADavUHVEaBO1avbVxNRz6 / node 0:1
+
+Explicit design values:
+- #090A0F;
+- #12141C;
+- #1E293B;
+- #10B981.
+
+Required new state/component coverage:
+- MeetingStatusBadge;
+- ProvenanceBadge;
+- RecurringIndicator;
+- ExternalCostItem;
+- ExternalCostList;
+- CostLibraryItem;
+- CostLibraryPicker;
+- MeetingStateActions;
+- ManualEntryForm;
+- ManualParticipationInput;
+- LastUpdatedIndicator.
+
+Do not invent additional Product functionality from visual references.
+
+==================================================
+12. TECHNICAL QA GATE
+==================================================
+
+Required QA includes all v1.0 regression coverage plus v1.1 coverage.
+
+V1.1 critical tests:
+
+PREPARED
+- persistence;
+- edit;
+- reschedule;
+- delete;
+- Start.
+
+MISSED
+- classification;
+- no cost;
+- distinct from ENDED;
+- retention/deletion;
+- Manual Entry basis.
+
+RECURRING
+- indicator;
+- duplicate;
+- independent records.
+
+MANUAL ENTRY
+- required/optional fields;
+- duration validation;
+- zero duration;
+- provenance;
+- no fabricated events;
+- edit/recalculate;
+- reason.
+
+EXTERNAL COSTS
+- multiple;
+- EUR;
+- zero;
+- negative rejection;
+- separate totals;
+- combined total.
+
+COST LIBRARY
+- default;
+- selection;
+- copy;
+- override;
+- default independence;
+- applied-price persistence.
+
+POST-END
+- external edit;
+- participant lock;
+- no restart;
+- recalculation;
+- Last Updated;
+- Receipt;
+- History;
+- estimate framing.
+
+SECURITY
+- ownership;
+- cross-user denial;
+- protected exports/library.
+
+RESPONSIVE/ACCESSIBILITY
+- desktop;
+- tablet;
+- mobile;
+- Dark contrast;
+- keyboard/focus;
+- non-color states;
+- validation;
+- dialogs.
+
+==================================================
+13. V1.0 ASSUMPTIONS THAT MUST NOT BE CARRIED FORWARD
+==================================================
+
+Do NOT carry forward:
+
+1. `CONFIGURED` as the current meeting lifecycle state.
+2. Participant-only meeting total.
+3. Absolute final-result immutability after End.
+4. “No correction workflow after End” as a blanket rule.
+5. Completed-live-meeting-only History model.
+6. No Prepared persistence.
+7. No Manual Entry provenance.
+8. No External Cost model.
+9. No Cost Library.
+10. Light visual system as current implementation baseline.
+
+The following remains valid:
+- full immutable audit-log infrastructure is out of scope;
+- recurring is not a recurrence/calendar engine;
+- unknown cost is not zero;
+- existing live measurement model remains authoritative for live
+  meetings.
+
+==================================================
+14. IMPLEMENTATION ORDER
+==================================================
+
+1. Stitch verification.
+2. Domain/state model.
+3. Database migration/model changes.
+4. Calculation service.
+5. Prepared/Missed.
+6. Recurring duplication.
+7. Manual Entry.
+8. External Costs.
+9. Cost Library.
+10. Post-End external editing.
+11. History/Receipt.
+12. Exports.
+13. Dark visual implementation.
+14. Responsive/accessibility.
+15. Technical QA.
+16. Browser verification.
+17. AG completion report.
+
+==================================================
+15. DO NOT DO
+==================================================
+
+Do not:
+- modify Product artifacts;
+- modify Design artifacts;
+- reintroduce Light as current Design;
+- infer Product behavior from Stitch visuals;
+- fabricate live events for Manual Entry;
+- treat unknown cost as zero;
+- mutate participant measurement after End;
+- restart a meeting because external costs changed;
+- mutate Cost Library defaults when applying a meeting override;
+- implement automatic recurrence/calendar synchronization;
+- implement full immutable audit infrastructure;
+- mark Product Acceptance from technical PASS;
+- start implementation before Stitch verification.
+
+==================================================
+16. AG HANDOFF ACCEPTANCE
+==================================================
+
+AG may accept this handoff as technically actionable when:
+- required source artifacts are available;
+- Stitch MCP is reachable;
+- Stitch artifact identity is confirmed;
+- Design context is retrieved;
+- any material discrepancies are classified;
+- no unresolved material Product/Design ambiguity remains.
+
+Implementation itself remains gated by successful Stitch verification.
+
+==================================================
+17. STATUS
+==================================================
+
+TECHNICAL REVALIDATION:
+READY
+
+AG-HANDOFF:
+READY_FOR_HANDOFF
+
+IMPLEMENTATION:
+NOT STARTED
+
+STITCH VERIFICATION:
+REQUIRED / PENDING IN ANTIGRAVITY
+
+IMPLEMENTATION GATE:
+CLOSED UNTIL STITCH VERIFICATION PASSES
+
+PRODUCT APPROVAL:
+ALREADY APPROVED FOR v1.1
+
+DESIGN APPROVAL:
+ALREADY APPROVED FOR v1.1
+
+==================================================
+END OF AG-HANDOFF-MeetingMeter-v1.1
+==================================================

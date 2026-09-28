@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth.ts';
 import profileRoutes from './routes/profile.ts';
 import peopleRoutes from './routes/people.ts';
+import costLibraryRoutes from './routes/costLibrary.ts';
 import meetingRoutes from './routes/meetings.ts';
 import exportRoutes from './routes/export.ts';
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/people', peopleRoutes);
+app.use('/api/cost-library', costLibraryRoutes);
 app.use('/api/meetings', meetingRoutes);
 app.use('/api/export', exportRoutes);
 

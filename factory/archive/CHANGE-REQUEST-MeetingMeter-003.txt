@@ -1,0 +1,224 @@
+CHANGE-REQUEST
+
+Change ID: MM-CHANGE-003
+Title: Upcoming / Prepared / Recurring Meetings
+Artifact Status: PENDING PRODUCT APPROVAL
+Routing: PRODUCT
+
+==================================================
+1. EXISTING APPROVED BEHAVIOR
+==================================================
+
+The approved PRODUCT-SPEC v1.0 supports meeting creation/configuration,
+participant roster selection, explicit Start, live measurement, explicit
+End, final receipt, and History for completed meetings.
+
+The approved baseline does not define a persistent future/prepared
+meeting state, rescheduling/deletion before Start, missed/not-held
+prepared meetings, recurring indicators/duplication, or a PREPARED
+lifecycle state.
+
+PRODUCT-SPEC v1.0 remains unchanged by this CHANGE-REQUEST.
+
+==================================================
+2. PROPOSED NEW REQUIREMENTS
+==================================================
+
+MR-003-01  A meeting can be saved before Start as a persistent PREPARED
+meeting.
+
+MR-003-02  A PREPARED meeting does not measure time and does not
+accumulate meeting cost.
+
+MR-003-03  A PREPARED meeting can be edited before Start.
+
+MR-003-04  A PREPARED meeting can be rescheduled before Start.
+
+MR-003-05  Rescheduling updates the existing prepared meeting rather than
+requiring creation of a new meeting record.
+
+MR-003-06  The system records/indicates that a prepared meeting was
+rescheduled, including a Last Updated or equivalent visible change
+indicator.
+
+MR-003-07  A PREPARED meeting can be deleted before Start.
+
+MR-003-08  If the planned date/time passes without Start, the meeting can
+appear in History as MISSED / NOT HELD.
+
+MR-003-09  A MISSED / NOT HELD meeting can be retained in History, deleted,
+or used as the basis for creating a Manual Entry for a meeting that was
+actually held.
+
+MR-003-10  A meeting may be marked with a RECURRING indicator/tag.
+
+MR-003-11  A RECURRING meeting can be duplicated into another meeting to
+make preparation of another occurrence easier.
+
+MR-003-12  A duplicated recurring occurrence is an independent meeting
+record and can be edited independently.
+
+MR-003-13  Recurring behavior is based on an indicator/tag and duplication,
+not an automatic recurrence/calendar scheduling engine.
+
+MR-003-14  The prepared-meeting lifecycle is:
+PREPARED -> LIVE -> ENDED.
+
+MR-003-15  A prepared meeting that passes its planned date/time without
+Start may enter MISSED / NOT HELD status for History purposes.
+
+==================================================
+3. PRODUCT RULES
+==================================================
+
+PR-003-01  PREPARED means the meeting is already created and saved with
+its planned/configured information, but Start has not been pressed.
+
+PR-003-02  PREPARED is a persistent product state, not merely unsaved
+configuration and not a reusable template.
+
+PR-003-03  PREPARED has no running timer and no accumulating cost.
+
+PR-003-04  The normal live flow begins only when Start is explicitly used.
+
+PR-003-05  Before Start, the organizer may edit, reschedule, or delete the
+prepared meeting.
+
+PR-003-06  Cancellation is not a separate product state required for this
+capability.
+
+PR-003-07  A missed prepared meeting is represented as MISSED / NOT HELD
+rather than as a completed meeting with zero cost.
+
+PR-003-08  A missed meeting may be retained, deleted, or used as the basis
+for Manual Entry when the meeting actually occurred.
+
+PR-003-09  Recurring is an organizational convenience: a tag/indicator plus
+duplication behavior.
+
+PR-003-10  There is no automatic recurring-series engine in this change.
+Each duplicated occurrence is independent.
+
+PR-003-11  No calendar event is automatically created or synchronized by
+this change.
+
+==================================================
+4. OPEN QUESTIONS
+==================================================
+
+None required for the core Product decision package at this stage.
+
+UI-level details may still be resolved downstream, including the exact
+presentation of MISSED / NOT HELD and the reschedule indicator.
+
+==================================================
+5. PRODUCT LEAD DECISIONS REQUIRED
+==================================================
+
+PLD-003-01  Approve or reject the persistent PREPARED state and
+requirements MR-003-01 through MR-003-15.
+
+PLD-003-02  Confirm that MISSED / NOT HELD is a History representation and
+not a separate meeting lifecycle that continues to accumulate cost.
+
+PLD-003-03  Confirm the recurring model as tag/indicator + duplication,
+with no automatic recurrence engine or calendar integration.
+
+PLD-003-04  If approved, authorize incorporation into a new Product Spec
+version through the Factory change process.
+
+No approval is granted by this CHANGE-REQUEST.
+
+==================================================
+6. OUT OF SCOPE
+==================================================
+
+- Automatic calendar scheduling.
+- Google Calendar, Outlook, Teams, Zoom, or other calendar/conferencing
+  integration.
+- Automatic invitations or participant notifications.
+- Automatic recurring-series generation.
+- Complex recurrence rules (weekly/monthly patterns, exceptions, RRULE,
+  series editing, etc.).
+- Automatic attendance detection.
+- Separate cancellation workflow/state.
+- Cross-user shared scheduling or organization-wide calendar management.
+
+==================================================
+7. DEPENDENCIES
+==================================================
+
+- Meeting entity and lifecycle/state model.
+- Meeting creation and persistence.
+- Participant roster and selection.
+- Cost profiles / hourly rates.
+- Start / live measurement / End.
+- History and status representation.
+- Date/time handling.
+- Manual Entry change MM-CHANGE-002 for conversion of a missed meeting
+  into reconstructed historical data.
+- Any approved external-cost behavior from MM-CHANGE-004 must remain
+  compatible with prepared, live, ended, and missed representations.
+
+==================================================
+8. DOWNSTREAM DESIGN IMPACT
+==================================================
+
+Design must introduce a visible PREPARED meeting state and distinguish it
+from LIVE and ENDED meetings.
+
+Design impact includes:
+- save-before-Start flow;
+- Prepared meeting list/detail;
+- edit before Start;
+- reschedule interaction;
+- visible indication that a meeting was changed/rescheduled;
+- delete before Start;
+- transition from PREPARED to LIVE;
+- MISSED / NOT HELD History presentation;
+- conversion path from MISSED / NOT HELD to Manual Entry;
+- RECURRING tag/indicator;
+- duplicate-meeting action;
+- independent editing of duplicated meetings.
+
+Design must not imply that PREPARED meetings are running or accumulating
+cost.
+
+==================================================
+9. DOWNSTREAM TECHNICAL IMPACT
+==================================================
+
+Technical definition must support:
+- persisted PREPARED status/state;
+- planned date/time;
+- editing before Start;
+- rescheduling with change indication/Last Updated;
+- deletion before Start;
+- transition PREPARED -> LIVE -> ENDED;
+- detection/representation of planned meetings that pass without Start;
+- MISSED / NOT HELD History status;
+- conversion/reference path to Manual Entry;
+- RECURRING indicator/tag;
+- duplication of a meeting into an independent record;
+- no timer/cost accumulation while PREPARED;
+- no automatic calendar or recurrence engine.
+
+Technical design must preserve the approved explicit Start requirement for
+live measurement.
+
+==================================================
+CHANGE STATUS
+==================================================
+
+PENDING PRODUCT APPROVAL
+
+Decision Status: PENDING
+Approval: No approval has been granted by this CHANGE-REQUEST.
+PRODUCT-SPEC v1.0: UNCHANGED
+
+If approved, this change must be incorporated through the Factory change
+process and downstream Design / Technical / QA revalidation as required.
+
+==================================================
+END CHANGE-REQUEST MM-CHANGE-003
+==================================================
