@@ -92,75 +92,10 @@ export function computeLiveMeetingState(meetingId: string, asOfTime: Date = new 
     }
   }
 
-  // If meeting is ENDED or MANUAL_ENTRY, calculate from stored/locked durations
-  if (meeting.status === 'ENDED' || meeting.provenance === 'MANUAL_ENTRY') {
-    let participantCostTotal = 0;
-    let unknownCount = 0;
-
-    const pResults: ParticipantCalculation[] = participants.map((p) => {
-      const isRateKnown = Boolean(p.rate_known);
-      if (!isRateKnown) {
-        unknownCount++;
-      }
-
-      const durationSec = meeting.provenance === 'MANUAL_ENTRY'
-        ? Number(p.manual_duration_seconds ?? meeting.total_duration_seconds ?? 0)
-        : Number(p.measured_seconds || 0);
-
-      let calcCost: number | null = null;
-      if (isRateKnown && p.hourly_rate_snapshot !== null) {
-        calcCost = (p.hourly_rate_snapshot * durationSec) / 3600;
-        participantCostTotal += calcCost;
-      }
-
-      return {
-        id: p.id,
-        name: p.name,
-        role: p.role,
-        organization: p.organization,
-        is_guest: Boolean(p.is_guest),
-        hourly_rate_snapshot: p.hourly_rate_snapshot,
-        rate_known: isRateKnown,
-        state: p.state,
-        measured_seconds: durationSec,
-        manual_duration_seconds: p.manual_duration_seconds,
-        calculated_cost: calcCost !== null ? Math.round(calcCost * 100) / 100 : null,
-        left_at: p.left_at,
-      };
-    });
-
-    const finalParticipantTotal = Math.round(participantCostTotal * 100) / 100;
-    const finalExternalTotal = Math.round(externalCostTotal * 100) / 100;
-    const finalTotalEstimated = Math.round((finalParticipantTotal + finalExternalTotal) * 100) / 100;
-
-    return {
-      id: meeting.id,
-      title: meeting.title,
-      status: meeting.status,
-      provenance: meeting.provenance || 'LIVE',
-      currency: meeting.currency || 'EUR',
-      planned_date: meeting.planned_date || null,
-      planned_time: meeting.planned_time || null,
-      manual_reason: meeting.manual_reason || null,
-      is_recurring: Boolean(meeting.is_recurring),
-      created_at: meeting.created_at,
-      started_at: meeting.started_at,
-      ended_at: meeting.ended_at,
-      updated_at: meeting.updated_at || meeting.created_at,
-      elapsed_seconds: meeting.total_duration_seconds || elapsedSeconds,
-      accumulated_cost: finalTotalEstimated,
-      participant_cost_total: finalParticipantTotal,
-      external_cost_total: finalExternalTotal,
-      total_estimated_cost: finalTotalEstimated,
-      burn_rate_per_hour: 0,
-      burn_rate_per_second: 0,
-      unknown_cost_count: unknownCount,
-      participants: pResults,
-      external_costs: externalCosts,
-    };
+  if (meeting.status === 'ENDED' && meeting.total_duration_seconds) {
+    elapsedSeconds = Number(meeting.total_duration_seconds);
   }
 
-  // Live or Prepared meeting calculation
   let participantCostTotal = 0;
   let currentActiveBurnPerHour = 0;
   let unknownCount = 0;
@@ -173,27 +108,41 @@ export function computeLiveMeetingState(meetingId: string, asOfTime: Date = new 
       unknownCount++;
     }
 
-    // Fetch intervals for this participant
-    const intervals = db.prepare(`
-      SELECT * FROM measurement_intervals WHERE participant_id = ? ORDER BY started_at ASC
-    `).all(p.id) as any[];
+    let durationSec = 0;
 
-    let measuredSec = 0;
+    if (meeting.provenance === 'MANUAL_ENTRY') {
+      durationSec = Number(p.manual_duration_seconds ?? meeting.total_duration_seconds ?? 0);
+    } else {
+      // LIVE provenance (Prepared, Live, or Ended)
+      const intervals = db.prepare(`
+        SELECT * FROM measurement_intervals WHERE participant_id = ? ORDER BY started_at ASC
+      `).all(p.id) as any[];
 
-    for (const inv of intervals) {
-      const invStartMs = new Date(inv.started_at).getTime();
-      if (inv.ended_at) {
-        const invEndMs = new Date(inv.ended_at).getTime();
-        measuredSec += Math.max(0, Math.floor((invEndMs - invStartMs) / 1000));
+      if (intervals.length > 0) {
+        for (const inv of intervals) {
+          const invStartMs = new Date(inv.started_at).getTime();
+          if (inv.ended_at) {
+            const invEndMs = new Date(inv.ended_at).getTime();
+            durationSec += Math.max(0, Math.floor((invEndMs - invStartMs) / 1000));
+          } else {
+            // Open interval
+            if (meeting.ended_at) {
+              const meetingEndMs = new Date(meeting.ended_at).getTime();
+              durationSec += Math.max(0, Math.floor((meetingEndMs - invStartMs) / 1000));
+            } else {
+              durationSec += Math.max(0, Math.floor((nowMs - invStartMs) / 1000));
+            }
+          }
+        }
       } else {
-        // Open interval (active right now)
-        measuredSec += Math.max(0, Math.floor((nowMs - invStartMs) / 1000));
+        // Fallback if no interval records exist
+        durationSec = Number(p.measured_seconds || 0);
       }
     }
 
     let calculatedCost: number | null = null;
     if (isRateKnown && p.hourly_rate_snapshot !== null) {
-      calculatedCost = (p.hourly_rate_snapshot * measuredSec) / 3600;
+      calculatedCost = (p.hourly_rate_snapshot * durationSec) / 3600;
       participantCostTotal += calculatedCost;
 
       if (meeting.status === 'LIVE' && p.state === 'ACTIVE') {
@@ -210,14 +159,14 @@ export function computeLiveMeetingState(meetingId: string, asOfTime: Date = new 
       hourly_rate_snapshot: p.hourly_rate_snapshot,
       rate_known: isRateKnown,
       state: p.state,
-      measured_seconds: measuredSec,
+      measured_seconds: durationSec,
       manual_duration_seconds: p.manual_duration_seconds,
       calculated_cost: calculatedCost !== null ? Math.round(calculatedCost * 100) / 100 : null,
       left_at: p.left_at,
     });
   }
 
-  const burnRatePerSecond = currentActiveBurnPerHour / 3600;
+  const burnRatePerSecond = meeting.status === 'LIVE' ? currentActiveBurnPerHour / 3600 : 0;
   const pTotal = Math.round(participantCostTotal * 100) / 100;
   const eTotal = Math.round(externalCostTotal * 100) / 100;
   const combinedTotal = Math.round((pTotal + eTotal) * 100) / 100;
@@ -241,8 +190,8 @@ export function computeLiveMeetingState(meetingId: string, asOfTime: Date = new 
     participant_cost_total: pTotal,
     external_cost_total: eTotal,
     total_estimated_cost: combinedTotal,
-    burn_rate_per_hour: Math.round(currentActiveBurnPerHour * 100) / 100,
-    burn_rate_per_second: Math.round(burnRatePerSecond * 10000) / 10000,
+    burn_rate_per_hour: meeting.status === 'LIVE' ? Math.round(currentActiveBurnPerHour * 100) / 100 : 0,
+    burn_rate_per_second: meeting.status === 'LIVE' ? Math.round(burnRatePerSecond * 10000) / 10000 : 0,
     unknown_cost_count: unknownCount,
     participants: participantResults,
     external_costs: externalCosts,

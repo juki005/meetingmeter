@@ -762,4 +762,96 @@ describe('MeetingMeter Technical QA Test Suite (v1.1 Extended)', () => {
     expect(delCostRes.body.meeting.external_cost_total).toBe(85);
     expect(delCostRes.body.meeting.total_estimated_cost).toBe(lockedParticipantCost + 85);
   });
+
+  it('14. Receipt Defect Regression: 3 participants (€120, €101, €100/hr) with €50.00 external cost and 181s duration', async () => {
+    const reg = await request(app).post('/api/auth/register').send({
+      email: 'ivan@example.com',
+      password: 'password123',
+      name: 'Ivan Testić',
+      hourly_rate: 120,
+      currency: 'EUR',
+    });
+    const token = reg.body.token;
+
+    // Create LIVE meeting with 3 participants and €50 external cost
+    const mRes = await request(app)
+      .post('/api/meetings')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        title: 'Strategy & Ops Alignment',
+        status: 'LIVE',
+        currency: 'EUR',
+        participants: [
+          { name: 'Ivan Testić', hourly_rate: 120, rate_known: true, selected: true },
+          { name: 'test', hourly_rate: 101, rate_known: true, selected: true },
+          { name: 'bbs', hourly_rate: 100, rate_known: true, selected: true },
+        ],
+        external_costs: [
+          { name: 'External Fixed Cost', amount: 50.0, currency: 'EUR' },
+        ],
+      });
+
+    expect(mRes.status).toBe(201);
+    const mId = mRes.body.meeting.id;
+    expect(mRes.body.meeting.external_cost_total).toBe(50.0);
+
+    // Simulate elapsed duration of 181 seconds (00:03:01)
+    const startTime = new Date(Date.now() - 181000).toISOString();
+    db.prepare(`UPDATE meetings SET started_at = ? WHERE id = ?`).run(startTime, mId);
+    db.prepare(`UPDATE measurement_intervals SET started_at = ? WHERE meeting_id = ?`).run(startTime, mId);
+
+    // End the meeting
+    const endRes = await request(app)
+      .post(`/api/meetings/${mId}/end`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(endRes.status).toBe(200);
+    expect(endRes.body.meeting.status).toBe('ENDED');
+    expect(endRes.body.meeting.elapsed_seconds).toBeGreaterThanOrEqual(181);
+
+    // Fetch Receipt
+    const receiptRes = await request(app)
+      .get(`/api/meetings/${mId}/receipt`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(receiptRes.status).toBe(200);
+    const receipt = receiptRes.body.receipt;
+
+    // Verify duration is ~181s
+    expect(receipt.total_duration_seconds).toBeGreaterThanOrEqual(181);
+
+    // Verify all 3 participants have non-zero measured time and non-zero calculated cost
+    expect(receipt.participants.length).toBe(3);
+    for (const p of receipt.participants) {
+      expect(p.measured_seconds).toBeGreaterThanOrEqual(181);
+      expect(p.calculated_cost).toBeGreaterThan(0);
+    }
+
+    const pIvan = receipt.participants.find((p: any) => p.name === 'Ivan Testić');
+    const pTest = receipt.participants.find((p: any) => p.name === 'test');
+    const pBbs = receipt.participants.find((p: any) => p.name === 'bbs');
+
+    // Expected costs for ~181s:
+    // Ivan: 120 * 181 / 3600 = ~6.03
+    // test: 101 * 181 / 3600 = ~5.08
+    // bbs:  100 * 181 / 3600 = ~5.03
+    expect(pIvan.calculated_cost).toBeCloseTo(6.03, 1);
+    expect(pTest.calculated_cost).toBeCloseTo(5.08, 1);
+    expect(pBbs.calculated_cost).toBeCloseTo(5.03, 1);
+
+    // Participant Time Cost subtotal must be ~16.14
+    expect(receipt.participant_cost_total).toBeCloseTo(16.14, 1);
+    expect(receipt.participant_cost_total).toBeGreaterThan(0);
+
+    // External fixed cost must be exactly 50.00 (separate, NOT multiplied by duration or rates)
+    expect(receipt.external_cost_total).toBe(50.0);
+    expect(receipt.external_costs.length).toBe(1);
+    expect(receipt.external_costs[0].amount).toBe(50.0);
+
+    // Final Total = Participant Cost + External Cost
+    const expectedFinalTotal = Math.round((receipt.participant_cost_total + receipt.external_cost_total) * 100) / 100;
+    expect(receipt.final_estimated_cost).toBe(expectedFinalTotal);
+    expect(receipt.final_estimated_cost).toBeCloseTo(66.14, 1);
+  });
 });
+
